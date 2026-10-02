@@ -156,7 +156,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 title={s.title}
                 slug={s.slug}
                 description={s.description || ""}
-                imageUrl={(m as any).imageUrl || ""}
+                imageUrl={(s as any).imageUrl || ""}
                 primaryGenre={s.genre || "TV Series"}
                 type="series"
               />

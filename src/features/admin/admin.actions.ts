@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { watchlists, featuredContent } from "@/lib/db/schema";
 import { 
-  userRoles, roles, movies, series, mediaAssets, downloadSources,
+  userRoles, roles, movies, series, mediaAssets, downloadSources, downloadHistory, streamingSources,
   genres, people, movieGenres, seriesGenres, movieCast, seriesCast,
   seasons, episodes
 } from "@/lib/db/schema";

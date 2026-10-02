@@ -15,7 +15,7 @@ export async function addDownloadSource(formData: FormData) {
     const quality = formData.get("quality") as string;
     const format = formData.get("format") as string;
     const language = formData.get("language") as string;
-    const fileSize = parseInt((formData.get("fileSize") as string) || "0");
+    const fileSize = formData.get("fileSize") as string;
     const storageKey = formData.get("storageKey") as string;
 
     await db.insert(downloadSources).values({

@@ -243,7 +243,6 @@ export const downloadSources = pgTable("download_sources", {
   quality: varchar("quality", { length: 50 }),
   fileSize: varchar("file_size", { length: 50 }),
   format: varchar("format", { length: 50 }),
-  fileSize: integer("file_size"), // in bytes (or MB)
   language: varchar("language", { length: 50 }),
   sortOrder: integer("sort_order").default(0),
   uploadStatus: varchar("upload_status", { length: 50 }).default('READY'), // PENDING, UPLOADING, PROCESSING, READY, FAILED
