@@ -1,33 +1,109 @@
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/Inter-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/Inter-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Inter-Bold.woff2') format('woff2');
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    /* Premium Dark Theme Core Tokens */
+    
+    /* Backgrounds */
+    --background: 240 10% 4%; /* #09090b - near black cinematic */
+    --surface: 240 7% 8%; /* #121214 - sidebar/cards base */
+    --surface-elevated: 240 6% 12%; /* #1d1d20 - elevated cards/dropdowns */
+    --surface-hover: 240 6% 15%; /* hover states */
+    --surface-overlay: 240 6% 18%; /* modals/dialogs */
+
+    /* Typography */
+    --foreground: 0 0% 98%; /* Primary text: near-white */
+    --muted: 240 5% 65%; /* Secondary text */
+    --muted-foreground: 240 5% 55%; /* Tertiary text */
+
+    /* Brand/Accent */
+    --primary: 212 100% 48%; /* #007aff - Refined Apple-like blue accent */
+    --primary-hover: 212 100% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Status */
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Download Sources Semantics */
+    --download-r2: 27 90% 55%; /* Cloudflare Orange-ish */
+    --download-direct: 212 100% 48%; /* Same as primary */
+    --download-magnet: 142 71% 40%; /* Distinct green for torrents */
+
+    /* Borders */
+    --border: 240 6% 12%;
+    --input: 240 6% 15%;
+    --ring: 212 100% 48%;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Improved text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
+/* Custom Utilities for micro-interactions */
 @layer utilities {
+  .transition-apple {
+    @apply transition-all duration-base ease-apple;
+  }
+  
+  /* Text Balance for cinematic headings */
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Beautiful custom scrollbar for Kineos */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-elevated rounded-pill;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-hover;
   }
 }
