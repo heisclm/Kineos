@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 "use client";
 
 import { useTransition } from "react";
@@ -22,7 +23,7 @@ export function DeleteContentButton({ id, type }: { id: string, type: "movie" | 
       if (result.success) {
         window.location.href = `/admin/${type === "movie" ? "movies" : "series"}`;
       } else {
-        alert(result.error || "Failed to delete");
+        toast.error(result.error || "Failed to delete");
       }
     });
   };

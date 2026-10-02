@@ -3,27 +3,29 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createMovie } from "@/features/admin/admin.actions";
-import { Save, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
+import { Save, Loader2, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
 
 export function MovieForm() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    setError(null);
+    
     const formData = new FormData(e.currentTarget);
     
     startTransition(async () => {
       const result = await createMovie(formData);
       if (result.success) {
+        toast.success("Created successfully!");
         router.push(`/admin/movies/${result.id}`);
       } else {
-        setError(result.error || "Failed to create movie.");
+        toast.error(result.error || "Failed to create movie.");
       }
     });
   };
@@ -49,17 +51,12 @@ export function MovieForm() {
             Cancel
           </Button>
           <Button type="submit" disabled={isPending} className="gap-2 flex-1 sm:flex-none rounded-full shadow-lg shadow-primary/20 font-semibold px-6">
-            <Save className="w-4 h-4 shrink-0" /> <span className="truncate">Save & Add Links</span>
+            {isPending ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Save className="w-4 h-4 shrink-0" />} <span className="truncate">Save & Add Links</span>
           </Button>
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-          {error}
-        </div>
-      )}
+      
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-6">

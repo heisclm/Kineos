@@ -116,6 +116,8 @@ export async function createMovie(formData: FormData) {
       }
     }
 
+    revalidatePath("/");
+    revalidatePath("/movies");
     revalidatePath("/admin/movies");
     return { success: true, id };
   } catch (e: any) {
@@ -200,6 +202,8 @@ export async function createSeries(formData: FormData) {
       }
     }
 
+    revalidatePath("/");
+    revalidatePath("/series");
     revalidatePath("/admin/series");
     return { success: true, id };
   } catch (e: any) {
@@ -262,6 +266,8 @@ export async function deleteMovie(id: string) {
     // 4. Finally Delete Movie
     await db.delete(movies).where(eq(movies.id, id));
 
+    revalidatePath("/");
+    revalidatePath("/movies");
     revalidatePath("/admin/movies");
     return { success: true };
   } catch (e: any) {
@@ -317,6 +323,8 @@ export async function deleteSeries(id: string) {
     // 5. Finally Delete Series
     await db.delete(series).where(eq(series.id, id));
 
+    revalidatePath("/");
+    revalidatePath("/series");
     revalidatePath("/admin/series");
     return { success: true };
   } catch (e: any) {
@@ -407,6 +415,8 @@ export async function updateMovie(id: string, formData: FormData) {
       }
     }
 
+    revalidatePath("/");
+    revalidatePath("/movies");
     revalidatePath("/admin/movies");
     revalidatePath(`/admin/movies/${id}`);
     return { success: true };
@@ -494,6 +504,8 @@ export async function updateSeries(id: string, formData: FormData) {
       }
     }
 
+    revalidatePath("/");
+    revalidatePath("/series");
     revalidatePath("/admin/series");
     revalidatePath(`/admin/series/${id}`);
     return { success: true };

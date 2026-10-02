@@ -4,8 +4,9 @@ import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { updateMovie } from "@/features/admin/admin.actions";
-import { Save, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
+import { Save, Loader2, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
 
@@ -16,11 +17,11 @@ export function EditMovieForm({ movie }: { movie: any }) {
     setPortalNode(document.getElementById("update-button-portal"));
   }, []);
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    setError(null);
+    
     const formData = new FormData(e.currentTarget);
     
     startTransition(async () => {
@@ -28,7 +29,7 @@ export function EditMovieForm({ movie }: { movie: any }) {
       if (result.success) {
         /* No redirect on update */
       } else {
-        setError(result.error || "Failed to update movie.");
+        toast.error(result.error || "Failed to update movie.");
       }
     });
   };
