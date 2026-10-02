@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
@@ -181,7 +182,7 @@ export function SearchBar({ className, isMobile = false, onSelect }: SearchBarPr
                   isMobile ? "py-4 text-sm" : "py-2.5 text-xs"
                 )}
               >
-                View all results for "{query}"
+                View all results for &quot;{query}&quot;
               </Link>
             </div>
           ) : (
