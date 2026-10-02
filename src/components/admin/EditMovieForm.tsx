@@ -1,15 +1,20 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { createSeries } from "@/features/admin/admin.actions";
-import { Save, ArrowLeft, UploadCloud, Tv, Settings } from "lucide-react";
+import { updateMovie } from "@/features/admin/admin.actions";
+import { Save, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
 
-export function SeriesForm() {
+export function EditMovieForm({ movie }: { movie: any }) {
   const [isPending, startTransition] = useTransition();
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setPortalNode(document.getElementById("update-button-portal"));
+  }, []);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
@@ -19,11 +24,11 @@ export function SeriesForm() {
     const formData = new FormData(e.currentTarget);
     
     startTransition(async () => {
-      const result = await createSeries(formData);
+      const result = await updateMovie(movie.id, formData);
       if (result.success) {
-        router.push(`/admin/series/${result.id}`);
+        /* No redirect on update */
       } else {
-        setError(result.error || "Failed to create series.");
+        setError(result.error || "Failed to update movie.");
       }
     });
   };
@@ -32,35 +37,15 @@ export function SeriesForm() {
   const labelClasses = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/series">
-            <Button type="button" variant="ghost" size="icon" className="rounded-full shrink-0 w-10 h-10 hover:bg-white/5">
-              <ArrowLeft className="w-5 h-5 text-muted hover:text-foreground transition-colors" />
-            </Button>
-          </Link>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            Add New Series
-          </h2>
-        </div>
-        <div className="flex items-center gap-3 md:gap-4 self-end sm:self-auto w-full sm:w-auto">
-          <Button type="button" variant="ghost" onClick={() => router.back()} disabled={isPending} className="flex-1 sm:flex-none hover:bg-white/5 rounded-full px-6">
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isPending} className="gap-2 flex-1 sm:flex-none rounded-full shadow-lg shadow-primary/20 font-semibold px-6">
-            <Save className="w-4 h-4 shrink-0" /> <span className="truncate">Save & Add Episodes</span>
-          </Button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-          {error}
-        </div>
+    <>
+      {portalNode && createPortal(
+        <Button type="submit" form="edit-movie-form" disabled={isPending} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 gap-2 shadow-lg shadow-primary/25 w-full sm:w-auto font-semibold transition-all">
+          {isPending ? "Updating..." : "Update Movie"}
+        </Button>,
+        portalNode
       )}
-
+    <form id="edit-movie-form" onSubmit={handleSubmit} className="space-y-6 md:space-y-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl relative overflow-hidden">
@@ -68,7 +53,7 @@ export function SeriesForm() {
             
             <h3 className="text-xl font-bold text-foreground flex items-center gap-3 pb-2 border-b border-white/5">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Tv className="w-4 h-4 text-primary" />
+                <Film className="w-4 h-4 text-primary" />
               </div>
               Core Metadata
             </h3>
@@ -77,30 +62,30 @@ export function SeriesForm() {
               <div>
                 <label className={labelClasses}>Title</label>
                 <input
-                  name="title"
+                  name="title" defaultValue={movie.title || ""}
                   required
                   className={inputClasses}
-                  placeholder="e.g. Breaking Bad"
+                  placeholder="e.g. Inception"
                 />
               </div>
               
               <div>
                 <label className={labelClasses}>Slug</label>
                 <input
-                  name="slug"
+                  name="slug" defaultValue={movie.slug || ""}
                   required
                   className={inputClasses}
-                  placeholder="e.g. breaking-bad"
+                  placeholder="e.g. inception"
                 />
               </div>
 
               <div>
                 <label className={labelClasses}>Description</label>
                 <textarea
-                  name="description"
+                  name="description" defaultValue={movie.description || ""}
                   rows={5}
                   className={`${inputClasses} resize-none`}
-                  placeholder="A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine..."
+                  placeholder="A thief who steals corporate secrets through the use of dream-sharing technology..."
                 />
               </div>
             </div>
@@ -121,7 +106,7 @@ export function SeriesForm() {
                 <label className={labelClasses}>Status</label>
                 <CustomSelect 
                   name="status"
-                  defaultValue="draft"
+                  defaultValue={movie.publicationStatus || "draft"}
                   options={[
                     { label: "Draft", value: "draft" },
                     { label: "Published", value: "published" },
@@ -133,21 +118,42 @@ export function SeriesForm() {
               <div>
                 <label className={labelClasses}>Release Date</label>
                 <input
-                  name="releaseDate"
-                  type="date"
-                  style={{ colorScheme: 'dark' }}
+                  name="releaseDate" type="date" defaultValue={movie.releaseDate ? new Date(movie.releaseDate).toISOString().split("T")[0] : ""} style={{ colorScheme: 'dark' }}
                   className={inputClasses}
                 />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClasses}>Runtime</label>
+                  <div className="relative">
+                    <input
+                      name="runtime" defaultValue={movie.runtime || ""}
+                      type="number"
+                      className={`${inputClasses} pr-12`}
+                      placeholder="148"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-muted">min</span>
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClasses}>Rating</label>
+                  <input
+                    name="rating" defaultValue={movie.rating || ""}
+                    className={inputClasses}
+                    placeholder="PG-13"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">
             <h3 className="text-xl font-bold text-foreground flex items-center gap-3 pb-2 border-b border-white/5">
               Artwork (File Upload)
             </h3>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Poster Image</label>
                 <input type="file" name="posterFile" accept="image/*" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner text-foreground file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
@@ -156,20 +162,24 @@ export function SeriesForm() {
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Backdrop Image</label>
                 <input type="file" name="backdropFile" accept="image/*" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner text-foreground file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
               </div>
-              <div className="space-y-2 mt-4 pt-4 border-t border-white/5">
+              <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Genres (comma separated)</label>
-                <input name="genres" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" placeholder="Action, Sci-Fi, Thriller" />
+                <input name="genres" defaultValue={movie.genres?.join(", ") || ""} className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" placeholder="Action, Sci-Fi, Thriller" />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Top Cast (comma separated)</label>
-                <input name="cast" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" placeholder="Actor Name 1, Actor Name 2" />
+                <input name="cast" defaultValue={movie.cast?.join(", ") || ""} className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" placeholder="Actor Name 1, Actor Name 2" />
               </div>
             </div></div>
         </div>
       </div>
+      
     </form>
+    </>
   );
 }
+
+
 
 
 

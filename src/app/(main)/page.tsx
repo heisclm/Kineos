@@ -3,18 +3,13 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { AdSlot } from "@/components/ui/AdSlot";
 import { cn } from "@/lib/utils";
-import { MOCK_MOVIES } from "@/lib/mock-data";
 
 export default async function HomePage() {
   let latestMovies = await getLatestMovies(18);
   let trendingMovies = await getTrendingMovies(5);
   let topRatedMovies = await getTopRatedMovies(5);
   
-  if (!latestMovies || latestMovies.length === 0) {
-    latestMovies = MOCK_MOVIES;
-    trendingMovies = MOCK_MOVIES.slice(0, 5);
-    topRatedMovies = MOCK_MOVIES.slice(0, 5);
-  }
+  
 
   // Break into rows for elegant presentation
   const newReleases = latestMovies.slice(0, 5);

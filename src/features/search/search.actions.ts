@@ -8,7 +8,7 @@ import {
   people, genres,
   mediaAssets
 } from "@/lib/db/schema";
-import { ilike, or, eq, sql } from "drizzle-orm";
+import { ilike, or, eq, sql, and } from "drizzle-orm";
 
 export type SearchResult = {
   id: string;
@@ -44,7 +44,7 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
       .leftJoin(people, eq(movieCast.personId, people.id))
       .leftJoin(movieGenres, eq(movies.id, movieGenres.movieId))
       .leftJoin(genres, eq(movieGenres.genreId, genres.id))
-      .leftJoin(mediaAssets, sql`${mediaAssets.contentId} = ${movies.id} AND ${mediaAssets.isPrimary} = true AND ${mediaAssets.type} = 'POSTER'`)
+      .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, movies.id), eq(mediaAssets.isPrimary, true), eq(mediaAssets.type, 'poster')))
       .where(
         or(
           ilike(movies.title, searchTerm),
@@ -68,7 +68,7 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
       .leftJoin(people, eq(seriesCast.personId, people.id))
       .leftJoin(seriesGenres, eq(series.id, seriesGenres.seriesId))
       .leftJoin(genres, eq(seriesGenres.genreId, genres.id))
-      .leftJoin(mediaAssets, sql`${mediaAssets.contentId} = ${series.id} AND ${mediaAssets.isPrimary} = true AND ${mediaAssets.type} = 'POSTER'`)
+      .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, series.id), eq(mediaAssets.isPrimary, true), eq(mediaAssets.type, 'poster')))
       .where(
         or(
           ilike(series.title, searchTerm),

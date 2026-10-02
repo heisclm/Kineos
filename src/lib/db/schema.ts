@@ -241,6 +241,7 @@ export const downloadSources = pgTable("download_sources", {
   url: text("url").notNull(),
   storageKey: text("storage_key"),
   quality: varchar("quality", { length: 50 }),
+  fileSize: varchar("file_size", { length: 50 }),
   format: varchar("format", { length: 50 }),
   fileSize: integer("file_size"), // in bytes (or MB)
   language: varchar("language", { length: 50 }),

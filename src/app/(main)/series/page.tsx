@@ -1,6 +1,5 @@
 import { fetchCatalogItems } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
-import { MOCK_SERIES } from "@/lib/mock-data";
 import { ContentFilters } from "@/components/content/ContentFilters";
 import { AdSlot } from "@/components/ui/AdSlot";
 
@@ -20,8 +19,7 @@ export default async function SeriesIndexPage({
   let series = await fetchCatalogItems("series", 1, 30, genre, sort);
 
   if (!series || series.length === 0) {
-    if (!genre) series = MOCK_SERIES as any;
-  }
+      }
 
   return (
     <div className="w-full relative pb-24 space-y-12 max-w-[1920px] mx-auto pt-8 px-6 md:px-10">

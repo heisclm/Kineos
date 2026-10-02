@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Kineos | Premium Movie & TV Series Discovery",
-  description: "Discover, track, and download your favorite movies and TV series.",
+  title: "Kineos | Movies & TV Shows",
+  description: "Your ultimate destination for movies and TV shows.",
 };
 
 export default function RootLayout({
@@ -15,7 +16,14 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`font-sans min-h-screen bg-background text-foreground antialiased selection:bg-primary selection:text-white overflow-x-hidden`}>
         {children}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456"
+          crossOrigin="anonymous"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
 }
+

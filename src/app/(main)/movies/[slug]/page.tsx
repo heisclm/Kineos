@@ -1,4 +1,6 @@
-import { getMovieBySlug, getDownloadSourcesForContent } from "@/features/content/content.service";
+import { getMovieBySlug, getDownloadSourcesForContent, getCastForContent, getRelatedMovies } from "@/features/content/content.service";
+import { MovieCard } from "@/components/movie/MovieCard";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Play, Download, Clock, Calendar, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { AdSlot } from "@/components/ui/AdSlot";
-import { MOCK_MOVIES } from "@/lib/mock-data";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -16,7 +17,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   let movie = await getMovieBySlug(params.slug);
   if (!movie) {
-    movie = MOCK_MOVIES.find((m) => m.slug === params.slug) as any;
   }
   
   if (!movie) {
@@ -37,7 +37,6 @@ export async function generateMetadata(
 export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
   let movie = await getMovieBySlug(params.slug);
   if (!movie) {
-    movie = MOCK_MOVIES.find((m) => m.slug === params.slug) as any;
   }
 
   if (!movie) {
@@ -46,6 +45,8 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
 
   // downloads can be empty for mock items
   const downloads = await getDownloadSourcesForContent(movie.id, "movie").catch(() => []);
+  const cast = await getCastForContent(movie.id, "movie").catch(() => []);
+  const relatedMovies = await getRelatedMovies(movie.id, 5).catch(() => []);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -71,8 +72,17 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10 w-2/3" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10 h-full" />
         
-        {/* Placeholder gradient */}
-        <div className="absolute right-0 top-0 w-3/4 h-full bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
+        {(movie as any).backdropUrl || (movie as any).imageUrl ? (
+          <Image 
+            src={(movie as any).backdropUrl || (movie as any).imageUrl}
+            alt={movie.title}
+            fill
+            className="object-cover object-top z-0 opacity-50"
+            priority
+          />
+        ) : (
+          <div className="absolute right-0 top-0 w-3/4 h-full bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
+        )}
         
         <div className="absolute bottom-0 left-0 w-full px-6 md:px-10 z-20 max-w-[1920px] mx-auto">
           <div className="max-w-4xl pb-12">
@@ -110,6 +120,29 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       {/* Content Body */}
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8 xl:col-span-9 space-y-12">
+           {cast.length > 0 && (
+             <section>
+               <h3 className="text-2xl font-bold tracking-tight text-foreground mb-6">Top Cast</h3>
+               <div className="flex flex-wrap gap-3">
+                 {cast.map((c: any) => (
+                   <div key={c.name} className="flex items-center gap-3 p-2 pr-6 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated transition-apple cursor-default">
+                     {c.imageUrl ? (
+                       <Image src={c.imageUrl} alt={c.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
+                     ) : (
+                       <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground font-semibold border border-white/10">
+                         {c.name.charAt(0)}
+                       </div>
+                     )}
+                     <div className="flex flex-col">
+                       <span className="text-sm font-semibold text-foreground">{c.name}</span>
+                       <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">{c.role || 'Actor'}</span>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             </section>
+           )}
+
            <section id="download">
               <DownloadSourceList sources={downloads as any} />
            </section>
@@ -143,6 +176,29 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
            <AdSlot format="rectangle" slotId="movie_sidebar_rect" />
         </div>
       </div>
+
+      {/* Related Movies */}
+      {relatedMovies && relatedMovies.length > 0 && (
+        <div className="w-full px-6 md:px-10 max-w-[1920px] mx-auto mt-24">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">More Like This</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {relatedMovies.map((m) => (
+              <MovieCard
+                key={m.id}
+                id={m.id}
+                title={m.title}
+                slug={m.slug}
+                description={m.description || ""}
+                imageUrl={(m as any).imageUrl || ""}
+                primaryGenre={m.genre || "Movie"}
+                type="movie"
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

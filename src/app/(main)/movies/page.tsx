@@ -1,6 +1,5 @@
 import { fetchCatalogItems } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
-import { MOCK_MOVIES } from "@/lib/mock-data";
 import { ContentFilters } from "@/components/content/ContentFilters";
 import { AdSlot } from "@/components/ui/AdSlot";
 
@@ -19,10 +18,7 @@ export default async function MoviesIndexPage({
 
   let movies = await fetchCatalogItems("movie", 1, 30, genre, sort);
 
-  if (!movies || movies.length === 0) {
-    // Fallback if DB is empty, just for testing visually
-    if (!genre) movies = MOCK_MOVIES as any;
-  }
+  
 
   return (
     <div className="w-full relative pb-24 space-y-12 max-w-[1920px] mx-auto pt-8 px-6 md:px-10">

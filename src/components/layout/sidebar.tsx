@@ -1,3 +1,4 @@
+import { KineosLogo } from "@/components/ui/logo";
 "use client";
 
 import Link from "next/link";
@@ -32,10 +33,7 @@ export function Sidebar() {
   return (
     <>
     <aside className="w-[260px] h-screen bg-surface fixed left-0 top-0 flex flex-col py-8 px-6 overflow-y-auto border-r border-border/50 hidden md:flex z-50 shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
-      <div className="flex items-center gap-3 px-2 mb-10">
-        <Film className="w-7 h-7 text-primary" strokeWidth={2} />
-        <h1 className="text-xl font-bold tracking-tight text-foreground uppercase tracking-widest">Kineos</h1>
-      </div>
+      <div className="flex items-center px-2 mb-10"><Link href="/"><KineosLogo className="h-6" /></Link></div>
 
       <div className="text-xs font-semibold text-muted-foreground tracking-wider uppercase px-2 mb-4">Menu</div>
       <nav className="flex-1 space-y-1">
@@ -112,3 +110,4 @@ export function Sidebar() {
     </>
   );
 }
+

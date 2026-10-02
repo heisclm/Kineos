@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { AdSlot } from "@/components/ui/AdSlot";
-import { getSeriesBySlug, getSeriesEpisodes } from "@/features/content/content.service";
+import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries } from "@/features/content/content.service";
+import { MovieCard } from "@/components/movie/MovieCard";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -38,6 +39,8 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   }
 
   const seasonsWithEpisodes = await getSeriesEpisodes(series.id) as any[];
+  const cast = await getCastForContent(series.id, "series").catch(() => []);
+  const relatedSeries = await getRelatedSeries(series.id, 5).catch(() => []);
 
   return (
     <div className="w-full relative pb-24">
@@ -138,8 +141,33 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
            <AdSlot format="rectangle" slotId="series_sidebar_rect" />
         </div>
       </div>
+
+      {/* Related Series */}
+      {relatedSeries && relatedSeries.length > 0 && (
+        <div className="w-full px-6 md:px-10 max-w-[1920px] mx-auto mt-24">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">More Like This</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {relatedSeries.map((s: any) => (
+              <MovieCard
+                key={s.id}
+                id={s.id}
+                title={s.title}
+                slug={s.slug}
+                description={s.description || ""}
+                imageUrl={(m as any).imageUrl || ""}
+                primaryGenre={s.genre || "TV Series"}
+                type="series"
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+
 
 

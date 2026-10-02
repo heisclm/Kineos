@@ -4,6 +4,7 @@ import { Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface MovieCardProps {
+  type?: "movie" | "series";
   id: string;
   title: string;
   slug: string;
@@ -12,7 +13,7 @@ interface MovieCardProps {
   primaryGenre: string;
 }
 
-export function MovieCard({ title, slug, description, imageUrl, primaryGenre }: MovieCardProps) {
+export function MovieCard({ title, slug, description, imageUrl, primaryGenre, type = "movie" }: MovieCardProps) {
   return (
     <Link href={`/movies/${slug}`} className="group block relative rounded-lg overflow-hidden bg-surface transition-apple hover:scale-[1.02] shadow-sm hover:shadow-xl border border-white/5">
       <div className="relative aspect-[2/3] w-full overflow-hidden">
@@ -55,3 +56,4 @@ export function MovieCard({ title, slug, description, imageUrl, primaryGenre }: 
     </Link>
   );
 }
+

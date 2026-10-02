@@ -57,7 +57,7 @@ export function CatalogGrid({ initialItems, type, genre, sort }: CatalogGridProp
             key={item.id}
             {...item}
             primaryGenre={item.genres?.[0] || (type === 'movie' ? 'Movie' : 'Series')}
-            imageUrl=""
+            imageUrl={item.imageUrl || ""}
           />
         ))}
       </div>
@@ -78,3 +78,5 @@ export function CatalogGrid({ initialItems, type, genre, sort }: CatalogGridProp
     </div>
   );
 }
+
+

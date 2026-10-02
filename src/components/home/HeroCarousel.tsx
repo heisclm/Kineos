@@ -4,6 +4,7 @@ import { Play, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -36,10 +37,21 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 h-full opacity-90 md:opacity-80" />
       
       {/* Abstract gradient placeholder (simulates vibrant movie artwork) */}
-      <div 
-        key={movie.id}
-        className="absolute inset-0 bg-gradient-to-bl from-primary/30 via-transparent to-transparent z-0 opacity-40 md:opacity-50 animate-in fade-in duration-1000" 
-      />
+      {(movie.backdropUrl || movie.imageUrl) ? (
+        <Image
+          key={movie.id}
+          src={movie.backdropUrl || movie.imageUrl}
+          alt={movie.title}
+          fill
+          className="object-cover z-0 opacity-50 md:opacity-60 animate-in fade-in duration-1000"
+          priority
+        />
+      ) : (
+        <div 
+          key={movie.id}
+          className="absolute inset-0 bg-gradient-to-bl from-primary/30 via-transparent to-transparent z-0 opacity-40 md:opacity-50 animate-in fade-in duration-1000" 
+        />
+      )}
       
       {/* Content */}
       <div 

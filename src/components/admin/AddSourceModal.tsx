@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { X, UploadCloud, Link as LinkIcon, Magnet } from "lucide-react";
 import { addDownloadSource, generateR2UploadUrl } from "@/features/admin/sources.actions";
@@ -19,7 +20,10 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddS
   const [uploadState, setUploadState] = useState<"IDLE" | "UPLOADING" | "PROCESSING" | "READY" | "FAILED">("IDLE");
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -62,6 +66,12 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddS
     formData.append("contentType", contentType);
     formData.append("sourceType", sourceType);
 
+    const sizeMB = formData.get("fileSizeMB");
+    if (sizeMB) {
+      formData.append("fileSize", Math.round(parseFloat(sizeMB as string) * 1024 * 1024).toString());
+      formData.delete("fileSizeMB");
+    }
+
     if (sourceType === "CLOUDFLARE_R2") {
       if (!fileToUpload) return alert("Please select a file.");
       
@@ -94,7 +104,7 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddS
     });
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-surface border border-white/10 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between p-6 border-b border-white/5">
@@ -147,6 +157,10 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddS
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Format</label>
                 <input name="format" placeholder="e.g. MP4, MKV" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Size (MB)</label>
+                <input name="fileSizeMB" type="number" step="0.1" placeholder="e.g. 2400 for 2.4GB" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Language</label>
@@ -207,6 +221,9 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddS
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
+
+
