@@ -107,3 +107,13 @@
     @apply bg-surface-hover;
   }
 }
+
+@layer utilities {
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
