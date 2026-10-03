@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/'],
     },
-    sitemap: 'https://kineos.fun/sitemap.xml',
+    sitemap: 'https://www.kineos.fun/sitemap.xml',
   };
 }

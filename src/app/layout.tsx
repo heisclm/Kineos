@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Kineos | Premium Movies & TV Shows",
     description: "Discover, download, and stream your favorite premium movies and TV series in top quality. The ultimate destination for endless entertainment.",
-    url: "https://kineos.fun",
+    url: "https://www.kineos.fun",
     siteName: "Kineos",
     type: "website",
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: "Kineos | Premium Movies & TV Shows",
     description: "Discover, download, and stream your favorite premium movies and TV series in top quality. The ultimate destination for endless entertainment.",
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.fun'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun'),
   verification: {
     google: 'neoQUkKOyHuDcE5ICC7fngunc7PhITml45oGaqSaJZI',
   },

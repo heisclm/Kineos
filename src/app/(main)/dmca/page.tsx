@@ -16,7 +16,7 @@ export default function DMCAPolicy() {
 
       <div className="space-y-10 text-white/70 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
         <section className="space-y-4">
-          <p>Kineos ("we," "our," or "us") respects the intellectual property rights of others and expects our users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), we will respond expeditiously to claims of copyright infringement committed using the Kineos website (https://kineos.fun) that are reported to our Designated Copyright Agent.</p>
+          <p>Kineos ("we," "our," or "us") respects the intellectual property rights of others and expects our users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), we will respond expeditiously to claims of copyright infringement committed using the Kineos website (https://www.kineos.fun) that are reported to our Designated Copyright Agent.</p>
         </section>
 
         <section className="space-y-4">

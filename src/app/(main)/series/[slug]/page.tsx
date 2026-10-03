@@ -42,7 +42,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const cast = await getCastForContent(series.id, "series").catch(() => []);
   const relatedSeries = await getRelatedSeries(series.id, 5).catch(() => []);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.fun';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
   const backdrop = (series as any).backdropUrl || (series as any).imageUrl || null;
   const poster = (series as any).imageUrl || null;
 

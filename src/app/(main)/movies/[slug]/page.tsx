@@ -49,7 +49,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   const cast = await getCastForContent(movie.id, "movie").catch(() => []);
   const relatedMovies = await getRelatedMovies(movie.id, 5).catch(() => []);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.fun';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
   const poster = (movie as any).imageUrl || null;
 

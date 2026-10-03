@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
       <div className="space-y-10 text-white/70 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
         <section className="space-y-4">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">1. Introduction</h2>
-          <p>At Kineos, accessible from https://kineos.fun, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by Kineos and how we use it.</p>
+          <p>At Kineos, accessible from https://www.kineos.fun, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by Kineos and how we use it.</p>
         </section>
 
         <section className="space-y-4">

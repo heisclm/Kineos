@@ -17,7 +17,7 @@ export default function TermsOfService() {
       <div className="space-y-10 text-white/70 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
         <section className="space-y-4">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">1. Acceptance of Terms</h2>
-          <p>By accessing and using https://kineos.fun (the "Website"), you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must not use our Website.</p>
+          <p>By accessing and using https://www.kineos.fun (the "Website"), you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must not use our Website.</p>
         </section>
 
         <section className="space-y-4">
