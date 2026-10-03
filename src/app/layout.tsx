@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     description: "Discover, download, and stream your favorite premium movies and TV series in top quality. The ultimate destination for endless entertainment.",
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.fun'),
+  verification: {
+    google: 'neoQUkKOyHuDcE5ICC7fngunc7PhITml45oGaqSaJZI',
+  },
 };
 
 export default function RootLayout({

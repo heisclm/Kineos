@@ -1,28 +1,9 @@
-import Script from 'next/script';
-import { Header } from "@/components/layout/header";
-import { KineosLogo } from "@/components/ui/logo";
-import { SecretAdminTrigger } from "@/components/admin/SecretAdminTrigger";
+import fs from 'fs';
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5052901241882602" crossOrigin="anonymous" strategy="afterInteractive" />
-    <div className="flex flex-col min-h-screen relative bg-background">
-      {/* Subtle cinematic blur background */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-      
-      <Header />
-      <main className="flex-1 z-0">
-        {children}
-      </main>
-      
-      {/* Premium Footer */}
-                  {/* Premium Footer */}
+const target = 'src/app/(main)/layout.tsx';
+let content = fs.readFileSync(target, 'utf8');
+
+const newFooter = `      {/* Premium Footer */}
       <footer className="w-full border-t border-white/5 pt-16 pb-8 px-6 md:px-10 mt-auto bg-background/50 relative z-20">
         <div className="max-w-[1920px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-10 mb-16">
@@ -63,9 +44,9 @@ export default function MainLayout({
             </div>
           </div>
         </div>
-      </footer>
-    </div>
-    </>
-  );
-}
+      </footer>`;
 
+content = content.replace(/<footer className="w-full border-t border-white\/5 py-12 px-6 md:px-10 mt-auto bg-background\/50">[\s\S]*?<\/footer>/, newFooter);
+
+fs.writeFileSync(target, content);
+console.log('Updated layout.tsx footer with premium multi-column grid');
