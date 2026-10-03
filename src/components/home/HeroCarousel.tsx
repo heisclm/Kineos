@@ -71,11 +71,11 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
         </h2>
         
         <div className="flex items-center gap-3 text-xs md:text-sm text-muted-foreground font-medium mb-4 md:mb-6 drop-shadow-sm">
-          <span>{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : new Date().getFullYear()}</span>
-          <span>&bull;</span>
-          <span>{movie.rating || "PG-13"}</span>
-          <span>&bull;</span>
-          <span>{movie.runtime ? formatDuration(movie.runtime) : "2h 20m"}</span>
+                {movie.releaseDate && <span>{new Date(movie.releaseDate).getFullYear()}</span>}
+          {movie.releaseDate && (movie.rating || movie.runtime) && <span>&bull;</span>}
+          {movie.rating && <span>{movie.rating}</span>}
+          {movie.rating && movie.runtime && <span>&bull;</span>}
+          {movie.runtime && <span>{formatDuration(movie.runtime)}</span>}
         </div>
 
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 md:mb-8 line-clamp-2 md:line-clamp-3 max-w-lg drop-shadow-sm">
@@ -132,3 +132,4 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
     </div>
   );
 }
+

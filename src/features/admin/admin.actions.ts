@@ -48,6 +48,7 @@ export async function createMovie(formData: FormData) {
   const releaseDate = formData.get("releaseDate") as string;
   const runtime = parseInt(formData.get("runtime") as string) || null;
   const rating = formData.get("rating") as string;
+  const language = formData.get("language") as string;
 
   try {
     let posterUrl = "";
@@ -72,6 +73,7 @@ export async function createMovie(formData: FormData) {
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
       runtime,
       rating,
+      language: language || undefined,
     }).returning({ id: movies.id });
     
     const id = newRow[0].id;
@@ -137,6 +139,7 @@ export async function createSeries(formData: FormData) {
     const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
+  const language = formData.get("language") as string;
 
   try {
     let posterUrl = "";
@@ -159,6 +162,7 @@ export async function createSeries(formData: FormData) {
       description,
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
+      language: language || undefined,
     }).returning({ id: series.id });
     
     const id = newRow[0].id;
@@ -351,6 +355,7 @@ export async function updateMovie(id: string, formData: FormData) {
   const releaseDate = formData.get("releaseDate") as string;
   const runtime = parseInt(formData.get("runtime") as string) || null;
   const rating = formData.get("rating") as string;
+  const language = formData.get("language") as string;
 
   try {
     let posterUrl = "";
@@ -375,6 +380,7 @@ export async function updateMovie(id: string, formData: FormData) {
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
       runtime,
       rating,
+      language: language || undefined,
     }).where(eq(movies.id, id));
 
     if (posterUrl) {
@@ -443,6 +449,7 @@ export async function updateSeries(id: string, formData: FormData) {
     const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
+  const language = formData.get("language") as string;
 
   try {
     let posterUrl = "";
@@ -465,6 +472,7 @@ export async function updateSeries(id: string, formData: FormData) {
       description,
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
+      language: language || undefined,
     }).where(eq(series.id, id));
 
     if (posterUrl) {

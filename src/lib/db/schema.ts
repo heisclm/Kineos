@@ -100,6 +100,7 @@ export const series = pgTable(
     releaseDate: date("release_date"),
     status: contentStatusEnum("status").default("released").notNull(),
     publicationStatus: publicationStatusEnum("publication_status").default("draft").notNull(),
+    language: varchar("language", { length: 50 }),
     viewCount: integer("view_count").default(0).notNull(),
     downloadCount: integer("download_count").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

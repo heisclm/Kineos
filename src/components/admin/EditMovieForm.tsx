@@ -150,17 +150,7 @@ export function EditMovieForm({ movie }: { movie: any }) {
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-muted">min</span>
                   </div>
                 </div>
-                <div>
-                  <label className={labelClasses}>Rating</label>
-                  <input
-                    name="rating" defaultValue={movie.rating || ""}
-                    className={inputClasses}
-                    placeholder="PG-13"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+                <div><label className={labelClasses}>Rating</label><input name="rating" defaultValue={movie.rating || ""} className={inputClasses} placeholder="PG-13" /></div></div><div><label className={labelClasses}>Language</label><input name="language" defaultValue={movie.language || ""} className={inputClasses} placeholder="e.g. English, Spanish" /></div></div></div>
         </div>
         <div className="lg:col-span-3 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">
@@ -192,6 +182,7 @@ export function EditMovieForm({ movie }: { movie: any }) {
     </>
   );
 }
+
 
 
 

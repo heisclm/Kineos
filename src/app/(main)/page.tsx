@@ -25,49 +25,6 @@ export default async function HomePage() {
         <HeroCarousel movies={latestMovies.slice(0, 5)} />
       </section>
 
-      {/* Elegant Genre Navigation */}
-      <section className="px-6 md:px-10">
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide">
-          {genres.map((g, i) => (
-            <button
-              key={g}
-              className={cn(
-                "px-5 py-2 rounded-full text-sm font-medium transition-apple whitespace-nowrap border",
-                i === 0 
-                  ? "bg-primary text-primary-foreground border-primary" 
-                  : "bg-surface-elevated text-muted hover:text-foreground border-white/5 hover:bg-surface-hover"
-              )}
-            >
-              {g}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      
-      {/* Featured Collections */}
-      <section className="px-6 md:px-10 mt-6 mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { title: "Top Rated", desc: "Critically Acclaimed", icon: "⭐", href: "/movies?sort=Rating", color: "from-amber-500/20 to-orange-600/20", border: "border-orange-500/20" },
-            { title: "Trending", desc: "Most Watched", icon: "🔥", href: "/movies?sort=Popular", color: "from-rose-500/20 to-red-600/20", border: "border-red-500/20" },
-            { title: "New Releases", desc: "Just Added", icon: "✨", href: "/movies", color: "from-blue-500/20 to-indigo-600/20", border: "border-blue-500/20" },
-            { title: "TV Series", desc: "Binge Worthy", icon: "📺", href: "/series", color: "from-emerald-500/20 to-teal-600/20", border: "border-emerald-500/20" }
-          ].map(c => (
-            <Link key={c.title} href={c.href} className={`relative overflow-hidden rounded-2xl p-5 border bg-gradient-to-br ${c.color} ${c.border} hover:scale-[1.02] transition-apple group`}>
-              <div className="flex flex-col h-full justify-between relative z-10">
-                <span className="text-3xl mb-3 drop-shadow-md group-hover:scale-110 transition-apple origin-left">{c.icon}</span>
-                <div>
-                  <h3 className="font-bold text-white/90 text-lg tracking-tight">{c.title}</h3>
-                  <p className="text-xs text-white/60 font-medium">{c.desc}</p>
-                </div>
-              </div>
-              <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px] -z-0 group-hover:bg-background/20 transition-apple" />
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {/* Content Rows */}
       <div className="space-y-4 md:space-y-8">
         <SpotlightRow title="Trending Now" movies={trendingMovies} />
@@ -124,8 +81,7 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
               {idx + 1}
             </h1>
             <div className="aspect-[2/3] w-24 shrink-0 rounded-md bg-surface-overlay overflow-hidden relative shadow-lg group-hover:scale-105 transition-apple">
-              <div className="absolute inset-0 bg-gradient-to-tr from-surface-elevated to-transparent" />
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-surface-elevated to-transparent z-10" />{(movie as any).imageUrl && <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />}</div>
             <div className="flex flex-col justify-center">
               <span className="text-[10px] font-semibold tracking-wider uppercase text-primary mb-1">
                 {movie.genres?.[0] || 'Trending'}
@@ -141,3 +97,5 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
     </section>
   );
 }
+
+

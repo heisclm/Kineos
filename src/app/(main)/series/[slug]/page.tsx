@@ -79,7 +79,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         </div>
       </div>
 
-      <div className="w-full flex justify-center py-8 px-6 md:px-10 max-w-[1920px] mx-auto relative z-20">
+      <div className="w-full flex justify-center py-4 px-6 md:px-10 max-w-[1920px] mx-auto relative z-20">
         <AdSlot format="leaderboard" slotId="series_top_leaderboard" />
       </div>
 
@@ -177,6 +177,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
     </div>
   );
 }
+
 
 
 

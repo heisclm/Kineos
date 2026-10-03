@@ -31,6 +31,9 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent !important;
+  }
   :root {
     /* Premium Dark Theme Core Tokens */
     
@@ -70,6 +73,9 @@
 }
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent !important;
+  }
   * {
     @apply border-border;
   }
@@ -117,3 +123,4 @@
 * {
   -webkit-tap-highlight-color: transparent;
 }
+

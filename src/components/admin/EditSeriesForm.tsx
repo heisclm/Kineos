@@ -129,16 +129,7 @@ export function EditSeriesForm({ series }: { series: any }) {
                 />
               </div>
 
-              <div>
-                <label className={labelClasses}>Release Date</label>
-                <input
-                  name="releaseDate" type="date" defaultValue={series.releaseDate ? new Date(series.releaseDate).toISOString().split("T")[0] : ""} style={{ colorScheme: 'dark' }}
-                  className={inputClasses}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+              <div><label className={labelClasses}>Release Date</label><input name="releaseDate" type="date" defaultValue={series.releaseDate ? new Date(series.releaseDate).toISOString().split("T")[0] : ""} style={{ colorScheme: "dark" }} className={inputClasses} /></div><div><label className={labelClasses}>Language</label><input name="language" defaultValue={(series as any).language || ""} className={inputClasses} placeholder="e.g. English, Spanish" /></div></div></div></div>
         <div className="lg:col-span-3 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">
             <h3 className="text-xl font-bold text-foreground flex items-center gap-3 pb-2 border-b border-white/5">
@@ -169,6 +160,7 @@ export function EditSeriesForm({ series }: { series: any }) {
     </>
   );
 }
+
 
 
 
