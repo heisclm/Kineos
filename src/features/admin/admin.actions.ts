@@ -266,7 +266,11 @@ export async function deleteMovie(id: string) {
       await db.delete(downloadHistory).where(eq(downloadHistory.downloadSourceId, source.id));
     }
 
-    // 2. Delete Polymorphic Relations
+    // 2. Delete Polymorphic Relations & Supabase Storage Media
+    const movieMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
+    for (const m of movieMedia) {
+      if (m.url) await deleteMediaByUrl(m.url);
+    }
     await db.delete(mediaAssets).where(eq(mediaAssets.contentId, id));
     await db.delete(downloadSources).where(eq(downloadSources.contentId, id));
     await db.delete(streamingSources).where(eq(streamingSources.contentId, id));
@@ -300,7 +304,11 @@ export async function deleteSeries(id: string) {
     for (const season of seriesSeasons) {
       const seasonEpisodes = await db.select({ id: episodes.id }).from(episodes).where(eq(episodes.seasonId, season.id));
       for (const ep of seasonEpisodes) {
-        // Deep Episode Assets
+        // Deep Episode Assets & Supabase Storage Cleanup
+        const epMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, ep.id));
+        for (const m of epMedia) {
+          if (m.url) await deleteMediaByUrl(m.url);
+        }
         await db.delete(mediaAssets).where(eq(mediaAssets.contentId, ep.id));
         await db.delete(streamingSources).where(eq(streamingSources.contentId, ep.id));
         
@@ -323,7 +331,11 @@ export async function deleteSeries(id: string) {
       await db.delete(downloadHistory).where(eq(downloadHistory.downloadSourceId, source.id));
     }
 
-    // 3. Delete Series Polymorphic Relations
+    // 3. Delete Series Polymorphic Relations & Supabase Storage Media
+    const seriesMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
+    for (const m of seriesMedia) {
+      if (m.url) await deleteMediaByUrl(m.url);
+    }
     await db.delete(mediaAssets).where(eq(mediaAssets.contentId, id));
     await db.delete(downloadSources).where(eq(downloadSources.contentId, id));
     await db.delete(streamingSources).where(eq(streamingSources.contentId, id));
@@ -390,12 +402,20 @@ export async function updateMovie(id: string, formData: FormData) {
     }).where(eq(movies.id, id));
 
     if (posterUrl) {
+      const oldPoster = oldMedia.find(m => m.type === 'poster');
+      if (oldPoster?.url) {
+        await deleteMediaByUrl(oldPoster.url);
+      }
       await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'poster')));
       await db.insert(mediaAssets).values({
         contentType: 'movie', contentId: id, type: 'poster', url: posterUrl, isPrimary: true,
       });
     }
     if (backdropUrl) {
+      const oldBackdrop = oldMedia.find(m => m.type === 'backdrop');
+      if (oldBackdrop?.url) {
+        await deleteMediaByUrl(oldBackdrop.url);
+      }
       await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'backdrop')));
       await db.insert(mediaAssets).values({
         contentType: 'movie', contentId: id, type: 'backdrop', url: backdropUrl, isPrimary: true,
@@ -486,12 +506,20 @@ export async function updateSeries(id: string, formData: FormData) {
     }).where(eq(series.id, id));
 
     if (posterUrl) {
+      const oldPoster = oldMedia.find(m => m.type === 'poster');
+      if (oldPoster?.url) {
+        await deleteMediaByUrl(oldPoster.url);
+      }
       await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'poster')));
       await db.insert(mediaAssets).values({
         contentType: 'series', contentId: id, type: 'poster', url: posterUrl, isPrimary: true,
       });
     }
     if (backdropUrl) {
+      const oldBackdrop = oldMedia.find(m => m.type === 'backdrop');
+      if (oldBackdrop?.url) {
+        await deleteMediaByUrl(oldBackdrop.url);
+      }
       await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'backdrop')));
       await db.insert(mediaAssets).values({
         contentType: 'series', contentId: id, type: 'backdrop', url: backdropUrl, isPrimary: true,
