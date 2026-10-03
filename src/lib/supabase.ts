@@ -34,3 +34,20 @@ export async function uploadMedia(file: File, path: string): Promise<string> {
   const { data: publicUrlData } = supabaseAdmin.storage.from('media').getPublicUrl(path);
   return publicUrlData.publicUrl;
 }
+
+export async function deleteMediaByUrl(publicUrl: string) {
+  try {
+    // Extract the path from the public URL
+    // e.g. https://.../storage/v1/object/public/media/posters/filename.jpg -> posters/filename.jpg
+    const urlParts = publicUrl.split('/media/');
+    if (urlParts.length === 2) {
+      const path = urlParts[1];
+      const { error } = await supabaseAdmin.storage.from('media').remove([path]);
+      if (error) {
+        console.error("Failed to delete from Supabase storage:", error);
+      }
+    }
+  } catch (err) {
+    console.error("Error in deleteMediaByUrl:", err);
+  }
+}

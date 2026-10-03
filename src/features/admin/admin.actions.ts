@@ -10,7 +10,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { uploadMedia } from "@/lib/supabase";
+import { uploadMedia, deleteMediaByUrl } from "@/lib/supabase";
 
 export async function verifyAdminAccess() {
   const supabase = createClient();
@@ -362,6 +362,7 @@ export async function updateMovie(id: string, formData: FormData) {
   const language = formData.get("language") as string;
 
   try {
+    const oldMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
     let posterUrl = "";
     const posterFile = formData.get("posterFile") as File | null;
     if (posterFile && posterFile.size > 0) {
@@ -458,6 +459,7 @@ export async function updateSeries(id: string, formData: FormData) {
     const language = formData.get("language") as string;
 
   try {
+    const oldMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
     let posterUrl = "";
     const posterFile = formData.get("posterFile") as File | null;
     if (posterFile && posterFile.size > 0) {
