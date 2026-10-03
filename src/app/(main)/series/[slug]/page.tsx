@@ -42,6 +42,25 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const cast = await getCastForContent(series.id, "series").catch(() => []);
   const relatedSeries = await getRelatedSeries(series.id, 5).catch(() => []);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.com';
+  const backdrop = (series as any).backdropUrl || (series as any).imageUrl || null;
+  const poster = (series as any).imageUrl || null;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TVSeries",
+    name: series.title,
+    description: series.description,
+    dateCreated: series.releaseDate,
+    image: poster || backdrop || undefined,
+    url: `${siteUrl}/series/${series.slug}`,
+    numberOfSeasons: seasonsWithEpisodes.length,
+    actor: cast.filter(c => c.role === 'actor').map(c => ({
+      "@type": "Person",
+      name: c.name
+    }))
+  };
+
   return (
     <div className="w-full relative pb-24">
       <ViewTracker id={series.id} type="series" />

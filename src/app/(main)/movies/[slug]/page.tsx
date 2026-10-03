@@ -49,13 +49,32 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   const cast = await getCastForContent(movie.id, "movie").catch(() => []);
   const relatedMovies = await getRelatedMovies(movie.id, 5).catch(() => []);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.com';
+  const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
+  const poster = (movie as any).imageUrl || null;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Movie",
     name: movie.title,
     description: movie.description,
     dateCreated: movie.releaseDate,
-    url: `https://kineos.com/movies/${movie.slug}`,
+    image: poster || backdrop || undefined,
+    url: `${siteUrl}/movies/${movie.slug}`,
+    director: cast.filter(c => c.role === 'director').map(c => ({
+      "@type": "Person",
+      name: c.name
+    })),
+    actor: cast.filter(c => c.role === 'actor').map(c => ({
+      "@type": "Person",
+      name: c.name
+    })),
+    aggregateRating: movie.ratingScore ? {
+      "@type": "AggregateRating",
+      ratingValue: movie.ratingScore / 10,
+      bestRating: "10",
+      ratingCount: movie.viewCount || 100
+    } : undefined
   };
 
   return (

@@ -9,6 +9,19 @@ export default async function HomePage() {
   let latestMovies = await getLatestMovies(18);
   let trendingMovies = await getTrendingMovies(3);
   let topRatedMovies = await getTopRatedMovies(5);
+
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Kineos",
+      "url": "https://kineos.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://kineos.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    };
+
   
   
 
