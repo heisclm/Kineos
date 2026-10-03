@@ -46,10 +46,13 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
       .leftJoin(genres, eq(movieGenres.genreId, genres.id))
       .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, movies.id), eq(mediaAssets.isPrimary, true), eq(mediaAssets.type, 'poster')))
       .where(
-        or(
-          ilike(movies.title, searchTerm),
-          ilike(people.name, searchTerm),
-          ilike(genres.name, searchTerm)
+        and(
+          eq(movies.publicationStatus, 'published'),
+          or(
+            ilike(movies.title, searchTerm),
+            ilike(people.name, searchTerm),
+            ilike(genres.name, searchTerm)
+          )
         )
       )
       .limit(5);
@@ -70,10 +73,13 @@ export async function searchContent(query: string): Promise<SearchResult[]> {
       .leftJoin(genres, eq(seriesGenres.genreId, genres.id))
       .leftJoin(mediaAssets, and(eq(mediaAssets.contentId, series.id), eq(mediaAssets.isPrimary, true), eq(mediaAssets.type, 'poster')))
       .where(
-        or(
-          ilike(series.title, searchTerm),
-          ilike(people.name, searchTerm),
-          ilike(genres.name, searchTerm)
+        and(
+          eq(series.publicationStatus, 'published'),
+          or(
+            ilike(series.title, searchTerm),
+            ilike(people.name, searchTerm),
+            ilike(genres.name, searchTerm)
+          )
         )
       )
       .limit(5);

@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="w-full relative pb-24 space-y-12 animate-pulse">
+    <div className="w-full relative pb-24 space-y-12 animate-pulse min-h-[100vh]">
       {/* Hero Skeleton */}
       <div className="w-full h-[60vh] min-h-[500px] relative bg-surface-elevated/50 border-b border-white/5">
         <div className="absolute bottom-0 left-0 w-full px-6 md:px-10 z-20 max-w-[1920px] mx-auto pb-12">
