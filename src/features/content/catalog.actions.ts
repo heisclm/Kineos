@@ -75,7 +75,7 @@ export async function fetchCatalogItems(
           slug: series.slug,
           description: series.description,
           releaseDate: series.releaseDate,
-          rating: sql\`NULL\`,
+          rating: sql`NULL`,
           viewCount: series.viewCount,
         })
         .from(series)
