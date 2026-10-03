@@ -89,7 +89,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       />
                   {/* Movie Hero/Backdrop Layer */}
       <div className="w-full relative bg-background">
-        <div className="w-full h-[65vh] md:h-[70vh] min-h-[550px] md:min-h-[600px] relative flex flex-col justify-end">
+        <div className="w-full h-[50vh] md:h-[70vh] min-h-[450px] md:min-h-[600px] relative flex flex-col justify-end">
            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10 w-2/3" />
            
@@ -105,7 +105,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
              <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
            )}
            
-           <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 md:px-10 pb-8 md:pb-12 flex gap-6 md:gap-10 items-end">
+           <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 md:px-10 pb-16 md:pb-12 flex gap-6 md:gap-10 items-end">
              
              {(movie as any).imageUrl && (
                <div className="hidden md:block w-40 md:w-64 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 relative z-30 transform translate-y-12 md:translate-y-24">
@@ -173,7 +173,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
           {movie.description && (
             <section className="mb-12">
               <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Storyline</h3>
-              <div className="p-6 rounded-2xl bg-surface border border-white/5 shadow-sm text-muted-foreground leading-relaxed">
+              <div className="p-8 md:p-10 rounded-2xl md:rounded-3xl bg-surface/80 border border-white/5 shadow-md text-white/80 leading-relaxed text-justify">
                 {movie.description}
               </div>
             </section>
@@ -182,9 +182,9 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
            {cast.length > 0 && (
              <section>
                <h3 className="text-2xl font-bold tracking-tight text-foreground mb-6">Top Cast</h3>
-               <div className="flex flex-wrap gap-3">
+               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                  {cast.map((c: any) => (
-                   <div key={c.name} className="flex items-center gap-3 p-2 pr-6 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated transition-apple cursor-default">
+                   <div key={c.name} className="flex items-center gap-3 p-2 pr-4 md:pr-6 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated transition-apple cursor-default overflow-hidden">
                      {c.imageUrl ? (
                        <Image src={c.imageUrl} alt={c.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
                      ) : (
@@ -192,9 +192,9 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                          {c.name.charAt(0)}
                        </div>
                      )}
-                     <div className="flex flex-col">
-                       <span className="text-sm font-semibold text-foreground">{c.name}</span>
-                       <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">{c.role || 'Actor'}</span>
+                     <div className="flex flex-col min-w-0 flex-1">
+                       <span className="text-[13px] md:text-sm font-semibold text-foreground truncate">{c.name}</span>
+                       <span className="text-[9px] md:text-[11px] text-muted-foreground uppercase tracking-wider font-medium truncate">{c.role || 'Actor'}</span>
                      </div>
                    </div>
                  ))}
