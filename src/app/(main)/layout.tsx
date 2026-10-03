@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import { Header } from "@/components/layout/header";
 import { KineosLogo } from "@/components/ui/logo";
 import { SecretAdminTrigger } from "@/components/admin/SecretAdminTrigger";
@@ -8,6 +9,8 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
+    <>
+      <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5052901241882602" crossOrigin="anonymous" strategy="afterInteractive" />
     <div className="flex flex-col min-h-screen relative bg-background">
       {/* Subtle cinematic blur background */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
@@ -35,5 +38,7 @@ export default function MainLayout({
         </div>
       </footer>
     </div>
+    </>
   );
 }
+

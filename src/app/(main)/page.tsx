@@ -1,7 +1,6 @@
 import { getLatestMovies, getTrendingMovies, getTopRatedMovies } from "@/features/content/content.service";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { MovieCard } from "@/components/movie/MovieCard";
-import { AdSlot } from "@/components/ui/AdSlot";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,9 +28,7 @@ export default async function HomePage() {
       <div className="space-y-4 md:space-y-8">
         <SpotlightRow title="Trending Now" movies={trendingMovies} />
         
-        <div className="px-6 md:px-10 py-4">
-          <AdSlot format="leaderboard" slotId="home_middle" />
-        </div>
+        
 
         <StandardRow title="New Releases" movies={newReleases} />
         <StandardRow title="Top Rated" subtitle="Critically acclaimed masterworks" movies={topRatedMovies} />

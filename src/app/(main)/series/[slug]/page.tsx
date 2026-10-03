@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
-import { AdSlot } from "@/components/ui/AdSlot";
 import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
 
@@ -137,9 +136,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
       {/* Spacer for desktop poster overlap */}
       <div className="hidden md:block h-16 md:h-24 w-full bg-background" />
 
-      <div className="w-full flex justify-center py-4 px-6 md:px-10 max-w-[1920px] mx-auto relative z-20">
-        <AdSlot format="leaderboard" slotId="series_top_leaderboard" />
-      </div>
+      
 
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8 xl:col-span-9 space-y-12">
@@ -191,7 +188,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
            </section>
 
            <div className="pt-4">
-             <AdSlot format="banner" slotId="series_episodes_bottom" />
+             
            </div>
         </div>
         
@@ -206,7 +203,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               </dl>
            </div>
            
-           <AdSlot format="rectangle" slotId="series_sidebar_rect" />
+           
         </div>
       </div>
 

@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
-import { AdSlot } from "@/components/ui/AdSlot";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -144,10 +143,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       {/* Spacer for desktop poster overlap */}
       <div className="hidden md:block h-16 md:h-24 w-full bg-background" />
 
-      {/* Top Leaderboard Ad */}
-      <div className="w-full flex justify-center py-4 px-6 md:px-10 max-w-[1920px] mx-auto relative z-20">
-        <AdSlot format="leaderboard" slotId="movie_top_leaderboard" />
-      </div>
+      
 
       {/* Content Body */}
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -191,7 +187,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
 
            {/* Premium Ad Placement */}
            <div className="pt-4">
-             <AdSlot format="banner" slotId="movie_download_bottom" />
+             
            </div>
         </div>
         
@@ -225,7 +221,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
            </div>
            
            {/* Sidebar Rectangle Ad */}
-           <AdSlot format="rectangle" slotId="movie_sidebar_rect" />
+           
         </div>
       </div>
 

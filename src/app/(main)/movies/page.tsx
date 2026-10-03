@@ -1,7 +1,6 @@
 import { fetchCatalogItems } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
-import { AdSlot } from "@/components/ui/AdSlot";
 
 export const metadata = {
   title: "Movies | Kineos",
@@ -35,7 +34,7 @@ export default async function MoviesIndexPage({
       </div>
 
       <div className="w-full py-2 flex justify-center">
-        <AdSlot format="leaderboard" slotId="movies_top" />
+        
       </div>
 
       <CatalogGrid 
