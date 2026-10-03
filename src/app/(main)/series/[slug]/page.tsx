@@ -86,7 +86,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
            <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 md:px-10 pb-16 md:pb-12 flex gap-6 md:gap-10 items-end">
              
              {(series as any).imageUrl && (
-               <div className="hidden md:block w-40 md:w-64 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 relative z-30 transform translate-y-12 md:translate-y-24">
+               <div className="hidden md:block w-40 md:w-48 lg:w-64 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 relative z-30 transform translate-y-12 md:translate-y-16 lg:translate-y-24">
                  <Image src={(series as any).imageUrl} alt={series.title} fill className="object-cover" />
                </div>
              )}

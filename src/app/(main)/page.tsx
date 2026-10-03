@@ -64,7 +64,7 @@ function StandardRow({ title, subtitle, movies, link }: { title: string; subtitl
           See All
         </button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory hide-scrollbar w-full items-start">
         {movies.map((movie) => (
           <MovieCard key={movie.id} {...movie} primaryGenre={movie.genres?.[0] || 'Movie'} imageUrl={(movie as any).imageUrl || ""} />
         ))}
@@ -85,7 +85,7 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
         <p className="text-muted text-lg mt-2">Discover the most talked-about films shaping the cultural conversation this week.</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
         {movies.slice(0, 3).map((movie, idx) => (
           <Link key={movie.id} href={`/movies/${movie.slug}`} className="flex gap-6 items-center group cursor-pointer p-4 rounded-xl hover:bg-surface border border-transparent hover:border-white/5 transition-apple">
             <h1 className="text-6xl md:text-8xl font-black text-white/5 group-hover:text-white/10 transition-apple italic w-12 text-center shrink-0">
