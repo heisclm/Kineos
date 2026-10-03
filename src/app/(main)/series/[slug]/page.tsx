@@ -72,7 +72,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               <span className="flex items-center gap-1.5"><Layers className="w-4 h-4" /> {seasonsWithEpisodes.length} Seasons</span>
             </div>
 
-            <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl">
+            <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl line-clamp-2 md:line-clamp-3">
               {(series as any).shortTeaser || series.description}
             </p>
           </div>
@@ -85,6 +85,16 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
 
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8 xl:col-span-9 space-y-12">
+          
+          {series.description && (
+            <section className="mb-12">
+              <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Storyline</h3>
+              <div className="p-6 rounded-2xl bg-surface border border-white/5 shadow-sm text-muted-foreground leading-relaxed">
+                {series.description}
+              </div>
+            </section>
+          )}
+
            <section id="episodes">
               <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-8">Episodes</h2>
               

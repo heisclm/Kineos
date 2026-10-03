@@ -110,7 +110,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                  <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2} /> {movie.rating || 'NR'}</span>
                </div>
                
-               <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl drop-shadow-sm line-clamp-4 md:line-clamp-none">
+               <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl drop-shadow-sm line-clamp-2 md:line-clamp-3">
                  {(movie as any).shortTeaser || movie.description}
                </p>
 
@@ -135,7 +135,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
 
           {movie.description && (
             <section className="mb-12">
-              <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Full Synopsis</h3>
+              <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Storyline</h3>
               <div className="p-6 rounded-2xl bg-surface border border-white/5 shadow-sm text-muted-foreground leading-relaxed">
                 {movie.description}
               </div>

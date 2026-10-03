@@ -78,8 +78,8 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
           <span>{movie.runtime ? formatDuration(movie.runtime) : "2h 20m"}</span>
         </div>
 
-        <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 md:mb-8 line-clamp-3 md:line-clamp-4 max-w-lg drop-shadow-sm">
-          {movie.description}
+        <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 md:mb-8 line-clamp-2 md:line-clamp-3 max-w-lg drop-shadow-sm">
+          {movie.shortTeaser || movie.description}
         </p>
 
         <div className="flex flex-wrap items-center gap-5 md:gap-6">
