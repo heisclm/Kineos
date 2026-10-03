@@ -74,6 +74,7 @@ export async function createMovie(formData: FormData) {
       runtime,
       rating,
       language: language || undefined,
+      shortTeaser: shortTeaser || null,
     }).returning({ id: movies.id });
     
     const id = newRow[0].id;
@@ -163,6 +164,7 @@ export async function createSeries(formData: FormData) {
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
       language: language || undefined,
+      shortTeaser: shortTeaser || null,
     }).returning({ id: series.id });
     
     const id = newRow[0].id;
@@ -381,6 +383,7 @@ export async function updateMovie(id: string, formData: FormData) {
       runtime,
       rating,
       language: language || undefined,
+      shortTeaser: shortTeaser || null,
     }).where(eq(movies.id, id));
 
     if (posterUrl) {
@@ -473,6 +476,7 @@ export async function updateSeries(id: string, formData: FormData) {
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
       language: language || undefined,
+      shortTeaser: shortTeaser || null,
     }).where(eq(series.id, id));
 
     if (posterUrl) {
