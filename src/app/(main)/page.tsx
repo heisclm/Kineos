@@ -60,11 +60,11 @@ function StandardRow({ title, subtitle, movies, link }: { title: string; subtitl
           <h3 className="text-xl font-semibold tracking-tight text-foreground">{title}</h3>
           {subtitle && <p className="text-sm text-muted mt-1">{subtitle}</p>}
         </div>
-        <button className="text-sm font-medium text-primary hover:text-primary-hover transition-apple">
+        <Link href={link} className="text-sm font-medium text-primary hover:text-primary-hover transition-apple">
           See All
-        </button>
+        </Link>
       </div>
-      <div className="flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory hide-scrollbar w-full items-start">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
         {movies.map((movie) => (
           <MovieCard key={movie.id} {...movie} primaryGenre={movie.genres?.[0] || 'Movie'} imageUrl={(movie as any).imageUrl || ""} />
         ))}
