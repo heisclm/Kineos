@@ -1,4 +1,4 @@
-import { getLatestMovies, getTrendingMovies, getTopRatedMovies } from "@/features/content/content.service";
+import { getLatestMovies, getTrendingMovies, getTopRatedMovies, getFeaturedMovies } from "@/features/content/content.service";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { cn } from "@/lib/utils";
@@ -6,9 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default async function HomePage() {
-  let latestMovies = await getLatestMovies(18);
+  let featuredMovies = await getFeaturedMovies(5);
+  let newReleases = await getLatestMovies(10);
   let trendingMovies = await getTrendingMovies(3);
-  let topRatedMovies = await getTopRatedMovies(5);
+  let topRatedMovies = await getTopRatedMovies(10);
 
     const jsonLd = {
       "@context": "https://schema.org",
@@ -26,7 +27,7 @@ export default async function HomePage() {
   
 
   // Break into rows for elegant presentation
-  const newReleases = latestMovies.slice(0, 5);
+  
 
   const genres = ["All", "Action", "Comedy", "Drama", "Sci-Fi", "Thriller", "Horror", "Romance"];
 
@@ -34,7 +35,7 @@ export default async function HomePage() {
     <div className="space-y-12 pb-24 w-full max-w-[1920px] mx-auto">
       {/* Cinematic Hero */}
       <section className="px-0 sm:px-6 md:px-10 sm:pt-6">
-        <HeroCarousel movies={latestMovies.slice(0, 5)} />
+        <HeroCarousel movies={featuredMovies} />
       </section>
 
       {/* Content Rows */}
@@ -43,14 +44,14 @@ export default async function HomePage() {
         
         
 
-        <StandardRow title="New Releases" movies={newReleases} />
-        <StandardRow title="Top Rated" subtitle="Critically acclaimed masterworks" movies={topRatedMovies} />
+        <StandardRow title="New Releases" movies={newReleases} link="/movies" />
+        <StandardRow title="Top Rated" subtitle="Critically acclaimed masterworks" movies={topRatedMovies} link="/movies?sort=Rating" />
       </div>
     </div>
   );
 }
 
-function StandardRow({ title, subtitle, movies }: { title: string; subtitle?: string; movies: any[] }) {
+function StandardRow({ title, subtitle, movies, link }: { title: string; subtitle?: string; movies: any[]; link: string }) {
   if (!movies || movies.length === 0) return null;
   return (
     <section className="px-6 md:px-10">
