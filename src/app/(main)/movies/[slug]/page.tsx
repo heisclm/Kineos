@@ -2,6 +2,8 @@ import { getMovieBySlug, getDownloadSourcesForContent, getCastForContent, getRel
 import { MovieCard } from "@/components/movie/MovieCard";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { formatDuration } from "@/lib/utils";
+// from "next/navigation";
 import { Play, Download, Clock, Calendar, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,7 +91,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
             <div className="flex items-center gap-3 mb-6 text-sm font-medium text-muted">
                <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" strokeWidth={2} /> {movie.releaseDate || 'TBA'}</span>
                <span className="text-muted-foreground/30">•</span>
-               <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" strokeWidth={2} /> {movie.runtime || '?'} min</span>
+               <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" strokeWidth={2} /> {formatDuration(movie.runtime)}</span>
                <span className="text-muted-foreground/30">•</span>
                <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2} /> {movie.rating || 'NR'}</span>
             </div>
@@ -99,7 +101,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
             </h1>
             
             <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl">
-              {movie.description}
+              {(movie as any).shortTeaser || movie.description}
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -120,6 +122,16 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       {/* Content Body */}
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8 xl:col-span-9 space-y-12">
+
+          {movie.description && (
+            <section className="mb-12">
+              <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Full Synopsis</h3>
+              <div className="p-6 rounded-2xl bg-surface border border-white/5 shadow-sm text-muted-foreground leading-relaxed">
+                {movie.description}
+              </div>
+            </section>
+          )}
+
            {cast.length > 0 && (
              <section>
                <h3 className="text-2xl font-bold tracking-tight text-foreground mb-6">Top Cast</h3>

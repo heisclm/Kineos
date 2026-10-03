@@ -43,6 +43,7 @@ export async function createMovie(formData: FormData) {
   const title = formData.get("title") as string;
   const slug = formData.get("slug") as string;
   const description = formData.get("description") as string;
+    const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
   const runtime = parseInt(formData.get("runtime") as string) || null;
@@ -133,6 +134,7 @@ export async function createSeries(formData: FormData) {
   const title = formData.get("title") as string;
   const slug = formData.get("slug") as string;
   const description = formData.get("description") as string;
+    const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
 
@@ -340,6 +342,7 @@ export async function updateMovie(id: string, formData: FormData) {
   const title = formData.get("title") as string;
   const slugForm = formData.get("slug") as string;
   const description = formData.get("description") as string;
+    const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
   const runtime = parseInt(formData.get("runtime") as string) || null;
@@ -433,6 +436,7 @@ export async function updateSeries(id: string, formData: FormData) {
   const title = formData.get("title") as string;
   const slugForm = formData.get("slug") as string;
   const description = formData.get("description") as string;
+    const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
 

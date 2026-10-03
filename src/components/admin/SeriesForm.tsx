@@ -91,8 +91,21 @@ export function SeriesForm() {
                 />
               </div>
 
+              
+              <div className="space-y-2">
+                <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>
+                <textarea 
+                  id="shortTeaser" 
+                  name="shortTeaser" 
+                  rows={2} 
+                  defaultValue={""}
+                  className={inputClasses}
+                  placeholder="A brief 1-2 sentence hook..."
+                />
+              </div>
+
               <div>
-                <label className={labelClasses}>Description</label>
+                <label className={labelClasses}>Full Synopsis (Detail Page)</label>
                 <textarea
                   name="description"
                   rows={5}

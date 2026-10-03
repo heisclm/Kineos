@@ -2,6 +2,7 @@
 
 import { Download, Link as LinkIcon, Magnet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatBytes } from "@/lib/utils";
 
 export interface DownloadSource {
   id: string;
@@ -54,11 +55,16 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
     >
       <div className="flex flex-col items-start gap-0.5">
         <span className="text-sm font-bold text-foreground">
-          {source.quality || "HD"} {source.format && <span className="text-muted font-medium ml-1 text-xs">{source.format}</span>}
+          {source.label || source.quality || "HD"} {source.format && !source.label && <span className="text-muted font-medium ml-1 text-xs">{source.format}</span>}
         </span>
-        <span className="text-[11px] font-medium opacity-70">
-          {source.label || source.sourceType.replace('_', ' ')} 
-          {source.fileSize ? ` • ${(source.fileSize / (1024 * 1024)).toFixed(1)} MB` : ""}
+        <span className="text-[11px] font-medium opacity-70 flex items-center gap-1.5">
+          <span>{source.label ? (source.quality ? `${source.quality} ${source.format || ''}` : source.sourceType.replace('_', ' ')) : source.sourceType.replace('_', ' ')}</span>
+          {source.fileSize ? (
+            <>
+              <span className="text-muted-foreground/40">•</span>
+              <span>{formatBytes(Number(source.fileSize) / (1024 * 1024))}</span>
+            </>
+          ) : null}
         </span>
       </div>
       <div className="flex items-center gap-2">

@@ -73,7 +73,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
             </div>
 
             <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl">
-              {series.description}
+              {(series as any).shortTeaser || series.description}
             </p>
           </div>
         </div>

@@ -68,6 +68,7 @@ export const movies = pgTable(
     slug: varchar("slug", { length: 255 }).notNull().unique(),
     originalTitle: varchar("original_title", { length: 255 }),
     description: text("description"),
+    shortTeaser: varchar("short_teaser", { length: 500 }),
     releaseDate: date("release_date"),
     runtime: integer("runtime"), // in minutes
     status: contentStatusEnum("status").default("released").notNull(),
@@ -95,6 +96,7 @@ export const series = pgTable(
     title: varchar("title", { length: 255 }).notNull(),
     slug: varchar("slug", { length: 255 }).notNull().unique(),
     description: text("description"),
+    shortTeaser: varchar("short_teaser", { length: 500 }),
     releaseDate: date("release_date"),
     status: contentStatusEnum("status").default("released").notNull(),
     publicationStatus: publicationStatusEnum("publication_status").default("draft").notNull(),

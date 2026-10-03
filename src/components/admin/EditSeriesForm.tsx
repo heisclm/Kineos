@@ -80,8 +80,21 @@ export function EditSeriesForm({ series }: { series: any }) {
                 />
               </div>
 
+              
+              <div className="space-y-2">
+                <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>
+                <textarea 
+                  id="shortTeaser" 
+                  name="shortTeaser" 
+                  rows={2} 
+                  defaultValue={series?.series.shortTeaser || ""}
+                  className={inputClasses}
+                  placeholder="A brief 1-2 sentence hook..."
+                />
+              </div>
+
               <div>
-                <label className={labelClasses}>Description</label>
+                <label className={labelClasses}>Full Synopsis (Detail Page)</label>
                 <textarea
                   name="description" defaultValue={series.description || ""}
                   rows={5}
