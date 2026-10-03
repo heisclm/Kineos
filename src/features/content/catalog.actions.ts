@@ -96,7 +96,7 @@ export async function fetchCatalogItems(
       } else if (sort === "A-Z") {
         query = query.orderBy(asc(series.title));
       } else if (sort === "Rating") {
-        query = query.orderBy(desc(series.rating));
+        query = query.orderBy(desc(series.viewCount)); // Series doesn't have rating yet, sort by views as fallback
       } else {
         query = query.orderBy(desc(series.releaseDate));
       }

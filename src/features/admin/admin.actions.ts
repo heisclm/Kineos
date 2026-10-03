@@ -215,6 +215,8 @@ export async function createSeries(formData: FormData) {
 }
 
 export async function createSeason(seriesId: string, seasonNumber: number, title?: string) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
   try {
     await db.insert(seasons).values({
       seriesId,
@@ -229,6 +231,8 @@ export async function createSeason(seriesId: string, seasonNumber: number, title
 }
 
 export async function createEpisode(seasonId: string, episodeNumber: number, title: string, seriesId: string) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
   try {
     await db.insert(episodes).values({
       seasonId,

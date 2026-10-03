@@ -4,8 +4,11 @@ import { db } from "@/lib/db";
 import { downloadSources } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { verifyAdminAccess } from "./admin.actions";
 
 export async function addDownloadSource(formData: FormData) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
   try {
     const contentId = formData.get("contentId") as string;
     const contentType = formData.get("contentType") as "movie" | "series" | "episode";
@@ -42,8 +45,9 @@ export async function addDownloadSource(formData: FormData) {
 }
 
 export async function deleteDownloadSource(id: string, contentId: string, contentType: "movie" | "series" | "episode") {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
   try {
-    // Note: If CLOUDFLARE_R2, this would also delete the object from R2 (not fully implemented in MVP)
     await db.delete(downloadSources).where(eq(downloadSources.id, id));
     revalidatePath(`/admin/${contentType === "movie" ? "movies" : "series"}/${contentId}`);
     return { success: true };
@@ -53,6 +57,8 @@ export async function deleteDownloadSource(id: string, contentId: string, conten
 }
 
 export async function toggleDownloadSource(id: string, isActive: boolean, contentId: string, contentType: "movie" | "series" | "episode") {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
   try {
     await db.update(downloadSources).set({ isActive }).where(eq(downloadSources.id, id));
     revalidatePath(`/admin/${contentType === "movie" ? "movies" : "series"}/${contentId}`);
@@ -72,9 +78,8 @@ export async function getDownloadSources(contentId: string) {
 }
 
 export async function generateR2UploadUrl(filename: string, contentType: string) {
-  // In a real app, this generates a signed URL using AWS S3 SDK connecting to Cloudflare R2.
-  // For the MVP demonstration, we return a mock URL.
-  // The actual upload will be intercepted and simulated by the client.
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
   return {
     success: true,
     uploadUrl: "https://mock-r2-endpoint.cloudflare.com/upload",
