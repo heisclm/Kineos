@@ -7,9 +7,9 @@ import Image from "next/image";
 
 export default async function HomePage() {
   let featuredMovies = await getFeaturedMovies(5);
-  let newReleases = await getLatestMovies(10);
+  let newReleases = await getLatestMovies(5);
   let trendingMovies = await getTrendingMovies(3);
-  let topRatedMovies = await getTopRatedMovies(10);
+  let topRatedMovies = await getTopRatedMovies(5);
 
     const jsonLd = {
       "@context": "https://schema.org",
