@@ -87,7 +87,7 @@ export function EditSeriesForm({ series }: { series: any }) {
                   id="shortTeaser" 
                   name="shortTeaser" 
                   rows={2} 
-                  defaultValue={series?.series.shortTeaser || ""}
+                  defaultValue={series?.shortTeaser || ""}
                   className={inputClasses}
                   placeholder="A brief 1-2 sentence hook..."
                 />

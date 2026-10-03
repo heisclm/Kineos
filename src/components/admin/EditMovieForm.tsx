@@ -87,7 +87,7 @@ export function EditMovieForm({ movie }: { movie: any }) {
                   id="shortTeaser" 
                   name="shortTeaser" 
                   rows={2} 
-                  defaultValue={movie?.movie.shortTeaser || ""}
+                  defaultValue={movie?.shortTeaser || ""}
                   className={inputClasses}
                   placeholder="A brief 1-2 sentence hook..."
                 />
