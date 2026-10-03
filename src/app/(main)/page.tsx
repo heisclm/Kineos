@@ -86,12 +86,15 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
               <h4 className="text-lg font-bold text-foreground leading-tight group-hover:text-primary transition-apple mb-2 line-clamp-2">
                 {movie.title}
               </h4>
-              <p className="text-xs text-muted line-clamp-2">{movie.description}</p>`n              </div>`n            </Link>
+              <p className="text-xs text-muted line-clamp-2">{(movie as any).shortTeaser || movie.description}</p>
+              </div>
+            </Link>
         ))}
       </div>
     </section>
   );
 }
+
 
 
 
