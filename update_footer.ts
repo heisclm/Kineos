@@ -1,28 +1,29 @@
-import Script from 'next/script';
-import { Header } from "@/components/layout/header";
-import { KineosLogo } from "@/components/ui/logo";
-import { SecretAdminTrigger } from "@/components/admin/SecretAdminTrigger";
+import fs from 'fs';
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5052901241882602" crossOrigin="anonymous" strategy="afterInteractive" />
-    <div className="flex flex-col min-h-screen relative bg-background">
-      {/* Subtle cinematic blur background */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-      
-      <Header />
-      <main className="flex-1 z-0">
-        {children}
-      </main>
-      
-      {/* Premium Footer */}
-            <footer className="w-full border-t border-white/5 py-12 px-6 md:px-10 mt-auto bg-background/50">
+const target = 'src/app/(main)/layout.tsx';
+let content = fs.readFileSync(target, 'utf8');
+
+// We want to add the legal links to the footer.
+// Current footer:
+/*
+      <footer className="w-full border-t border-white/5 py-12 px-6 md:px-10 mt-auto bg-background/50">
+        <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-8 text-sm font-medium text-muted">
+            <div className="relative">
+              <KineosLogo className="h-5 text-muted-foreground hover:text-foreground transition-apple grayscale hover:grayscale-0" />
+              <SecretAdminTrigger />
+            </div>
+            <a href="/movies" className="hover:text-foreground transition-apple">Movies</a>
+            <a href="/series" className="hover:text-foreground transition-apple">TV Series</a>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} Kineos Entertainment. All rights reserved.
+          </div>
+        </div>
+      </footer>
+*/
+
+const newFooter = `      <footer className="w-full border-t border-white/5 py-12 px-6 md:px-10 mt-auto bg-background/50">
         <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 text-sm font-medium text-muted">
             <div className="relative flex items-center mb-4 md:mb-0">
@@ -48,9 +49,9 @@ export default function MainLayout({
             <p>&copy; {new Date().getFullYear()} Kineos Entertainment. All rights reserved.</p>
           </div>
         </div>
-      </footer>
-    </div>
-    </>
-  );
-}
+      </footer>`;
 
+content = content.replace(/<footer className="w-full border-t border-white\/5 py-12 px-6 md:px-10 mt-auto bg-background\/50">[\s\S]*?<\/footer>/, newFooter);
+
+fs.writeFileSync(target, content);
+console.log('Updated footer in layout.tsx');
