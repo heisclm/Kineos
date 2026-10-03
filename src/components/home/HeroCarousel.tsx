@@ -31,7 +31,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
 
   return (
-    <div className="relative w-full h-[380px] md:h-[450px] lg:h-[550px] rounded-xl md:rounded-2xl overflow-hidden bg-surface flex group shadow-sm border border-white/5 transition-apple">
+    <div className="relative w-full h-[380px] md:h-[450px] lg:h-[550px] rounded-none sm:rounded-xl md:rounded-2xl overflow-hidden bg-surface flex group shadow-sm border border-white/5 transition-apple">
       {/* Background/Artwork with Cinematic Gradients */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent z-10 w-full md:w-3/4 lg:w-2/3" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 h-full opacity-90 md:opacity-80" />
@@ -71,11 +71,11 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
         </h2>
         
         <div className="flex items-center gap-3 text-xs md:text-sm text-muted-foreground font-medium mb-4 md:mb-6 drop-shadow-sm">
-          <span>{movie.seoTitle?.match(/\((\d{4})\)/)?.[1] || new Date().getFullYear()}</span>
-          <span>•</span>
-          <span>PG-13</span>
-          <span>•</span>
-          <span>2h 20m</span>
+          <span>{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : new Date().getFullYear()}</span>
+          <span>&bull;</span>
+          <span>{movie.rating || "PG-13"}</span>
+          <span>&bull;</span>
+          <span>{movie.runtime ? formatDuration(movie.runtime) : "2h 20m"}</span>
         </div>
 
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 md:mb-8 line-clamp-3 md:line-clamp-4 max-w-lg drop-shadow-sm">

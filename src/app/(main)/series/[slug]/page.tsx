@@ -129,7 +129,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         
         <div className="lg:col-span-4 xl:col-span-3 space-y-8">
            <div className="p-8 rounded-xl bg-surface border border-white/5">
-              <h3 className="text-lg font-semibold tracking-tight text-foreground mb-6">Metadata</h3>
+              <h3 className="text-lg font-semibold tracking-tight text-foreground mb-6">Series Info</h3>
               <dl className="space-y-5 text-sm">
                 <div>
                   <dt className="text-muted mb-1.5">Views</dt>

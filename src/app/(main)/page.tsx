@@ -3,6 +3,8 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { AdSlot } from "@/components/ui/AdSlot";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import Image from "next/image";
 
 export default async function HomePage() {
   let latestMovies = await getLatestMovies(18);
@@ -19,7 +21,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-12 pb-24 w-full max-w-[1920px] mx-auto">
       {/* Cinematic Hero */}
-      <section className="px-6 md:px-10 pt-6">
+      <section className="px-0 sm:px-6 md:px-10 sm:pt-6">
         <HeroCarousel movies={latestMovies.slice(0, 5)} />
       </section>
 
@@ -38,6 +40,30 @@ export default async function HomePage() {
             >
               {g}
             </button>
+          ))}
+        </div>
+      </section>
+
+      
+      {/* Featured Collections */}
+      <section className="px-6 md:px-10 mt-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { title: "Top Rated", desc: "Critically Acclaimed", icon: "⭐", href: "/movies?sort=Rating", color: "from-amber-500/20 to-orange-600/20", border: "border-orange-500/20" },
+            { title: "Trending", desc: "Most Watched", icon: "🔥", href: "/movies?sort=Popular", color: "from-rose-500/20 to-red-600/20", border: "border-red-500/20" },
+            { title: "New Releases", desc: "Just Added", icon: "✨", href: "/movies", color: "from-blue-500/20 to-indigo-600/20", border: "border-blue-500/20" },
+            { title: "TV Series", desc: "Binge Worthy", icon: "📺", href: "/series", color: "from-emerald-500/20 to-teal-600/20", border: "border-emerald-500/20" }
+          ].map(c => (
+            <Link key={c.title} href={c.href} className={`relative overflow-hidden rounded-2xl p-5 border bg-gradient-to-br ${c.color} ${c.border} hover:scale-[1.02] transition-apple group`}>
+              <div className="flex flex-col h-full justify-between relative z-10">
+                <span className="text-3xl mb-3 drop-shadow-md group-hover:scale-110 transition-apple origin-left">{c.icon}</span>
+                <div>
+                  <h3 className="font-bold text-white/90 text-lg tracking-tight">{c.title}</h3>
+                  <p className="text-xs text-white/60 font-medium">{c.desc}</p>
+                </div>
+              </div>
+              <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px] -z-0 group-hover:bg-background/20 transition-apple" />
+            </Link>
           ))}
         </div>
       </section>

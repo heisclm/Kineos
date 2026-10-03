@@ -38,7 +38,7 @@ export function Header() {
     <>
       <header className="h-[72px] md:h-[88px] w-full flex items-center justify-between px-4 md:px-10 bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5 transition-apple">
         <div className="flex items-center gap-4 md:gap-10">
-          <Link href="/" className="flex items-center group shrink-0" onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/" className="flex items-center group shrink-0 outline-none focus:outline-none focus:ring-0 select-none !tap-highlight-transparent" style={{ WebkitTapHighlightColor: 'transparent' }} onClick={() => setMobileMenuOpen(false)}>
             <KineosLogo className="h-5 md:h-7 text-foreground group-hover:text-primary transition-apple group-hover:scale-[1.02]" />
           </Link>
           
@@ -93,7 +93,7 @@ export function Header() {
           <div className="flex flex-col px-6 py-8 h-full">
             
             {/* Mobile Search */}
-            <div className="w-full mb-8 animate-in slide-in-from-top-4 fade-in duration-500 fill-mode-both" style={{ animationDelay: '50ms' }}>
+            <div className="w-full mb-8 relative z-50 animate-in slide-in-from-top-4 fade-in duration-500 fill-mode-both" style={{ animationDelay: '50ms' }}>
                <SearchBar isMobile onSelect={() => setMobileMenuOpen(false)} />
             </div>
 

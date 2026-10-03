@@ -32,10 +32,10 @@ export function AdSlot({ className, format = "banner", slotId }: AdSlotProps) {
   return (
     <div 
       className={cn(
-        "relative w-full flex flex-col items-center justify-center overflow-hidden bg-transparent rounded-xl transition-apple",
-        format === "banner" && "min-h-[120px]",
-        format === "leaderboard" && "min-h-[90px] max-w-[728px] mx-auto",
-        format === "rectangle" && "min-h-[250px] max-w-[300px] mx-auto",
+        "relative flex flex-col items-center justify-center overflow-hidden bg-transparent rounded-xl transition-apple",
+        format === "banner" && "min-h-[90px] w-full max-w-[970px] mx-auto",
+        format === "leaderboard" && "min-h-[90px] w-full max-w-[728px] mx-auto",
+        format === "rectangle" && "min-h-[250px] w-full max-w-[300px] mx-auto",
         className
       )}
     >
