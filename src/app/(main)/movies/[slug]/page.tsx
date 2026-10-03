@@ -69,10 +69,10 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* Movie Hero/Backdrop Layer */}
-      <div className="w-full relative bg-surface-overlay border-b border-white/5">
-        <div className="w-full h-[50vh] md:h-[60vh] min-h-[400px] md:min-h-[500px] relative">
-           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10 h-full" />
+                  {/* Movie Hero/Backdrop Layer */}
+      <div className="w-full relative bg-background">
+        <div className="w-full h-[65vh] md:h-[70vh] min-h-[550px] md:min-h-[600px] relative flex flex-col justify-end">
+           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10 w-2/3" />
            
            {(movie as any).backdropUrl || (movie as any).imageUrl ? (
@@ -86,43 +86,63 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
            ) : (
              <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
            )}
-        </div>
-        
-        <div className="relative z-20 max-w-[1920px] mx-auto px-6 md:px-10 -mt-32 md:-mt-48 pb-12">
-          <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center md:items-end">
-            
-            {(movie as any).imageUrl && (
-              <div className="w-40 md:w-64 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/10 relative z-30">
-                <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />
-              </div>
-            )}
-            
-            <div className="flex-1 text-center md:text-left mt-4 md:mt-0">
-               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-[1.1] tracking-tight text-balance drop-shadow-lg">
-                 {movie.title}
-               </h1>
-               
-               <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-6 text-sm font-medium text-muted drop-shadow-md">
-                 <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" strokeWidth={2} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
-                 <span className="text-muted-foreground/30">&bull;</span>
-                 <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" strokeWidth={2} /> {formatDuration(movie.runtime)}</span>
-                     <span className="text-muted-foreground/30">&bull;</span>
-                 <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2} /> {movie.rating || 'NR'}</span>
+           
+           <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 md:px-10 pb-8 md:pb-12 flex gap-6 md:gap-10 items-end">
+             
+             {(movie as any).imageUrl && (
+               <div className="hidden md:block w-40 md:w-64 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 relative z-30 transform translate-y-12 md:translate-y-24">
+                 <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />
                </div>
-               
-               <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl drop-shadow-sm line-clamp-2 md:line-clamp-3">
-                 {(movie as any).shortTeaser || movie.description}
-               </p>
+             )}
+             
+             <div className="flex-1 text-left mt-2 md:mt-0 w-full">
+                {/* Mobile Poster (Shown next to title on mobile for premium look) */}
+                <div className="md:hidden flex gap-4 items-end mb-4">
+                  {(movie as any).imageUrl && (
+                    <div className="w-28 aspect-[2/3] shrink-0 rounded-lg overflow-hidden shadow-2xl border border-white/10 relative z-30">
+                      <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />
+                    </div>
+                  )}
+                  <div className="pb-1">
+                    <h1 className="text-3xl font-bold text-foreground leading-[1.1] tracking-tight text-balance drop-shadow-2xl mb-2">
+                      {movie.title}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-white/90 drop-shadow-md">
+                      <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={2.5} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
+                      <span className="text-white/40">&bull;</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
+                    </div>
+                  </div>
+                </div>
 
-               <div className="flex flex-wrap justify-center md:justify-start items-center gap-4">
-                  <Button size="lg" className="rounded-pill px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
-                     <Play className="w-4 h-4" fill="currentColor" /> Watch Trailer
-                  </Button>
-               </div>
-            </div>
-          </div>
+                <h1 className="hidden md:block text-5xl lg:text-7xl font-bold text-foreground mb-4 leading-[1.1] tracking-tight text-balance drop-shadow-2xl">
+                  {movie.title}
+                </h1>
+                
+                <div className="hidden md:flex flex-wrap items-center gap-3 mb-6 text-sm font-semibold text-white/90 drop-shadow-md">
+                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" strokeWidth={2.5} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
+                  <span className="text-white/40">&bull;</span>
+                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
+                  <span className="text-white/40">&bull;</span>
+                  <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.5} /> {movie.rating || 'NR'}</span>
+                </div>
+                
+                <p className="text-sm md:text-lg text-white/90 leading-relaxed mb-6 md:mb-8 max-w-3xl drop-shadow-lg font-medium">
+                  {(movie as any).shortTeaser || movie.description}
+                </p>
+ 
+                <div className="flex flex-wrap items-center gap-4">
+                   <Button size="lg" className="rounded-pill px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
+                      <Play className="w-4 h-4" fill="currentColor" /> Watch Trailer
+                   </Button>
+                </div>
+             </div>
+           </div>
         </div>
       </div>
+      
+      {/* Spacer for desktop poster overlap */}
+      <div className="hidden md:block h-16 md:h-24 w-full bg-background" />
 
       {/* Top Leaderboard Ad */}
       <div className="w-full flex justify-center py-4 px-6 md:px-10 max-w-[1920px] mx-auto relative z-20">

@@ -78,7 +78,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
           {movie.runtime && <span>{formatDuration(movie.runtime)}</span>}
         </div>
 
-        <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 md:mb-8 line-clamp-2 md:line-clamp-3 max-w-lg drop-shadow-sm">
+        <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6 md:mb-8 max-w-lg drop-shadow-sm">
           {movie.shortTeaser || movie.description}
         </p>
 
@@ -132,4 +132,5 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
     </div>
   );
 }
+
 
