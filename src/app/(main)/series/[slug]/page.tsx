@@ -93,6 +93,8 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                       {series.releaseDate && <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={2.5} /> {new Date(series.releaseDate).getFullYear()}</span>}
                       <span className="text-white/40">&bull;</span>
                       <span className="flex items-center gap-1"><Layers className="w-3.5 h-3.5" strokeWidth={2.5} /> {seasonsWithEpisodes.length} S</span>
+                      <span className="text-white/40">&bull;</span>
+                      <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.5} /> {(series as any).rating || 'NR'}</span>
                     </div>
                   </div>
                 </div>
@@ -116,6 +118,8 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   {series.releaseDate && <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" strokeWidth={2.5} /> {new Date(series.releaseDate).getFullYear()}</span>}
                   <span className="text-white/40">&bull;</span>
                   <span className="flex items-center gap-1.5"><Layers className="w-4 h-4" strokeWidth={2.5} /> {seasonsWithEpisodes.length} Seasons</span>
+                  <span className="text-white/40">&bull;</span>
+                  <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.5} /> {(series as any).rating || 'NR'}</span>
                   
                 </div>
                 

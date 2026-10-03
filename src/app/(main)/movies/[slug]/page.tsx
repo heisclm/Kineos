@@ -109,7 +109,9 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                     <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-white/90 drop-shadow-md">
                       <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={2.5} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
                       <span className="text-white/40">&bull;</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
+                        <span className="text-white/40">&bull;</span>
+                        <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.5} /> {movie.rating || 'NR'}</span>
                     </div>
                   </div>
                 </div>
@@ -250,4 +252,5 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
     </div>
   );
 }
+
 

@@ -140,7 +140,8 @@ export async function createSeries(formData: FormData) {
     const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
-  const language = formData.get("language") as string;
+    const rating = formData.get("rating") as string;
+    const language = formData.get("language") as string;
 
   try {
     let posterUrl = "";
@@ -163,7 +164,8 @@ export async function createSeries(formData: FormData) {
       description,
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
-      language: language || undefined,
+        rating: rating || null,
+        language: language || undefined,
       shortTeaser: shortTeaser || null,
     }).returning({ id: series.id });
     
@@ -452,7 +454,8 @@ export async function updateSeries(id: string, formData: FormData) {
     const shortTeaser = formData.get("shortTeaser") as string;
   const status = formData.get("status") as "draft" | "published" | "archived";
   const releaseDate = formData.get("releaseDate") as string;
-  const language = formData.get("language") as string;
+    const rating = formData.get("rating") as string;
+    const language = formData.get("language") as string;
 
   try {
     let posterUrl = "";
@@ -475,7 +478,8 @@ export async function updateSeries(id: string, formData: FormData) {
       description,
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
-      language: language || undefined,
+        rating: rating || null,
+        language: language || undefined,
       shortTeaser: shortTeaser || null,
     }).where(eq(series.id, id));
 

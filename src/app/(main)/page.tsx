@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export default async function HomePage() {
   let latestMovies = await getLatestMovies(18);
-  let trendingMovies = await getTrendingMovies(5);
+  let trendingMovies = await getTrendingMovies(3);
   let topRatedMovies = await getTopRatedMovies(5);
   
   
@@ -92,6 +92,7 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
     </section>
   );
 }
+
 
 
 
