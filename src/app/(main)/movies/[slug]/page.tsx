@@ -49,7 +49,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   const cast = await getCastForContent(movie.id, "movie").catch(() => []);
   const relatedMovies = await getRelatedMovies(movie.id, 5).catch(() => []);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.fun';
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
   const poster = (movie as any).imageUrl || null;
 
@@ -173,7 +173,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
           {movie.description && (
             <section className="mb-12">
               <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Storyline</h3>
-              <div className="p-8 md:p-10 rounded-2xl md:rounded-3xl bg-surface/80 border border-white/5 shadow-md text-white/80 leading-relaxed text-justify">
+              <div className="p-6 md:p-10 rounded-2xl md:rounded-3xl bg-surface/40 backdrop-blur-sm border border-white/5 shadow-inner text-white/70 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
                 {movie.description}
               </div>
             </section>

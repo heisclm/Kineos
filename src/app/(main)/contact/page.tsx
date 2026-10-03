@@ -26,11 +26,11 @@ export default function ContactPage() {
         </div>
 
         <a 
-          href="mailto:contact@kineos.com" 
+          href="mailto:contact@kineos.fun" 
           className="mt-4 w-full py-4 rounded-xl font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple flex items-center justify-center gap-2"
         >
           <MessageSquare className="w-5 h-5" />
-          contact@kineos.com
+          contact@kineos.fun
         </a>
       </div>
     </div>

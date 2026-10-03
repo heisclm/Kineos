@@ -35,7 +35,7 @@ export function AdminLoginForm() {
               required
               disabled={isPending}
               className="w-full pl-10 pr-4 py-2.5 bg-background border border-white/10 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary transition-apple disabled:opacity-50"
-              placeholder="admin@kineos.com"
+              placeholder="admin@kineos.fun"
             />
           </div>
         </div>

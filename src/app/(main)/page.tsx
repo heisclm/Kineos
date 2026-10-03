@@ -14,10 +14,10 @@ export default async function HomePage() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Kineos",
-      "url": "https://kineos.com",
+      "url": "https://kineos.fun",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://kineos.com/search?q={search_term_string}",
+        "target": "https://kineos.fun/search?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     };

@@ -42,7 +42,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const cast = await getCastForContent(series.id, "series").catch(() => []);
   const relatedSeries = await getRelatedSeries(series.id, 5).catch(() => []);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kineos.fun';
   const backdrop = (series as any).backdropUrl || (series as any).imageUrl || null;
   const poster = (series as any).imageUrl || null;
 
@@ -167,7 +167,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
           {series.description && (
             <section className="mb-12">
               <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Storyline</h3>
-              <div className="p-8 md:p-10 rounded-2xl md:rounded-3xl bg-surface/80 border border-white/5 shadow-md text-white/80 leading-relaxed text-justify">
+              <div className="p-6 md:p-10 rounded-2xl md:rounded-3xl bg-surface/40 backdrop-blur-sm border border-white/5 shadow-inner text-white/70 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
                 {series.description}
               </div>
             </section>

@@ -14,18 +14,18 @@ export default function DMCAPolicy() {
         <p className="text-muted-foreground text-sm">Last Updated: {new Date().toLocaleDateString()}</p>
       </div>
 
-      <div className="space-y-8 text-white/80 leading-relaxed text-justify">
+      <div className="space-y-10 text-white/70 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
         <section className="space-y-4">
-          <p>Kineos ("we," "our," or "us") respects the intellectual property rights of others and expects our users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), we will respond expeditiously to claims of copyright infringement committed using the Kineos website (https://kineos.com) that are reported to our Designated Copyright Agent.</p>
+          <p>Kineos ("we," "our," or "us") respects the intellectual property rights of others and expects our users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), we will respond expeditiously to claims of copyright infringement committed using the Kineos website (https://kineos.fun) that are reported to our Designated Copyright Agent.</p>
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Content Disclaimer</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">Content Disclaimer</h2>
           <p>Please note that Kineos acts solely as an indexer and cataloging service. We do not host, upload, or manage any video files, media files, or copyrighted material on our own servers. All content is indexed automatically or provided by third-party services and APIs. Regardless, we take copyright infringement claims very seriously and will remove indexed metadata or links pointing to infringing material upon receipt of a valid DMCA notice.</p>
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Filing a DMCA Notice</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">Filing a DMCA Notice</h2>
           <p>If you are a copyright owner, authorized to act on behalf of one, or authorized to act under any exclusive right under copyright, please report alleged copyright infringements taking place on or through the Site by completing the following DMCA Notice of Alleged Infringement and delivering it to our Designated Agent.</p>
           <ul className="list-disc pl-6 space-y-2 mt-4">
             <li>Identify the copyrighted work that you claim has been infringed.</li>
@@ -42,7 +42,7 @@ export default function DMCAPolicy() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Where to Send the Notice</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">Where to Send the Notice</h2>
           <p>Deliver this Notice, with all items completed, to our Designated Agent by visiting our <a href="/contact" className="text-primary hover:underline">Contact Page</a> or emailing us directly.</p>
           <p>Upon receipt of a valid DMCA Notice, we will review the claim and take appropriate action, including the removal of the reported content or links from our database.</p>
         </section>
