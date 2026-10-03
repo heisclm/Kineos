@@ -32,7 +32,8 @@ export default async function SearchPage({
               slug={movie.slug}
               description={movie.description || ""}
               primaryGenre={"Matched"} // Ideally fetched, mocked for search preview
-              imageUrl=""
+              imageUrl={(movie as any).imageUrl || ""}
+              shortTeaser={(movie as any).shortTeaser}
             />
           ))}
         </div>
@@ -50,3 +51,4 @@ export default async function SearchPage({
     </div>
   );
 }
+

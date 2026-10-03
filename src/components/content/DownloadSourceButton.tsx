@@ -11,6 +11,7 @@ export interface DownloadSource {
   quality?: string;
   format?: string;
   fileSize?: number; // in bytes
+  language?: string;
   url: string;
 }
 
@@ -57,7 +58,13 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
         <span className="text-sm font-bold text-foreground">
           {source.label || source.quality || "HD"} {source.format && !source.label && <span className="text-muted font-medium ml-1 text-xs">{source.format}</span>}
         </span>
-        <span className="text-[11px] font-medium opacity-70 flex items-center gap-1.5">
+        <span className="text-[11px] font-medium opacity-70 flex items-center flex-wrap gap-1.5">
+          {source.language && (
+            <>
+              <span className="uppercase">{source.language}</span>
+              <span className="text-muted-foreground/40">&bull;</span>
+            </>
+          )}
           <span>{source.label ? (source.quality ? `${source.quality} ${source.format || ''}` : source.sourceType.replace('_', ' ')) : source.sourceType.replace('_', ' ')}</span>
           {source.fileSize ? (
             <>
@@ -74,3 +81,4 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
     </Button>
   );
 }
+

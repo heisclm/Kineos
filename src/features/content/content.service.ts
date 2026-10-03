@@ -14,6 +14,7 @@ export async function getLatestMovies(limit = 10) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
+          shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         rating: movies.rating,
         genre: genres.name,
@@ -72,6 +73,7 @@ export async function getTopRatedMovies(limit = 10) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
+          shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         rating: movies.rating,
         ratingScore: movies.ratingScore,
@@ -121,6 +123,7 @@ export async function getTrendingMovies(limit = 10) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
+          shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         rating: movies.rating,
         viewCount: movies.viewCount,
@@ -244,6 +247,7 @@ export async function searchMovies(query: string, limit = 20) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
+          shortTeaser: movies.shortTeaser,
       })
       .from(movies)
       .where(and(
@@ -277,6 +281,7 @@ export async function getSeriesBySlug(slug: string) {
         title: series.title,
         slug: series.slug,
         description: series.description,
+          shortTeaser: series.shortTeaser,
         releaseDate: series.releaseDate,
         
         viewCount: series.viewCount,
@@ -359,6 +364,7 @@ export async function getRelatedMovies(movieId: string, limit = 5) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
+          shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         genre: genres.name,
     })
@@ -371,14 +377,24 @@ export async function getRelatedMovies(movieId: string, limit = 5) {
     
     // Deduplicate by ID
     const unique = [];
-    const seen = new Set();
-    for (const row of result) {
-      if (!seen.has(row.id)) {
-        seen.add(row.id);
-        unique.push(row);
+      const seen = new Set();
+      for (const row of result) {
+        if (!seen.has(row.id)) {
+          seen.add(row.id);
+          unique.push(row);
+        }
       }
-    }
-    return unique;
+      
+      if (unique.length > 0) {
+        const ids = unique.map(r => r.id);
+        const media = await db.select().from(mediaAssets).where(inArray(mediaAssets.contentId, ids));
+        for (const row of unique) {
+          const m = media.find(m => m.contentId === row.id && m.type === 'poster');
+          if (m) (row as any).imageUrl = m.url;
+        }
+      }
+
+      return unique;
   } catch (e) {
     return [];
   }
@@ -391,6 +407,7 @@ export async function getRelatedSeries(seriesId: string, limit = 5) {
         title: series.title,
         slug: series.slug,
         description: series.description,
+          shortTeaser: series.shortTeaser,
         releaseDate: series.releaseDate,
         genre: genres.name,
     })
@@ -402,14 +419,24 @@ export async function getRelatedSeries(seriesId: string, limit = 5) {
     .limit(limit);
     
     const unique = [];
-    const seen = new Set();
-    for (const row of result) {
-      if (!seen.has(row.id)) {
-        seen.add(row.id);
-        unique.push(row);
+      const seen = new Set();
+      for (const row of result) {
+        if (!seen.has(row.id)) {
+          seen.add(row.id);
+          unique.push(row);
+        }
       }
-    }
-    return unique;
+      
+      if (unique.length > 0) {
+        const ids = unique.map(r => r.id);
+        const media = await db.select().from(mediaAssets).where(inArray(mediaAssets.contentId, ids));
+        for (const row of unique) {
+          const m = media.find(m => m.contentId === row.id && m.type === 'poster');
+          if (m) (row as any).imageUrl = m.url;
+        }
+      }
+
+      return unique;
   } catch (e) {
     return [];
   }
@@ -467,3 +494,4 @@ export async function getAdminSeriesById(id: string) {
     return null;
   }
 }
+

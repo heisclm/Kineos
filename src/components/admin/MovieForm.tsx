@@ -171,6 +171,10 @@ export function MovieForm() {
                     placeholder="PG-13"
                   />
                 </div>
+                <div>
+                  <label className={labelClasses}>Language</label>
+                  <input name="language" className={inputClasses} placeholder="e.g. English, Spanish" />
+                </div>
               </div>
             </div>
           </div>
@@ -203,6 +207,7 @@ export function MovieForm() {
     </form>
   );
 }
+
 
 
 

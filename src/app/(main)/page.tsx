@@ -73,7 +73,7 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
         {movies.slice(0, 3).map((movie, idx) => (
-          <div key={movie.id} className="flex gap-6 items-center group cursor-pointer p-4 rounded-xl hover:bg-surface border border-transparent hover:border-white/5 transition-apple">
+          <Link key={movie.id} href={`/movies/${movie.slug}`} className="flex gap-6 items-center group cursor-pointer p-4 rounded-xl hover:bg-surface border border-transparent hover:border-white/5 transition-apple">
             <h1 className="text-6xl md:text-8xl font-black text-white/5 group-hover:text-white/10 transition-apple italic w-12 text-center shrink-0">
               {idx + 1}
             </h1>
@@ -86,13 +86,12 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
               <h4 className="text-lg font-bold text-foreground leading-tight group-hover:text-primary transition-apple mb-2 line-clamp-2">
                 {movie.title}
               </h4>
-              <p className="text-xs text-muted line-clamp-2">{movie.description}</p>
-            </div>
-          </div>
+              <p className="text-xs text-muted line-clamp-2">{movie.description}</p>`n              </div>`n            </Link>
         ))}
       </div>
     </section>
   );
 }
+
 
 

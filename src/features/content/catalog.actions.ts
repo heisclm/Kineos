@@ -21,6 +21,7 @@ export async function fetchCatalogItems(
           title: movies.title,
           slug: movies.slug,
           description: movies.description,
+            shortTeaser: movies.shortTeaser,
           releaseDate: movies.releaseDate,
           rating: movies.rating,
           viewCount: movies.viewCount,
@@ -74,6 +75,7 @@ export async function fetchCatalogItems(
           title: series.title,
           slug: series.slug,
           description: series.description,
+            shortTeaser: series.shortTeaser,
           releaseDate: series.releaseDate,
           rating: sql`NULL`,
           viewCount: series.viewCount,
@@ -125,3 +127,4 @@ export async function fetchCatalogItems(
     return [];
   }
 }
+
