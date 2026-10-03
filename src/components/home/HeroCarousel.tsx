@@ -31,7 +31,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
 
   return (
-    <div className="relative w-full h-[380px] md:h-[450px] lg:h-[550px] rounded-none sm:rounded-xl md:rounded-2xl overflow-hidden bg-surface flex group shadow-sm border border-white/5 transition-apple">
+    <div className="relative w-full h-[460px] sm:h-[400px] md:h-[450px] lg:h-[550px] rounded-none sm:rounded-xl md:rounded-2xl overflow-hidden bg-surface flex group sm:shadow-sm border-0 sm:border sm:border-white/5 transition-apple">
       {/* Background/Artwork with Cinematic Gradients */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent z-10 w-full md:w-3/4 lg:w-2/3" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 h-full opacity-90 md:opacity-80" />
@@ -56,7 +56,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
       {/* Content */}
       <div 
         key={`content-${movie.id}`} 
-        className="relative z-20 w-full md:w-3/4 lg:w-1/2 p-6 pb-16 md:p-12 flex flex-col justify-end md:justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700"
+        className="relative z-20 w-full md:w-3/4 lg:w-1/2 p-6 pb-16 pt-12 md:p-12 flex flex-col justify-end md:justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700"
       >
         <div className="flex flex-wrap items-center gap-2 mb-4 md:mb-6">
           {movie.genres?.slice(0, 3).map((g: string) => (
