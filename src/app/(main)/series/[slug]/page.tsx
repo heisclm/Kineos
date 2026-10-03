@@ -67,7 +67,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
       
                   {/* Series Hero/Backdrop Layer */}
       <div className="w-full relative bg-background">
-        <div className="w-full h-[50vh] md:h-[70vh] min-h-[450px] md:min-h-[600px] relative flex flex-col justify-end">
+        <div className="w-full h-[60vh] md:h-[70vh] min-h-[500px] md:min-h-[600px] relative flex flex-col justify-end">
            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10 w-2/3" />
            
