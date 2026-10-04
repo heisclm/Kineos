@@ -26,6 +26,7 @@ export async function fetchCatalogItems(
           rating: movies.rating,
           ratingScore: movies.ratingScore,
           viewCount: movies.viewCount,
+          createdAt: movies.createdAt,
         })
         .from(movies)
         .leftJoin(movieGenres, eq(movies.id, movieGenres.movieId))
@@ -80,6 +81,7 @@ export async function fetchCatalogItems(
           releaseDate: series.releaseDate,
           rating: series.rating,
           viewCount: series.viewCount,
+          createdAt: series.createdAt,
         })
         .from(series)
         .leftJoin(seriesGenres, eq(series.id, seriesGenres.seriesId))

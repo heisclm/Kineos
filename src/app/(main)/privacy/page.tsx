@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Kineos',
+  title: 'Privacy Policy',
   description: 'Privacy Policy for Kineos - Understanding how we collect, use, and protect your data.',
 };
 

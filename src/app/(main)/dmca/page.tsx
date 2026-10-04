@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'DMCA & Copyright Policy | Kineos',
+  title: 'DMCA Notice',
   description: 'Digital Millennium Copyright Act (DMCA) Notice and Takedown Procedure for Kineos.',
 };
 

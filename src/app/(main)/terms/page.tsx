@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Kineos',
+  title: 'Terms of Service',
   description: 'Terms of Service and User Agreement for Kineos.',
 };
 

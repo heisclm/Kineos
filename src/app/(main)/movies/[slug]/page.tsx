@@ -21,11 +21,11 @@ export async function generateMetadata(
   }
   
   if (!movie) {
-    return { title: 'Movie Not Found | Kineos' };
+    return { title: 'Movie Not Found' };
   }
 
   return {
-    title: `${movie.seoTitle || movie.title} | Kineos`,
+    title: `${movie.seoTitle || movie.title}`,
     description: movie.seoDescription || movie.description,
     openGraph: {
       title: movie.title,

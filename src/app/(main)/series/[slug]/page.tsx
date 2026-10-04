@@ -17,11 +17,11 @@ export async function generateMetadata(
   const series = await getSeriesBySlug(params.slug);
   
   if (!series) {
-    return { title: 'Series Not Found | Kineos' };
+    return { title: 'Series Not Found' };
   }
 
   return {
-    title: `${series.title} | Kineos`,
+    title: `${series.title}`,
     description: series.description,
     openGraph: {
       title: series.title,

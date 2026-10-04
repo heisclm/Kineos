@@ -3,7 +3,7 @@ import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 
 export const metadata = {
-  title: "TV Series | Kineos",
+  title: "TV Series",
   description: "Browse premium TV series and episodic content.",
 };
 

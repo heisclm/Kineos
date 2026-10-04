@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { Mail, MessageSquare } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Kineos',
+  title: 'Contact Us',
   description: 'Get in touch with the Kineos team.',
 };
 
