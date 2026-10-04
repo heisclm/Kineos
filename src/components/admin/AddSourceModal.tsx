@@ -11,9 +11,10 @@ interface AddSourceModalProps {
   onClose: () => void;
   contentId: string;
   contentType: "movie" | "series" | "episode";
+  seriesId?: string;
 }
 
-export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddSourceModalProps) {
+export function AddSourceModal({ isOpen, onClose, contentId, contentType, seriesId }: AddSourceModalProps) {
   const [sourceType, setSourceType] = useState<"CLOUDFLARE_R2" | "DIRECT_URL" | "TORRENT_MAGNET">("CLOUDFLARE_R2");
   const [isPending, startTransition] = useTransition();
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -64,6 +65,7 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType }: AddS
     const formData = new FormData(e.currentTarget);
     formData.append("contentId", contentId);
     formData.append("contentType", contentType);
+    if (seriesId) formData.append("seriesId", seriesId);
     formData.append("sourceType", sourceType);
 
     const sizeMB = formData.get("fileSizeMB");

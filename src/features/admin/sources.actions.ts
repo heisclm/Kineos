@@ -12,6 +12,7 @@ export async function addDownloadSource(formData: FormData) {
   try {
     const contentId = formData.get("contentId") as string;
     const contentType = formData.get("contentType") as "movie" | "series" | "episode";
+    const seriesId = formData.get("seriesId") as string | null;
     const sourceType = formData.get("sourceType") as string;
     const url = formData.get("url") as string;
     const label = formData.get("label") as string;
@@ -36,7 +37,13 @@ export async function addDownloadSource(formData: FormData) {
       isActive: true,
     });
 
+    if (seriesId) {
+      revalidatePath(`/admin/series/${seriesId}`);
+    }
     revalidatePath(`/admin/${contentType === "movie" ? "movies" : "series"}/${contentId}`);
+    revalidatePath('/series');
+    revalidatePath('/movies');
+    revalidatePath('/');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to add download source:", error);
@@ -44,24 +51,36 @@ export async function addDownloadSource(formData: FormData) {
   }
 }
 
-export async function deleteDownloadSource(id: string, contentId: string, contentType: "movie" | "series" | "episode") {
+export async function deleteDownloadSource(id: string, contentId: string, contentType: "movie" | "series" | "episode", seriesId?: string) {
   const isAdmin = await verifyAdminAccess();
   if (!isAdmin) throw new Error("Unauthorized");
   try {
     await db.delete(downloadSources).where(eq(downloadSources.id, id));
+    if (seriesId) {
+      revalidatePath(`/admin/series/${seriesId}`);
+    }
     revalidatePath(`/admin/${contentType === "movie" ? "movies" : "series"}/${contentId}`);
+    revalidatePath('/series');
+    revalidatePath('/movies');
+    revalidatePath('/');
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
 
-export async function toggleDownloadSource(id: string, isActive: boolean, contentId: string, contentType: "movie" | "series" | "episode") {
+export async function toggleDownloadSource(id: string, isActive: boolean, contentId: string, contentType: "movie" | "series" | "episode", seriesId?: string) {
   const isAdmin = await verifyAdminAccess();
   if (!isAdmin) throw new Error("Unauthorized");
   try {
     await db.update(downloadSources).set({ isActive }).where(eq(downloadSources.id, id));
+    if (seriesId) {
+      revalidatePath(`/admin/series/${seriesId}`);
+    }
     revalidatePath(`/admin/${contentType === "movie" ? "movies" : "series"}/${contentId}`);
+    revalidatePath('/series');
+    revalidatePath('/movies');
+    revalidatePath('/');
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

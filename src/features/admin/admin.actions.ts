@@ -229,29 +229,82 @@ export async function createSeason(seriesId: string, seasonNumber: number, title
     await db.insert(seasons).values({
       seriesId,
       seasonNumber,
-      title
+      title: title || `Season ${seasonNumber}`
     });
     revalidatePath('/admin/series/' + seriesId);
+    revalidatePath('/series');
+    revalidatePath('/');
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message + " " + JSON.stringify(e) };
   }
 }
 
-export async function createEpisode(seasonId: string, episodeNumber: number, title: string, seriesId: string) {
+export async function deleteSeason(seasonId: string, seriesId: string) {
   const isAdmin = await verifyAdminAccess();
   if (!isAdmin) throw new Error("Unauthorized");
   try {
-    await db.insert(episodes).values({
+    // 1. Find all episodes for this season
+    const epRows = await db.select({ id: episodes.id }).from(episodes).where(eq(episodes.seasonId, seasonId));
+    for (const ep of epRows) {
+      await db.delete(downloadSources).where(eq(downloadSources.contentId, ep.id));
+      await db.delete(mediaAssets).where(eq(mediaAssets.contentId, ep.id));
+    }
+    await db.delete(episodes).where(eq(episodes.seasonId, seasonId));
+    await db.delete(seasons).where(eq(seasons.id, seasonId));
+
+    revalidatePath('/admin/series/' + seriesId);
+    revalidatePath('/series');
+    revalidatePath('/');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function createEpisode(
+  seasonId: string,
+  episodeNumber: number,
+  title: string,
+  seriesId: string,
+  description?: string,
+  runtime?: number
+) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
+  try {
+    const inserted = await db.insert(episodes).values({
       seasonId,
       episodeNumber,
       title,
+      description: description || null,
+      runtime: runtime || null,
       publicationStatus: 'published'
-    });
+    }).returning({ id: episodes.id });
+
     revalidatePath('/admin/series/' + seriesId);
-    return { success: true };
+    revalidatePath('/series');
+    revalidatePath('/');
+    return { success: true, id: inserted[0]?.id };
   } catch (e: any) {
     return { success: false, error: e.message + " " + JSON.stringify(e) };
+  }
+}
+
+export async function deleteEpisode(episodeId: string, seriesId: string) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) throw new Error("Unauthorized");
+  try {
+    await db.delete(downloadSources).where(eq(downloadSources.contentId, episodeId));
+    await db.delete(mediaAssets).where(eq(mediaAssets.contentId, episodeId));
+    await db.delete(episodes).where(eq(episodes.id, episodeId));
+
+    revalidatePath('/admin/series/' + seriesId);
+    revalidatePath('/series');
+    revalidatePath('/');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
   }
 }
 

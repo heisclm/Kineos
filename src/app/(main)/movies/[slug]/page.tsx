@@ -16,29 +16,76 @@ export async function generateMetadata(
   { params }: { params: { slug: string } },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  let movie = await getMovieBySlug(params.slug);
-  if (!movie) {
-  }
+  const movie = await getMovieBySlug(params.slug);
   
   if (!movie) {
     return { title: 'Movie Not Found' };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
+  const poster = (movie as any).imageUrl || null;
+  const backdrop = (movie as any).backdropUrl || null;
+  const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null;
+
+  const title = movie.seoTitle 
+    ? movie.seoTitle 
+    : releaseYear 
+      ? `${movie.title} (${releaseYear}) — Watch & Download Movie` 
+      : `${movie.title} — Watch & Download Movie`;
+
+  const description = movie.seoDescription || (
+    movie.description 
+      ? `${movie.description.slice(0, 155).trim()}... Stream and download ${movie.title} in HD on Kineos.`
+      : `Watch and download ${movie.title} in top quality. Verified cast details, storyline synopsis, and streaming options on Kineos.`
+  );
+
+  const keywords = [
+    movie.title,
+    `${movie.title} movie`,
+    `watch ${movie.title}`,
+    `watch ${movie.title} online`,
+    `${movie.title} full movie`,
+    `${movie.title} download`,
+    `${movie.title} stream`,
+    `${movie.title} cast`,
+    "Kineos movies",
+    "download HD movies",
+    "free movie streaming"
+  ];
+
   return {
-    title: `${movie.seoTitle || movie.title}`,
-    description: movie.seoDescription || movie.description,
+    title,
+    description,
+    keywords,
+    alternates: {
+      canonical: `${siteUrl}/movies/${movie.slug}`,
+    },
     openGraph: {
-      title: movie.title,
-      description: movie.description || undefined,
+      title,
+      description,
+      url: `${siteUrl}/movies/${movie.slug}`,
+      siteName: "Kineos",
       type: "video.movie",
+      images: (poster || backdrop) ? [
+        {
+          url: poster || backdrop,
+          width: 1200,
+          height: 630,
+          alt: movie.title,
+        }
+      ] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: (poster || backdrop) ? [poster || backdrop] : undefined,
     },
   };
 }
 
 export default async function MovieDetailPage({ params }: { params: { slug: string } }) {
   let movie = await getMovieBySlug(params.slug);
-  if (!movie) {
-  }
 
   if (!movie) {
     notFound();
@@ -55,26 +102,55 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Movie",
-    name: movie.title,
-    description: movie.description,
-    dateCreated: movie.releaseDate,
-    image: poster || backdrop || undefined,
-    url: `${siteUrl}/movies/${movie.slug}`,
-    director: cast.filter(c => c.role === 'director').map(c => ({
-      "@type": "Person",
-      name: c.name
-    })),
-    actor: cast.filter(c => c.role === 'actor').map(c => ({
-      "@type": "Person",
-      name: c.name
-    })),
-    aggregateRating: movie.ratingScore ? {
-      "@type": "AggregateRating",
-      ratingValue: movie.ratingScore / 10,
-      bestRating: "10",
-      ratingCount: movie.viewCount || 100
-    } : undefined
+    "@graph": [
+      {
+        "@type": "Movie",
+        "@id": `${siteUrl}/movies/${movie.slug}#movie`,
+        name: movie.title,
+        description: movie.description,
+        dateCreated: movie.releaseDate,
+        image: poster || backdrop || undefined,
+        url: `${siteUrl}/movies/${movie.slug}`,
+        director: cast.filter((c: any) => c.role === 'director').map((c: any) => ({
+          "@type": "Person",
+          name: c.name
+        })),
+        actor: cast.filter((c: any) => c.role === 'actor').map((c: any) => ({
+          "@type": "Person",
+          name: c.name
+        })),
+        aggregateRating: movie.ratingScore ? {
+          "@type": "AggregateRating",
+          ratingValue: movie.ratingScore / 10,
+          bestRating: "10",
+          ratingCount: movie.viewCount || 100
+        } : undefined
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${siteUrl}/movies/${movie.slug}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: siteUrl,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Movies",
+            item: `${siteUrl}/movies`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: movie.title,
+            item: `${siteUrl}/movies/${movie.slug}`,
+          },
+        ],
+      },
+    ],
   };
 
   return (

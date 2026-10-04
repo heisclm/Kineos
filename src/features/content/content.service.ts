@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { movies, series, genres, movieGenres, seriesGenres, mediaAssets, downloadSources, people, movieCast, seriesCast } from "@/lib/db/schema";
-import { desc, eq, and, ilike, sql, inArray } from "drizzle-orm";
+import { movies, series, seasons, episodes, genres, movieGenres, seriesGenres, mediaAssets, downloadSources, people, movieCast, seriesCast } from "@/lib/db/schema";
+import { desc, eq, and, ilike, sql, inArray, asc } from "drizzle-orm";
 
 
  /**
@@ -279,24 +279,20 @@ export async function searchMovies(query: string, limit = 20) {
 export async function getSeriesBySlug(slug: string) {
   try {
     const result = await db
-      .select({
-        id: series.id,
-        title: series.title,
-        slug: series.slug,
-        description: series.description,
-          shortTeaser: series.shortTeaser,
-        releaseDate: series.releaseDate,
-        
-        viewCount: series.viewCount,
-        
-        
-      })
+      .select()
       .from(series)
       .where(and(eq(series.slug, slug), eq(series.publicationStatus, "published")))
       .limit(1);
 
     if (result.length === 0) return null;
-    const show = result[0];
+    const show = result[0] as any;
+
+    // Fetch media assets (poster & backdrop)
+    const media = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, show.id));
+    for (const m of media) {
+      if (m.type === 'poster') show.imageUrl = m.url;
+      if (m.type === 'backdrop') show.backdropUrl = m.url;
+    }
 
     const showGenres = await db
       .select({ name: genres.name })
@@ -316,17 +312,46 @@ export async function getSeriesBySlug(slug: string) {
 
 export async function getSeriesEpisodes(seriesId: string) {
   try {
-    const { seasons, episodes } = require('@/lib/db/schema');
-    const { asc, eq } = require('drizzle-orm');
-    
-    const allSeasons = await db.select().from(seasons).where(eq(seasons.seriesId, seriesId)).orderBy(asc(seasons.seasonNumber));
-    const allEpisodes = await db.select().from(episodes).orderBy(asc(episodes.episodeNumber));
-    
-    return allSeasons.map(s => ({
+    const allSeasons = await db
+      .select()
+      .from(seasons)
+      .where(eq(seasons.seriesId, seriesId))
+      .orderBy(asc(seasons.seasonNumber));
+
+    if (allSeasons.length === 0) return [];
+
+    const seasonIds = allSeasons.map((s) => s.id);
+    const allEpisodes = await db
+      .select()
+      .from(episodes)
+      .where(inArray(episodes.seasonId, seasonIds))
+      .orderBy(asc(episodes.episodeNumber));
+
+    const episodeIds = allEpisodes.map((e) => e.id);
+    const allSources = episodeIds.length > 0
+      ? await db
+          .select()
+          .from(downloadSources)
+          .where(
+            and(
+              eq(downloadSources.contentType, 'episode'),
+              inArray(downloadSources.contentId, episodeIds),
+              eq(downloadSources.isActive, true)
+            )
+          )
+      : [];
+
+    return allSeasons.map((s) => ({
       ...s,
-      episodes: allEpisodes.filter(e => e.seasonId === s.id)
+      episodes: allEpisodes
+        .filter((e) => e.seasonId === s.id)
+        .map((e) => ({
+          ...e,
+          sources: allSources.filter((src) => src.contentId === e.id),
+        })),
     }));
   } catch (error: any) {
+    console.error("Database connection failed (getSeriesEpisodes).", error.message);
     return [];
   }
 }
@@ -490,6 +515,8 @@ export async function getAdminSeriesById(id: string) {
 
       const genreRows = await db.select({ name: genres.name }).from(seriesGenres).innerJoin(genres, eq(seriesGenres.genreId, genres.id)).where(eq(seriesGenres.seriesId, s.id));
       (s as any).genres = genreRows.map(g => g.name);
+
+      (s as any).seasons = await getSeriesEpisodes(s.id);
     }
     return s;
   } catch (error: any) {
