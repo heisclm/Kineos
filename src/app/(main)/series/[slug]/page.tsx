@@ -12,6 +12,8 @@ import { generateSeriesKeywords } from "@/lib/seo";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(
   { params }: { params: { slug: string } },
   parent: ResolvingMetadata
@@ -273,6 +275,13 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                     <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes & Downloads
                   </Button>
                 </a>
+                {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
+                  <a href="#batch-downloads">
+                    <Button size="lg" variant="secondary" className="rounded-full px-6 gap-2 font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 hover:scale-105 transition-apple shadow-lg">
+                      <Download className="w-4 h-4 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
+                    </Button>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -327,6 +336,26 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   </div>
                 ))}
               </div>
+            </section>
+          )}
+
+          {/* Complete Series / Season Batch Downloads (If Available) */}
+          {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
+            <section id="batch-downloads" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                    <Download className="w-5 h-5 text-primary" /> Full Series & Season Downloads
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Download full season packages and complete series batches in high quality.
+                  </p>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20">
+                  {seriesBatchDownloads.length} {seriesBatchDownloads.length === 1 ? 'Source' : 'Sources'}
+                </span>
+              </div>
+              <DownloadSourceList sources={seriesBatchDownloads as any} />
             </section>
           )}
 
@@ -439,14 +468,6 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               </div>
             )}
           </section>
-
-          {/* Complete Series / Season Batch Downloads (If Available) */}
-          {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-            <section id="batch-downloads">
-              <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Complete Series / Season Packs</h3>
-              <DownloadSourceList sources={seriesBatchDownloads as any} />
-            </section>
-          )}
         </div>
 
         {/* Sidebar: Comprehensive Series Info */}

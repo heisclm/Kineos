@@ -10,6 +10,7 @@ import {
   date,
   primaryKey,
   uniqueIndex,
+  bigint,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -245,7 +246,7 @@ export const downloadSources = pgTable("download_sources", {
   url: text("url").notNull(),
   storageKey: text("storage_key"),
   quality: varchar("quality", { length: 50 }),
-  fileSize: varchar("file_size", { length: 50 }),
+  fileSize: bigint("file_size", { mode: "number" }),
   format: varchar("format", { length: 50 }),
   language: varchar("language", { length: 50 }),
   sortOrder: integer("sort_order").default(0),

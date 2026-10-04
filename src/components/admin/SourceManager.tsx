@@ -1,21 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Power, Download, Link as LinkIcon, Magnet } from "lucide-react";
+import { Plus, Trash2, Power, Download, Link as LinkIcon, Magnet } from "lucide-react";
 import { AddSourceModal } from "./AddSourceModal";
 import { toggleDownloadSource, deleteDownloadSource } from "@/features/admin/sources.actions";
 
 export function SourceManager({ contentId, contentType, sources }: { contentId: string, contentType: "movie" | "series" | "episode", sources: any[] }) {
+  const router = useRouter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleToggle = async (id: string, currentStatus: boolean) => {
-    await toggleDownloadSource(id, !currentStatus, contentId, contentType);
+    const res = await toggleDownloadSource(id, !currentStatus, contentId, contentType);
+    if (res?.success) {
+      toast.success(currentStatus ? "Source disabled" : "Source enabled");
+      router.refresh();
+    } else {
+      toast.error(res?.error || "Failed to update source status");
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this source?")) {
-      await deleteDownloadSource(id, contentId, contentType);
+      const res = await deleteDownloadSource(id, contentId, contentType);
+      if (res?.success) {
+        toast.success("Source deleted successfully");
+        router.refresh();
+      } else {
+        toast.error(res?.error || "Failed to delete source");
+      }
     }
   };
 
@@ -67,9 +82,6 @@ export function SourceManager({ contentId, contentType, sources }: { contentId: 
                 >
                   <Power className="w-3.5 h-3.5" />
                   {source.isActive ? 'Disable' : 'Enable'}
-                </Button>
-                <Button variant="ghost" size="icon" className="rounded-full w-8 h-8 text-muted hover:text-foreground hover:bg-white/5">
-                  <Edit className="w-4 h-4" />
                 </Button>
                 <Button 
                   variant="ghost" 

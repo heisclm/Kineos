@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, Tv, Loader2, Trash2, ChevronDown, ChevronUp, Download, Link as LinkIcon, Magnet, Clock } from "lucide-react";
 import { createSeason, deleteSeason, createEpisode, deleteEpisode } from "@/features/admin/admin.actions";
@@ -14,6 +15,7 @@ interface EpisodeManagerProps {
 }
 
 export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [seasonNumber, setSeasonNumber] = useState("");
   const [seasonTitle, setSeasonTitle] = useState("");
@@ -50,6 +52,7 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
         toast.success(`Season ${num} created!`);
         setSeasonNumber("");
         setSeasonTitle("");
+        router.refresh();
       } else {
         toast.error(res.error || "Failed to create season");
       }
@@ -64,6 +67,7 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
       const res = await deleteSeason(seasonId, seriesId);
       if (res.success) {
         toast.success(`Season ${sNum} deleted`);
+        router.refresh();
       } else {
         toast.error(res.error || "Failed to delete season");
       }
@@ -86,6 +90,7 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
           ...prev,
           [seasonId]: { number: "", title: "", runtime: "", description: "" },
         }));
+        router.refresh();
       } else {
         toast.error(res.error || "Failed to add episode");
       }
@@ -100,6 +105,7 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
       const res = await deleteEpisode(episodeId, seriesId);
       if (res.success) {
         toast.success(`Episode ${epNum} deleted`);
+        router.refresh();
       } else {
         toast.error(res.error || "Failed to delete episode");
       }
@@ -112,6 +118,7 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
       const res = await deleteDownloadSource(sourceId, episodeId, "episode", seriesId);
       if (res.success) {
         toast.success("Download link deleted");
+        router.refresh();
       } else {
         toast.error(res.error || "Failed to delete download link");
       }

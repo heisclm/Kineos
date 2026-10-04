@@ -13,6 +13,8 @@ import { generateMovieKeywords } from "@/lib/seo";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(
   { params }: { params: { slug: string } },
   parent: ResolvingMetadata
@@ -202,6 +204,16 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                     </div>
                   )}
                   <div className="pb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
+                        MOVIE
+                      </Badge>
+                      {((movie as any).genres || []).map((g: string) => (
+                        <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] font-medium bg-white/10 border-white/20 text-white/90">
+                          {g}
+                        </Badge>
+                      ))}
+                    </div>
                     <h1 className="text-3xl font-bold text-foreground leading-[1.1] tracking-tight text-balance drop-shadow-2xl mb-2">
                       {movie.title}
                     </h1>
@@ -213,6 +225,18 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                         <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.5} /> {movie.rating || 'NR'}</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Desktop Badges */}
+                <div className="hidden md:flex flex-wrap items-center gap-3 mb-4">
+                  <Badge variant="glass" className="px-3 py-1 text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
+                    MOVIE
+                  </Badge>
+                  {((movie as any).genres || []).map((g: string) => (
+                    <Badge key={g} variant="glass" className="px-3 py-1 text-xs font-medium bg-white/10 border-white/20 text-white/90">
+                      {g}
+                    </Badge>
+                  ))}
                 </div>
 
                 <h1 className="hidden md:block text-5xl lg:text-7xl font-bold text-foreground mb-4 leading-[1.1] tracking-tight text-balance drop-shadow-2xl">
@@ -296,6 +320,18 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
            <div className="p-8 rounded-xl bg-surface border border-white/5">
               <h3 className="text-lg font-semibold tracking-tight text-foreground mb-6">Movie Info</h3>
               <dl className="space-y-5 text-sm">
+                {(movie as any).genres && (movie as any).genres.length > 0 && (
+                  <div>
+                    <dt className="text-muted mb-1.5">Genres</dt>
+                    <dd className="flex flex-wrap gap-1.5">
+                      {(movie as any).genres.map((g: string) => (
+                        <span key={g} className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/90 font-medium">
+                          {g}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                )}
                 {movie.status && (
                   <div>
                     <dt className="text-muted mb-1.5">Status</dt>

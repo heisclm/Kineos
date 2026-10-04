@@ -2,6 +2,8 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { X, UploadCloud, Link as LinkIcon, Magnet } from "lucide-react";
 import { addDownloadSource, generateR2UploadUrl } from "@/features/admin/sources.actions";
@@ -15,7 +17,8 @@ interface AddSourceModalProps {
 }
 
 export function AddSourceModal({ isOpen, onClose, contentId, contentType, seriesId }: AddSourceModalProps) {
-  const [sourceType, setSourceType] = useState<"CLOUDFLARE_R2" | "DIRECT_URL" | "TORRENT_MAGNET">("CLOUDFLARE_R2");
+  const router = useRouter();
+  const [sourceType, setSourceType] = useState<"CLOUDFLARE_R2" | "DIRECT_URL" | "TORRENT_MAGNET">("DIRECT_URL");
   const [isPending, startTransition] = useTransition();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadState, setUploadState] = useState<"IDLE" | "UPLOADING" | "PROCESSING" | "READY" | "FAILED">("IDLE");
@@ -33,7 +36,7 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
   };
 
   const simulateR2Upload = (file: File): Promise<{ storageKey: string, size: number }> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       setUploadState("UPLOADING");
       setUploadProgress(0);
       
@@ -51,12 +54,12 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
           setTimeout(() => {
             setUploadState("READY");
             resolve({
-              storageKey: `media/movies/${contentId}/${Date.now()}-${file.name}`,
+              storageKey: `media/${contentType}/${contentId}/${Date.now()}-${file.name}`,
               size: file.size
             });
-          }, 1000);
+          }, 800);
         }
-      }, 200); // Simulate upload over 4 seconds
+      }, 150);
     });
   };
 
@@ -69,7 +72,7 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
     formData.append("sourceType", sourceType);
 
     const sizeMB = formData.get("fileSizeMB");
-    if (sizeMB) {
+    if (sizeMB && !isNaN(parseFloat(sizeMB as string))) {
       formData.append("fileSize", Math.round(parseFloat(sizeMB as string) * 1024 * 1024).toString());
       formData.delete("fileSizeMB");
     }
@@ -78,28 +81,29 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
       if (!fileToUpload) return alert("Please select a file.");
       
       try {
-        // Step 1: Initialize upload and get signed URL (mocked)
         const init = await generateR2UploadUrl(fileToUpload.name, fileToUpload.type);
         if (!init.success) throw new Error("Failed to initialize upload");
 
-        // Step 2: Upload file directly to R2 (simulated)
         const result = await simulateR2Upload(fileToUpload);
-        
-        // Step 3: Save metadata to DB
         formData.append("storageKey", result.storageKey);
         formData.append("fileSize", result.size.toString());
-        formData.append("url", `https://cdn.kineos.mock/${result.storageKey}`); // Mock CDN URL
-        
+        formData.append("url", `https://cdn.kineos.mock/${result.storageKey}`);
       } catch (err) {
         setUploadState("FAILED");
+        toast.error("Cloudflare R2 simulated upload failed");
         return;
       }
     }
 
     startTransition(async () => {
-      await addDownloadSource(formData);
-      onClose();
-      // Reset state
+      const res = await addDownloadSource(formData);
+      if (res?.success) {
+        toast.success("Download source added successfully!");
+        onClose();
+        router.refresh();
+      } else {
+        toast.error(res?.error || "Failed to save download source");
+      }
       setUploadState("IDLE");
       setUploadProgress(0);
       setFileToUpload(null);
@@ -122,14 +126,6 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
           <div className="grid grid-cols-3 gap-3">
             <button
               type="button"
-              onClick={() => setSourceType("CLOUDFLARE_R2")}
-              className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-apple ${sourceType === "CLOUDFLARE_R2" ? "bg-download-r2/10 border-download-r2 text-download-r2" : "bg-surface-elevated border-white/5 text-muted hover:text-foreground hover:bg-surface-hover"}`}
-            >
-              <UploadCloud className="w-6 h-6" />
-              <span className="text-xs font-semibold">Cloudflare R2</span>
-            </button>
-            <button
-              type="button"
               onClick={() => setSourceType("DIRECT_URL")}
               className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-apple ${sourceType === "DIRECT_URL" ? "bg-download-direct/10 border-download-direct text-download-direct" : "bg-surface-elevated border-white/5 text-muted hover:text-foreground hover:bg-surface-hover"}`}
             >
@@ -144,17 +140,25 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
               <Magnet className="w-6 h-6" />
               <span className="text-xs font-semibold">Magnet</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setSourceType("CLOUDFLARE_R2")}
+              className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-apple ${sourceType === "CLOUDFLARE_R2" ? "bg-download-r2/10 border-download-r2 text-download-r2" : "bg-surface-elevated border-white/5 text-muted hover:text-foreground hover:bg-surface-hover"}`}
+            >
+              <UploadCloud className="w-6 h-6" />
+              <span className="text-xs font-semibold">Cloudflare R2</span>
+            </button>
           </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Label</label>
-                <input name="label" placeholder="e.g. 1080p WebRip" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+                <input name="label" placeholder="e.g. 1080p WebRip, Full Season Pack" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Quality</label>
-                <input name="quality" placeholder="e.g. 1080p, 4K" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+                <input name="quality" placeholder="e.g. 1080p, 720p, 4K" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Format</label>
@@ -162,13 +166,27 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Size (MB)</label>
-                <input name="fileSizeMB" type="number" step="0.1" placeholder="e.g. 2400 for 2.4GB" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+                <input name="fileSizeMB" type="number" step="0.1" placeholder="e.g. 1400 (for 1.4GB)" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Language</label>
-                <input name="language" placeholder="e.g. English" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+                <input name="language" placeholder="e.g. English, Multi" className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
               </div>
             </div>
+
+            {sourceType === "DIRECT_URL" && (
+              <div className="space-y-1.5 pt-2">
+                <label className="text-xs font-medium text-muted-foreground">Direct Download URL</label>
+                <input name="url" type="url" placeholder="https://example.com/video.mp4" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+              </div>
+            )}
+
+            {sourceType === "TORRENT_MAGNET" && (
+              <div className="space-y-1.5 pt-2">
+                <label className="text-xs font-medium text-muted-foreground">Magnet URI or Torrent URL</label>
+                <input name="url" type="text" pattern="^(magnet:\?xt=urn:btih:.*|https?://.*\.torrent)$" placeholder="magnet:?xt=urn:btih:... or https://.../*.torrent" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+              </div>
+            )}
 
             {sourceType === "CLOUDFLARE_R2" && (
               <div className="space-y-1.5 pt-2">
@@ -199,20 +217,6 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
                 )}
               </div>
             )}
-
-            {sourceType === "DIRECT_URL" && (
-              <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-medium text-muted-foreground">Direct Download URL</label>
-                <input name="url" type="url" placeholder="https://example.com/movie.mp4" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
-              </div>
-            )}
-
-            {sourceType === "TORRENT_MAGNET" && (
-              <div className="space-y-1.5 pt-2">
-                <label className="text-xs font-medium text-muted-foreground">Magnet URI or Torrent URL</label>
-                <input name="url" type="text" pattern="^(magnet:\?xt=urn:btih:.*|https?://.*\.torrent)$" placeholder="magnet:?xt=urn:btih:... or https://.../*.torrent" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
-              </div>
-            )}
           </div>
 
           <div className="pt-6 border-t border-white/5 flex justify-end gap-3">
@@ -227,5 +231,3 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
     document.body
   );
 }
-
-
