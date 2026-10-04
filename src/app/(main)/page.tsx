@@ -7,9 +7,9 @@ import Image from "next/image";
 
 export default async function HomePage() {
   let featuredMovies = await getFeaturedMovies(5);
-  let newReleases = await getLatestMovies(5);
+  let newReleases = await getLatestMovies(10);
   let trendingMovies = await getTrendingMovies(3);
-  let topRatedMovies = await getTopRatedMovies(5);
+  let topRatedMovies = await getTopRatedMovies(10);
 
     const jsonLd = {
       "@context": "https://schema.org",
@@ -55,7 +55,7 @@ function StandardRow({ title, subtitle, movies, link }: { title: string; subtitl
   if (!movies || movies.length === 0) return null;
   return (
     <section className="px-6 md:px-10">
-      <div className="flex items-end justify-between mb-6">
+      <div className="flex items-end justify-between mb-4 md:mb-6">
         <div>
           <h3 className="text-xl font-semibold tracking-tight text-foreground">{title}</h3>
           {subtitle && <p className="text-sm text-muted mt-1">{subtitle}</p>}
@@ -64,9 +64,11 @@ function StandardRow({ title, subtitle, movies, link }: { title: string; subtitl
           See All
         </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+      <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 pt-1 snap-x snap-mandatory hide-scrollbar -mx-6 px-6 md:-mx-10 md:px-10">
         {movies.map((movie) => (
-          <MovieCard key={movie.id} {...movie} primaryGenre={movie.genres?.[0] || 'Movie'} imageUrl={(movie as any).imageUrl || ""} />
+          <div key={movie.id} className="w-[145px] sm:w-[175px] md:w-[200px] lg:w-[220px] shrink-0 snap-start">
+            <MovieCard {...movie} primaryGenre={movie.genres?.[0] || 'Movie'} imageUrl={(movie as any).imageUrl || ""} />
+          </div>
         ))}
       </div>
     </section>
