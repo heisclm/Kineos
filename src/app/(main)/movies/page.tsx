@@ -2,9 +2,32 @@ import { fetchCatalogItems } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Movies",
-  description: "Browse the latest and greatest movies.",
+  description: "Browse our curated collection of movies on Kineos. Stream and download blockbuster hits, action thrillers, and drama releases in high definition.",
+  keywords: [
+    "movies",
+    "watch movies online",
+    "download HD movies",
+    "stream movies free",
+    "latest movies",
+    "popular movies",
+    "action movies",
+    "comedy movies",
+    "Kineos movies"
+  ],
+  alternates: {
+    canonical: "https://www.kineos.fun/movies",
+  },
+  openGraph: {
+    title: "Movies | Kineos",
+    description: "Browse our curated collection of movies on Kineos. Stream and download blockbuster hits, action thrillers, and drama releases in high definition.",
+    url: "https://www.kineos.fun/movies",
+    siteName: "Kineos",
+    type: "website",
+  },
 };
 
 export default async function MoviesIndexPage({

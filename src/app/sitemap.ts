@@ -6,21 +6,28 @@ import { eq, desc } from 'drizzle-orm';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
 
-  // Fetch all published movies
-  const allMovies = await db
-    .select({ slug: movies.slug, updatedAt: movies.updatedAt })
-    .from(movies)
-    .where(eq(movies.publicationStatus, "published"))
-    .orderBy(desc(movies.updatedAt))
-    .limit(50000);
+  let allMovies: { slug: string; updatedAt: Date | null }[] = [];
+  let allSeries: { slug: string; updatedAt: Date | null }[] = [];
 
-  // Fetch all published series
-  const allSeries = await db
-    .select({ slug: series.slug, updatedAt: series.updatedAt })
-    .from(series)
-    .where(eq(series.publicationStatus, "published"))
-    .orderBy(desc(series.updatedAt))
-    .limit(50000);
+  try {
+    // Fetch all published movies
+    allMovies = await db
+      .select({ slug: movies.slug, updatedAt: movies.updatedAt })
+      .from(movies)
+      .where(eq(movies.publicationStatus, "published"))
+      .orderBy(desc(movies.updatedAt))
+      .limit(50000);
+
+    // Fetch all published series
+    allSeries = await db
+      .select({ slug: series.slug, updatedAt: series.updatedAt })
+      .from(series)
+      .where(eq(series.publicationStatus, "published"))
+      .orderBy(desc(series.updatedAt))
+      .limit(50000);
+  } catch (err: any) {
+    console.warn("⚠️ Database query failed during sitemap generation:", err.message);
+  }
 
   const movieEntries: MetadataRoute.Sitemap = allMovies.map((movie) => ({
     url: `${BASE_URL}/movies/${movie.slug}`,

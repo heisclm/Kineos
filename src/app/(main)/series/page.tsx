@@ -2,9 +2,31 @@ import { fetchCatalogItems } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "TV Series",
-  description: "Browse trending TV series and episodic content.",
+  description: "Browse trending TV series, full seasons, and episodic releases on Kineos. Stream and download complete shows in high definition.",
+  keywords: [
+    "TV series",
+    "watch series online",
+    "download TV shows",
+    "stream TV series free",
+    "binge watch series",
+    "latest TV shows",
+    "all seasons episodes",
+    "Kineos TV series"
+  ],
+  alternates: {
+    canonical: "https://www.kineos.fun/series",
+  },
+  openGraph: {
+    title: "TV Series | Kineos",
+    description: "Browse trending TV series, full seasons, and episodic releases on Kineos. Stream and download complete shows in high definition.",
+    url: "https://www.kineos.fun/series",
+    siteName: "Kineos",
+    type: "website",
+  },
 };
 
 export default async function SeriesIndexPage({

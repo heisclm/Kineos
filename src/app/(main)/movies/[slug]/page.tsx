@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
+import { generateMovieKeywords } from "@/lib/seo";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -39,19 +40,13 @@ export async function generateMetadata(
       : `Watch and download ${movie.title} in top quality. Verified cast details, storyline synopsis, and streaming options on Kineos.`
   );
 
-  const keywords = [
-    movie.title,
-    `${movie.title} movie`,
-    `watch ${movie.title}`,
-    `watch ${movie.title} online`,
-    `${movie.title} full movie`,
-    `${movie.title} download`,
-    `${movie.title} stream`,
-    `${movie.title} cast`,
-    "Kineos movies",
-    "download HD movies",
-    "free movie streaming"
-  ];
+  const cast = await getCastForContent(movie.id, "movie").catch(() => []);
+  const keywords = generateMovieKeywords({
+    title: movie.title,
+    releaseDate: movie.releaseDate,
+    genres: (movie as any).genres,
+    cast: cast.map((c: any) => c.name),
+  });
 
   return {
     title,
@@ -100,6 +95,13 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
   const poster = (movie as any).imageUrl || null;
 
+  const pageKeywords = generateMovieKeywords({
+    title: movie.title,
+    releaseDate: movie.releaseDate,
+    genres: (movie as any).genres,
+    cast: cast.map((c: any) => c.name),
+  });
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -111,6 +113,8 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
         dateCreated: movie.releaseDate,
         image: poster || backdrop || undefined,
         url: `${siteUrl}/movies/${movie.slug}`,
+        genre: (movie as any).genres || [],
+        keywords: pageKeywords.join(", "),
         director: cast.filter((c: any) => c.role === 'director').map((c: any) => ({
           "@type": "Person",
           name: c.name

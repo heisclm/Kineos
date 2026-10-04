@@ -8,6 +8,7 @@ import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries, getDownloadSourcesForContent } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
+import { generateSeriesKeywords } from "@/lib/seo";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -34,21 +35,13 @@ export async function generateMetadata(
     ? `${series.description.slice(0, 155).trim()}... Stream and download ${series.title} on Kineos.`
     : `Watch and download all seasons and episodes of ${series.title} on Kineos. Complete storylines, verified cast details, and high-definition sources.`;
 
-  const keywords = [
-    series.title,
-    `${series.title} series`,
-    `watch ${series.title}`,
-    `watch ${series.title} online`,
-    `${series.title} episodes`,
-    `${series.title} download`,
-    `${series.title} full episodes`,
-    `${series.title} all seasons`,
-    `${series.title} cast`,
-    ...(series.genres || []),
-    "Kineos TV series",
-    "stream series in HD",
-    "download TV shows"
-  ];
+  const cast = await getCastForContent(series.id, "series").catch(() => []);
+  const keywords = generateSeriesKeywords({
+    title: series.title,
+    releaseDate: series.releaseDate,
+    genres: (series as any).genres,
+    cast: cast.map((c: any) => c.name),
+  });
 
   return {
     title,
@@ -102,6 +95,14 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const totalEpisodesCount = seasonsWithEpisodes.reduce((acc, s) => acc + (s.episodes?.length || 0), 0);
   const releaseYear = series.releaseDate ? new Date(series.releaseDate).getFullYear() : null;
 
+  const pageKeywords = generateSeriesKeywords({
+    title: series.title,
+    releaseDate: series.releaseDate,
+    genres: (series as any).genres,
+    cast: cast.map((c: any) => c.name),
+    seasonCount: seasonsWithEpisodes.length,
+  });
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -116,6 +117,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         numberOfSeasons: seasonsWithEpisodes.length,
         numberOfEpisodes: totalEpisodesCount,
         genre: series.genres || [],
+        keywords: pageKeywords.join(", "),
         actor: cast.map((c: any) => ({
           "@type": "Person",
           name: c.name,

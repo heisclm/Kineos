@@ -178,15 +178,25 @@ export async function getMovieBySlug(slug: string) {
       .where(and(eq(movies.slug, slug), eq(movies.publicationStatus, "published")))
       .limit(1);
 
-    const movie = result[0] || null;
-    if (movie) {
-      const media = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, movie.id));
-      for (const m of media) {
-        if (m.type === 'poster') (movie as any).imageUrl = m.url;
-        if (m.type === 'backdrop') (movie as any).backdropUrl = m.url;
-      }
+    if (result.length === 0) return null;
+    const movie = result[0] as any;
+
+    const media = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, movie.id));
+    for (const m of media) {
+      if (m.type === 'poster') movie.imageUrl = m.url;
+      if (m.type === 'backdrop') movie.backdropUrl = m.url;
     }
-    return movie;
+
+    const showGenres = await db
+      .select({ name: genres.name })
+      .from(movieGenres)
+      .leftJoin(genres, eq(movieGenres.genreId, genres.id))
+      .where(eq(movieGenres.movieId, movie.id));
+
+    return {
+      ...movie,
+      genres: showGenres.map(g => g.name).filter(Boolean)
+    };
   } catch (error: any) {
     console.error(`⚠️ Database connection failed (getMovieBySlug: ${slug}).`, error.message);
     return null;
