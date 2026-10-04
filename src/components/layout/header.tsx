@@ -119,6 +119,14 @@ export function Header() {
                 )
               })}
             </nav>
+
+            {/* Quick Secondary Links */}
+            <div className="mt-auto pt-8 border-t border-white/5 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted">
+              <Link href="/about" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+              <Link href="/contact" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>Terms</Link>
+            </div>
           </div>
         </div>
       )}

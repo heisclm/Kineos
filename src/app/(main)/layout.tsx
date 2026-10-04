@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { KineosLogo } from "@/components/ui/logo";
 import { SecretAdminTrigger } from "@/components/admin/SecretAdminTrigger";
@@ -38,18 +39,19 @@ export default function MainLayout({
               {/* Links Group 1 */}
               <div className="flex flex-col items-start gap-4">
                 <h4 className="text-foreground font-semibold tracking-wide uppercase text-xs mb-1">Explore</h4>
-                <a href="/movies" className="text-sm text-muted-foreground hover:text-white transition-apple">Movies</a>
-                <a href="/series" className="text-sm text-muted-foreground hover:text-white transition-apple">TV Series</a>
-                <a href="/search" className="text-sm text-muted-foreground hover:text-white transition-apple">Search Content</a>
+                <Link href="/movies" className="text-sm text-muted-foreground hover:text-white transition-apple">Movies</Link>
+                <Link href="/series" className="text-sm text-muted-foreground hover:text-white transition-apple">TV Series</Link>
+                <Link href="/search" className="text-sm text-muted-foreground hover:text-white transition-apple">Search Content</Link>
               </div>
 
               {/* Links Group 2 */}
               <div className="flex flex-col items-start gap-4">
-                <h4 className="text-foreground font-semibold tracking-wide uppercase text-xs mb-1">Legal & Support</h4>
-                <a href="/contact" className="text-sm text-muted-foreground hover:text-white transition-apple">Contact Us</a>
-                <a href="/privacy" className="text-sm text-muted-foreground hover:text-white transition-apple">Privacy Policy</a>
-                <a href="/terms" className="text-sm text-muted-foreground hover:text-white transition-apple">Terms of Service</a>
-                <a href="/dmca" className="text-sm text-muted-foreground hover:text-white transition-apple">DMCA Notice</a>
+                <h4 className="text-foreground font-semibold tracking-wide uppercase text-xs mb-1">Company & Legal</h4>
+                <Link href="/about" className="text-sm text-muted-foreground hover:text-white transition-apple">About Us</Link>
+                <Link href="/contact" className="text-sm text-muted-foreground hover:text-white transition-apple">Contact Us</Link>
+                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-white transition-apple">Privacy Policy</Link>
+                <Link href="/terms" className="text-sm text-muted-foreground hover:text-white transition-apple">Terms of Service</Link>
+                <Link href="/dmca" className="text-sm text-muted-foreground hover:text-white transition-apple">DMCA Notice</Link>
               </div>
             </div>
           </div>
