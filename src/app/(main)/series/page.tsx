@@ -38,7 +38,8 @@ export default async function SeriesIndexPage({
         
       </div>
 
-      <CatalogGrid 
+      <CatalogGrid
+        key={`${genre || 'all'}-${sort || 'latest'}`}
         initialItems={series} 
         type="series" 
         genre={genre}

@@ -552,3 +552,58 @@ export async function getFeaturedMovies(limit = 5) {
     return [];
   }
 }
+
+export async function getPopularSeries(limit = 10) {
+  try {
+    const result = await db
+      .select({
+        id: series.id,
+        title: series.title,
+        slug: series.slug,
+        description: series.description,
+        shortTeaser: series.shortTeaser,
+        releaseDate: series.releaseDate,
+        rating: series.rating,
+        viewCount: series.viewCount,
+        genre: genres.name,
+      })
+      .from(series)
+      .leftJoin(seriesGenres, eq(series.id, seriesGenres.seriesId))
+      .leftJoin(genres, eq(seriesGenres.genreId, genres.id))
+      .where(eq(series.publicationStatus, "published"))
+      .orderBy(desc(series.viewCount), desc(series.createdAt))
+      .limit(limit * 3);
+
+    const seriesMap = new Map<string, any>();
+    for (const row of result) {
+      if (!seriesMap.has(row.id)) {
+        seriesMap.set(row.id, {
+          ...row,
+          genres: row.genre ? [row.genre] : [],
+          type: 'series' as const,
+        });
+      } else {
+        if (row.genre) seriesMap.get(row.id).genres.push(row.genre);
+      }
+    }
+
+    const uniqueSeries = Array.from(seriesMap.values()).slice(0, limit);
+    if (uniqueSeries.length > 0) {
+      const ids = uniqueSeries.map(s => s.id);
+      const media = await db.select().from(mediaAssets).where(
+        and(inArray(mediaAssets.contentId, ids), eq(mediaAssets.contentType, 'series'))
+      );
+      for (const s of uniqueSeries) {
+        const itemMedia = media.filter(mediaObj => mediaObj.contentId === s.id);
+        const poster = itemMedia.find(mediaObj => mediaObj.type === 'poster');
+        const backdrop = itemMedia.find(mediaObj => mediaObj.type === 'backdrop');
+        s.imageUrl = poster?.url || null;
+        s.backdropUrl = backdrop?.url || null;
+      }
+    }
+    return uniqueSeries;
+  } catch (error: any) {
+    console.error("Database connection failed (getPopularSeries).", error.message);
+    return [];
+  }
+}

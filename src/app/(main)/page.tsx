@@ -1,4 +1,4 @@
-import { getLatestMovies, getTrendingMovies, getTopRatedMovies, getFeaturedMovies } from "@/features/content/content.service";
+import { getLatestMovies, getTrendingMovies, getTopRatedMovies, getFeaturedMovies, getPopularSeries } from "@/features/content/content.service";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ export default async function HomePage() {
   let newReleases = await getLatestMovies(10);
   let trendingMovies = await getTrendingMovies(3);
   let topRatedMovies = await getTopRatedMovies(10);
+  let popularSeries = await getPopularSeries(10);
 
     const jsonLd = {
       "@context": "https://schema.org",
@@ -45,13 +46,14 @@ export default async function HomePage() {
         
 
         <StandardRow title="New Releases" movies={newReleases} link="/movies" />
+        <StandardRow title="Popular TV Series" subtitle="Binge-worthy shows to stream next" movies={popularSeries} link="/series" type="series" />
         <StandardRow title="Top Rated" subtitle="Critically acclaimed masterworks" movies={topRatedMovies} link="/movies?sort=Rating" />
       </div>
     </div>
   );
 }
 
-function StandardRow({ title, subtitle, movies, link }: { title: string; subtitle?: string; movies: any[]; link: string }) {
+function StandardRow({ title, subtitle, movies, link, type = "movie" }: { title: string; subtitle?: string; movies: any[]; link: string; type?: "movie" | "series" }) {
   if (!movies || movies.length === 0) return null;
   return (
     <section className="px-6 md:px-10">
@@ -67,7 +69,7 @@ function StandardRow({ title, subtitle, movies, link }: { title: string; subtitl
       <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 pt-1 snap-x snap-mandatory hide-scrollbar -mx-6 px-6 md:-mx-10 md:px-10">
         {movies.map((movie) => (
           <div key={movie.id} className="w-[145px] sm:w-[175px] md:w-[200px] lg:w-[220px] shrink-0 snap-start">
-            <MovieCard {...movie} primaryGenre={movie.genres?.[0] || 'Movie'} imageUrl={(movie as any).imageUrl || ""} />
+            <MovieCard {...movie} type={(movie.type as any) || type} primaryGenre={movie.genres?.[0] || (type === 'series' ? 'TV Series' : 'Movie')} imageUrl={(movie as any).imageUrl || ""} />
           </div>
         ))}
       </div>

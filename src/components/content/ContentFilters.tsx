@@ -11,9 +11,23 @@ export function ContentFilters({ type = "movies" }: { type?: "movies" | "series"
   const genre = searchParams.get("genre") || "All Genres";
   const sort = searchParams.get("sort") || "Latest";
 
-  const genres = type === "movies" 
-    ? ["All Genres", "Action", "Drama", "Sci-Fi", "Thriller"]
-    : ["All Genres", "Drama", "Comedy", "Sci-Fi", "Action"];
+  const genres = [
+    "All Genres",
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Family",
+    "Fantasy",
+    "Horror",
+    "Mystery",
+    "Romance",
+    "Sci-Fi",
+    "Thriller",
+  ];
     
   const sorts = ["Latest", "Popular", "A-Z", "Rating"];
 
@@ -25,7 +39,8 @@ export function ContentFilters({ type = "movies" }: { type?: "movies" | "series"
       params.set(key, value);
     }
     
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
   return (

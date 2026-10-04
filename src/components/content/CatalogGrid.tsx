@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { Button } from "@/components/ui/button";
 import { fetchCatalogItems } from "@/features/content/catalog.actions";
@@ -18,6 +18,12 @@ export function CatalogGrid({ initialItems, type, genre, sort }: CatalogGridProp
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialItems.length >= 30);
+
+  useEffect(() => {
+    setItems(initialItems);
+    setPage(1);
+    setHasMore(initialItems.length >= 30);
+  }, [initialItems]);
 
   const loadMore = async () => {
     if (loading) return;
@@ -56,6 +62,7 @@ export function CatalogGrid({ initialItems, type, genre, sort }: CatalogGridProp
           <MovieCard
             key={item.id}
             {...item}
+            type={type}
             primaryGenre={item.genres?.[0] || (type === 'movie' ? 'Movie' : 'Series')}
             imageUrl={item.imageUrl || ""}
           />

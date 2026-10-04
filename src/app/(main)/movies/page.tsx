@@ -37,7 +37,8 @@ export default async function MoviesIndexPage({
         
       </div>
 
-      <CatalogGrid 
+      <CatalogGrid
+        key={`${genre || 'all'}-${sort || 'latest'}`}
         initialItems={movies} 
         type="movie" 
         genre={genre}

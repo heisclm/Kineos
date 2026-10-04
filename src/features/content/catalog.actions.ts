@@ -24,6 +24,7 @@ export async function fetchCatalogItems(
             shortTeaser: movies.shortTeaser,
           releaseDate: movies.releaseDate,
           rating: movies.rating,
+          ratingScore: movies.ratingScore,
           viewCount: movies.viewCount,
         })
         .from(movies)
@@ -45,9 +46,9 @@ export async function fetchCatalogItems(
       } else if (sort === "A-Z") {
         query = query.orderBy(asc(movies.title));
       } else if (sort === "Rating") {
-        query = query.orderBy(desc(movies.rating));
+        query = query.orderBy(desc(movies.ratingScore), desc(movies.viewCount));
       } else {
-        query = query.orderBy(desc(movies.releaseDate)); // Default "Latest"
+        query = query.orderBy(desc(movies.releaseDate), desc(movies.createdAt)); // Default "Latest"
       }
 
       const results = await query.limit(limit).offset(offset);
@@ -77,7 +78,7 @@ export async function fetchCatalogItems(
           description: series.description,
             shortTeaser: series.shortTeaser,
           releaseDate: series.releaseDate,
-          rating: sql`NULL`,
+          rating: series.rating,
           viewCount: series.viewCount,
         })
         .from(series)
@@ -94,13 +95,13 @@ export async function fetchCatalogItems(
       }
 
       if (sort === "Popular") {
-        query = query.orderBy(desc(series.viewCount));
+        query = query.orderBy(desc(series.viewCount), desc(series.createdAt));
       } else if (sort === "A-Z") {
         query = query.orderBy(asc(series.title));
       } else if (sort === "Rating") {
-        query = query.orderBy(desc(series.viewCount)); // Series doesn't have rating yet, sort by views as fallback
+        query = query.orderBy(desc(series.viewCount), desc(series.releaseDate));
       } else {
-        query = query.orderBy(desc(series.releaseDate));
+        query = query.orderBy(desc(series.releaseDate), desc(series.createdAt));
       }
 
       const results = await query.limit(limit).offset(offset);
@@ -117,7 +118,8 @@ export async function fetchCatalogItems(
         const poster = posters.find(p => p.contentId === m.id);
         return {
           ...m,
-          genres: [genre || 'Series'],
+          type: 'series' as const,
+          genres: [genre || 'TV Series'],
           imageUrl: poster ? poster.url : ""
         };
       });
