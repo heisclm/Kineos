@@ -4,7 +4,7 @@ import { ContentFilters } from "@/components/content/ContentFilters";
 
 export const metadata = {
   title: "TV Series",
-  description: "Browse premium TV series and episodic content.",
+  description: "Browse trending TV series and episodic content.",
 };
 
 export default async function SeriesIndexPage({

@@ -1,4 +1,3 @@
-import Script from 'next/script';
 import { Header } from "@/components/layout/header";
 import { KineosLogo } from "@/components/ui/logo";
 import { SecretAdminTrigger } from "@/components/admin/SecretAdminTrigger";
@@ -10,7 +9,6 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5052901241882602" crossOrigin="anonymous" strategy="afterInteractive" />
     <div className="flex flex-col min-h-screen relative bg-background">
       {/* Subtle cinematic blur background */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
@@ -21,8 +19,7 @@ export default function MainLayout({
         {children}
       </main>
       
-      {/* Premium Footer */}
-                  {/* Premium Footer */}
+      {/* Footer */}
       <footer className="w-full border-t border-white/5 pt-16 pb-8 px-6 md:px-10 mt-auto bg-background/50 relative z-20">
         <div className="max-w-[1920px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-10 mb-16">
@@ -33,7 +30,7 @@ export default function MainLayout({
                 <SecretAdminTrigger />
               </div>
               <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
-                Your ultimate destination for premium movies and TV series. Kineos acts as a search engine and indexer. We do not host any files on our servers.
+                Your destination for trending movies and TV series. Kineos acts as a search engine and indexer. We do not host any files on our servers.
               </p>
             </div>
             
