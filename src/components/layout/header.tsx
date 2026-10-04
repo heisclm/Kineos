@@ -89,11 +89,11 @@ export function Header() {
 
       {/* Mobile Navigation Dropdown (Apple Style) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[72px] h-[calc(100vh-72px)] z-40 bg-background/95 backdrop-blur-2xl md:hidden overflow-y-auto animate-in fade-in duration-300">
-          <div className="flex flex-col px-6 py-8 h-full">
+        <div className="fixed inset-0 top-[72px] h-[calc(100dvh-72px)] z-40 bg-background/95 backdrop-blur-2xl md:hidden overflow-y-auto animate-in fade-in duration-300">
+          <div className="flex flex-col px-6 py-6 min-h-full">
             
             {/* Mobile Search */}
-            <div className="w-full mb-8 relative z-50 animate-in slide-in-from-top-4 fade-in duration-500 fill-mode-both" style={{ animationDelay: '50ms' }}>
+            <div className="w-full mb-6 relative z-50 animate-in slide-in-from-top-4 fade-in duration-500 fill-mode-both" style={{ animationDelay: '50ms' }}>
                <SearchBar isMobile onSelect={() => setMobileMenuOpen(false)} />
             </div>
 
@@ -107,25 +107,58 @@ export function Header() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "text-[28px] font-semibold tracking-tight py-4 border-b border-white/5 transition-apple flex items-center gap-4",
+                      "text-[24px] font-semibold tracking-tight py-3.5 border-b border-white/5 transition-apple flex items-center gap-4",
                       isActive ? "text-primary" : "text-foreground hover:text-primary",
                       "animate-in slide-in-from-bottom-4 fade-in duration-500 fill-mode-both"
                     )}
                     style={{ animationDelay: `${(i + 2) * 50}ms` }}
                   >
-                    <Icon className={cn("w-7 h-7", isActive ? "text-primary" : "text-muted")} strokeWidth={2.5} />
+                    <Icon className={cn("w-6 h-6", isActive ? "text-primary" : "text-muted")} strokeWidth={2.5} />
                     {item.name}
                   </Link>
                 )
               })}
             </nav>
 
-            {/* Quick Secondary Links */}
-            <div className="mt-auto pt-8 border-t border-white/5 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted">
-              <Link href="/about" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-              <Link href="/contact" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(false)}>Terms</Link>
+            {/* Quick Secondary Links - Immediately visible on all screen heights without scrolling */}
+            <div className="mt-6 pt-5 border-t border-white/10 animate-in fade-in duration-500 fill-mode-both" style={{ animationDelay: '250ms' }}>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-3">
+                Company & Legal
+              </span>
+              <div className="grid grid-cols-2 gap-2.5">
+                <Link
+                  href="/about"
+                  className="px-3.5 py-2.5 rounded-xl bg-surface/60 border border-white/5 hover:border-primary/30 text-xs font-semibold text-foreground hover:text-primary transition-apple flex items-center gap-2 shadow-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  About Us
+                </Link>
+                <Link
+                  href="/contact"
+                  className="px-3.5 py-2.5 rounded-xl bg-surface/60 border border-white/5 hover:border-primary/30 text-xs font-semibold text-foreground hover:text-primary transition-apple flex items-center gap-2 shadow-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  Contact Us
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="px-3.5 py-2.5 rounded-xl bg-surface/60 border border-white/5 hover:border-primary/30 text-xs font-semibold text-foreground hover:text-primary transition-apple flex items-center gap-2 shadow-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="/terms"
+                  className="px-3.5 py-2.5 rounded-xl bg-surface/60 border border-white/5 hover:border-primary/30 text-xs font-semibold text-foreground hover:text-primary transition-apple flex items-center gap-2 shadow-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  Terms of Service
+                </Link>
+              </div>
             </div>
           </div>
         </div>

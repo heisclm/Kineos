@@ -1,9 +1,51 @@
+import type { Metadata } from "next";
 import { getLatestMovies, getTrendingMovies, getTopRatedMovies, getFeaturedMovies, getPopularSeries } from "@/features/content/content.service";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "Kineos — Movies & TV Series Index",
+  description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+  keywords: [
+    "Kineos",
+    "kineos fun",
+    "kineos movies",
+    "watch movies online",
+    "stream TV series",
+    "movies index",
+    "free movies online",
+    "new releases",
+    "top rated movies",
+    "TV series episodes"
+  ],
+  alternates: {
+    canonical: "https://www.kineos.fun",
+  },
+  openGraph: {
+    title: "Kineos — Movies & TV Series Index",
+    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+    url: "https://www.kineos.fun",
+    siteName: "Kineos",
+    type: "website",
+    images: [
+      {
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Kineos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Kineos — Movies & TV Series Index",
+    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+    images: ["/icon-512.png"],
+  },
+};
 
 export default async function HomePage() {
   let featuredMovies = await getFeaturedMovies(5);
