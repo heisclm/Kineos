@@ -123,6 +123,7 @@ export async function createMovie(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/movies");
     revalidatePath("/admin/movies");
+    revalidatePath("/sitemap.xml");
     return { success: true, id };
   } catch (e: any) {
     console.error("Failed to create movie", e);
@@ -215,6 +216,7 @@ export async function createSeries(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/series");
     revalidatePath("/admin/series");
+    revalidatePath("/sitemap.xml");
     return { success: true, id };
   } catch (e: any) {
     console.error("Failed to create series", e);
@@ -340,6 +342,7 @@ export async function deleteMovie(id: string) {
     revalidatePath("/");
     revalidatePath("/movies");
     revalidatePath("/admin/movies");
+    revalidatePath("/sitemap.xml");
     return { success: true };
   } catch (e: any) {
     console.error("Failed to delete movie", e);
@@ -405,6 +408,7 @@ export async function deleteSeries(id: string) {
     revalidatePath("/");
     revalidatePath("/series");
     revalidatePath("/admin/series");
+    revalidatePath("/sitemap.xml");
     return { success: true };
   } catch (e: any) {
     console.error("Failed to delete series", e);
@@ -511,6 +515,7 @@ export async function updateMovie(id: string, formData: FormData) {
     revalidatePath("/movies");
     revalidatePath("/admin/movies");
     revalidatePath(`/admin/movies/${id}`);
+    revalidatePath("/sitemap.xml");
     return { success: true };
   } catch (e: any) {
     console.error("Failed to update movie", e);
@@ -615,6 +620,7 @@ export async function updateSeries(id: string, formData: FormData) {
     revalidatePath("/series");
     revalidatePath("/admin/series");
     revalidatePath(`/admin/series/${id}`);
+    revalidatePath("/sitemap.xml");
     return { success: true };
   } catch (e: any) {
     console.error("Failed to update series", e);

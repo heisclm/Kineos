@@ -1,8 +1,13 @@
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
 import { KineosLogo } from "@/components/ui/logo";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Secure Admin Login | Kineos",
+export const metadata: Metadata = {
+  title: { absolute: "Secure Admin Login | Kineos" },
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AdminLoginPage() {
