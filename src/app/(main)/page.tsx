@@ -7,27 +7,25 @@ import Link from "next/link";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Kineos — Movies & TV Series Index",
-  description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+  title: "Discover Movies & TV Shows",
+  description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
   keywords: [
     "Kineos",
     "kineos fun",
     "kineos movies",
-    "watch movies online",
-    "stream TV series",
-    "movies index",
-    "free movies online",
+    "movie catalog",
+    "TV series catalog",
     "new releases",
     "top rated movies",
     "TV series episodes"
   ],
   alternates: {
-    canonical: "https://www.kineos.fun",
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun",
   },
   openGraph: {
-    title: "Kineos — Movies & TV Series Index",
-    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
-    url: "https://www.kineos.fun",
+    title: "Discover Movies & TV Shows | Kineos",
+    description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun",
     siteName: "Kineos",
     type: "website",
     images: [
@@ -41,8 +39,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Kineos — Movies & TV Series Index",
-    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+    title: "Discover Movies & TV Shows | Kineos",
+    description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
     images: ["/icon-512.png"],
   },
 };
@@ -58,10 +56,10 @@ export default async function HomePage() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Kineos",
-      "url": "https://www.kineos.fun",
+      "url": process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://www.kineos.fun/search?q={search_term_string}",
+        "target": `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun"}/search?q={search_term_string}`,
         "query-input": "required name=search_term_string"
       }
     };

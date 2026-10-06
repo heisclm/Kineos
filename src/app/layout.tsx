@@ -6,21 +6,21 @@ import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   title: {
-    default: "Kineos — Movies & TV Series Index",
+    default: "Kineos | Movies & TV Shows",
     template: "%s | Kineos",
   },
-  description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+  description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
   openGraph: {
-    title: "Kineos — Movies & TV Series Index",
-    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
-    url: "https://www.kineos.fun",
+    title: "Kineos | Movies & TV Shows",
+    description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun",
     siteName: "Kineos",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kineos — Movies & TV Series Index",
-    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+    title: "Kineos | Movies & TV Shows",
+    description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun'),
     icons: {
