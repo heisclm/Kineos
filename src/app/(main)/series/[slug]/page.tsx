@@ -195,7 +195,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 <Badge variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
                   TV SERIES
                 </Badge>
-                {series.genres?.filter((g): g is string => Boolean(g)).map((g, index) => (
+                {series.genres?.filter((g: string | null): g is string => Boolean(g)).map((g: string, index: number) => (
                   <Badge key={g} variant="glass" className={`${index >= 2 ? "hidden md:inline-flex" : ""} px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-white/10 border-white/20 text-white/90`}>
                     {g}
                   </Badge>
