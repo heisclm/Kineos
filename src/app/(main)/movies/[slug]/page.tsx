@@ -172,7 +172,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       />
                   {/* Movie Hero/Backdrop Layer */}
       <div className="w-full relative bg-background">
-        <div className="w-full min-h-[400px] sm:min-h-[440px] md:min-h-[460px] lg:min-h-[560px] xl:min-h-[640px] relative flex flex-col justify-end">
+        <div className="w-full min-h-[400px] sm:min-h-[440px] md:min-h-[460px] lg:min-h-[500px] xl:min-h-[560px] 2xl:min-h-[600px] relative flex flex-col justify-end">
            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
            <div className="md:hidden absolute inset-0 bg-gradient-to-r from-transparent via-background/45 to-background/85 z-10" />
            <div className="hidden md:block absolute inset-y-0 left-0 w-[82%] bg-gradient-to-r from-background via-background/85 to-transparent z-10" />
@@ -202,8 +202,8 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   <Badge variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
                     MOVIE
                   </Badge>
-                  {((movie as any).genres || []).map((g: string) => (
-                    <Badge key={g} variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-white/10 border-white/20 text-white/90">
+                  {((movie as any).genres || []).map((g: string, index: number) => (
+                    <Badge key={g} variant="glass" className={`${index >= 2 ? "hidden md:inline-flex" : ""} px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-white/10 border-white/20 text-white/90`}>
                       {g}
                     </Badge>
                   ))}
