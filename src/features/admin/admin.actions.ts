@@ -10,7 +10,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { uploadMedia, deleteMediaByUrl } from "@/lib/supabase";
+import { uploadMedia, deleteMediaByUrl, supabaseAdmin } from "@/lib/supabase";
 
 export async function verifyAdminAccess() {
   const supabase = createClient();
@@ -51,19 +51,8 @@ export async function createMovie(formData: FormData) {
   const language = formData.get("language") as string;
 
   try {
-    let posterUrl = "";
-    const posterFile = formData.get("posterFile") as File | null;
-    if (posterFile && posterFile.size > 0) {
-      const ext = posterFile.name.split(".").pop();
-      posterUrl = await uploadMedia(posterFile, `posters/movie_${slug}_${Date.now()}.${ext}`);
-    }
-
-    let backdropUrl = "";
-    const backdropFile = formData.get("backdropFile") as File | null;
-    if (backdropFile && backdropFile.size > 0) {
-      const ext = backdropFile.name.split(".").pop();
-      backdropUrl = await uploadMedia(backdropFile, `backdrops/movie_${slug}_${Date.now()}.${ext}`);
-    }
+    const posterUrl = (formData.get("posterUrl") as string) || "";
+    const backdropUrl = (formData.get("backdropUrl") as string) || "";
 
     const newRow = await db.insert(movies).values({
       title,
@@ -129,6 +118,39 @@ export async function createMovie(formData: FormData) {
     console.error("Failed to create movie", e);
     return { success: false, error: e.message + " " + JSON.stringify(e) };
   }
+}
+
+/** Create a short-lived direct-to-storage upload token so artwork never passes
+ * through the server action payload (which is size limited on Vercel). */
+export async function createMovieArtworkUpload(fileName: string, contentType: string, folder: "posters" | "backdrops") {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin) return { success: false as const, error: "Unauthorized" };
+  if (folder !== "posters" && folder !== "backdrops") {
+    return { success: false as const, error: "Invalid artwork destination." };
+  }
+
+  const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+  if (!allowedTypes.has(contentType)) {
+    return { success: false as const, error: "Choose a JPEG, PNG, WebP, or AVIF image." };
+  }
+
+  const extensionByType: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/avif": "avif",
+  };
+  const safeBaseName = fileName.replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 60) || "artwork";
+  const path = `${folder}/${safeBaseName}_${crypto.randomUUID()}.${extensionByType[contentType]}`;
+  const { data, error } = await supabaseAdmin.storage.from("media").createSignedUploadUrl(path);
+
+  if (error || !data) {
+    console.error("Failed to prepare movie artwork upload", error);
+    return { success: false as const, error: "Could not prepare the artwork upload. Please try again." };
+  }
+
+  const { data: publicUrlData } = supabaseAdmin.storage.from("media").getPublicUrl(path);
+  return { success: true as const, path, token: data.token, publicUrl: publicUrlData.publicUrl };
 }
 
 export async function createSeries(formData: FormData) {

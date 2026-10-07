@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createMovie } from "@/features/admin/admin.actions";
-import { Save, Loader2, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
+import { createMovie, createMovieArtworkUpload } from "@/features/admin/admin.actions";
+import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { Save, Loader2, ArrowLeft, Film, Settings } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
 
@@ -14,18 +15,51 @@ export function MovieForm() {
   const router = useRouter();
   
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     const formData = new FormData(e.currentTarget);
-    
+
     startTransition(async () => {
-      const result = await createMovie(formData);
-      if (result.success) {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const uploadArtwork = async (fieldName: "posterFile" | "backdropFile", folder: "posters" | "backdrops") => {
+          const file = formData.get(fieldName);
+          if (!(file instanceof File) || file.size === 0) return "";
+          if (file.size > 10 * 1024 * 1024) {
+            throw new Error(`${fieldName === "posterFile" ? "Poster" : "Backdrop"} must be 10 MB or smaller.`);
+          }
+
+          const signedUpload = await createMovieArtworkUpload(file.name, file.type, folder);
+          if (!signedUpload?.success) {
+            throw new Error(signedUpload?.error || "Could not prepare artwork upload.");
+          }
+
+          const { error } = await supabase.storage
+            .from("media")
+            .uploadToSignedUrl(signedUpload.path, signedUpload.token, file, { contentType: file.type });
+          if (error) throw new Error(`Artwork upload failed: ${error.message}`);
+          return signedUpload.publicUrl;
+        };
+
+        const [posterUrl, backdropUrl] = await Promise.all([
+          uploadArtwork("posterFile", "posters"),
+          uploadArtwork("backdropFile", "backdrops"),
+        ]);
+        formData.delete("posterFile");
+        formData.delete("backdropFile");
+        formData.set("posterUrl", posterUrl);
+        formData.set("backdropUrl", backdropUrl);
+
+        const result = await createMovie(formData);
+        if (!result?.success) {
+          throw new Error(result?.error || "Failed to create movie.");
+        }
+
         toast.success("Created successfully!");
         router.push(`/admin/movies/${result.id}`);
-      } else {
-        toast.error(result.error || "Failed to create movie.");
+      } catch (error) {
+        console.error("Failed to create movie", error);
+        toast.error(error instanceof Error ? error.message : "Failed to create movie. Please try again.");
       }
     });
   };
