@@ -163,7 +163,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
 
       {/* Series Hero/Backdrop Layer */}
       <div className="w-full relative bg-background">
-        <div className="w-full min-h-[680px] md:min-h-[560px] lg:min-h-[620px] relative flex flex-col justify-end">
+        <div className="w-full min-h-[640px] sm:min-h-[660px] md:min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] relative flex flex-col justify-end">
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
           <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10 w-2/3" />
 
@@ -179,117 +179,73 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
             <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
           )}
 
-          <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 md:px-10 pb-10 md:pb-12 flex gap-6 md:gap-10 items-end">
-            {/* Desktop Poster */}
-            {poster ? (
-              <div className="hidden md:block w-48 lg:w-64 aspect-[2/3] shrink-0 rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.7)] border border-white/10 relative z-30 transform translate-y-12 md:translate-y-16 lg:translate-y-24 bg-surface">
+          <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pb-8 md:pb-0 flex gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-end md:translate-y-8">
+            <div className="relative z-30 w-[34%] max-w-[144px] sm:max-w-[160px] md:w-52 md:max-w-none lg:w-56 xl:w-72 2xl:w-80 aspect-[2/3] shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.55)] border border-white/10 bg-surface flex items-center justify-center">
+              {poster ? (
                 <Image src={poster} alt={series.title} fill className="object-cover" priority />
-              </div>
-            ) : (
-              <div className="hidden md:flex w-48 lg:w-64 aspect-[2/3] shrink-0 rounded-2xl border border-white/10 relative z-30 transform translate-y-12 md:translate-y-16 lg:translate-y-24 bg-surface items-center justify-center text-muted">
-                <Film className="w-12 h-12 opacity-30" />
-              </div>
-            )}
+              ) : (
+                <Film className="w-10 h-10 md:w-12 md:h-12 opacity-30" />
+              )}
+            </div>
 
-            <div className="flex-1 text-left mt-2 md:mt-0 w-full">
-              {/* Mobile Poster (Shown next to title on mobile for clean look) */}
-              <div className="md:hidden mb-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
-                    SERIES
-                  </Badge>
-                  {series.genres?.map((g: string | null) => g && (
-                    <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] font-medium bg-white/10 border-white/20 text-white/90">
-                      {g}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div className="md:hidden flex gap-4 items-start mb-4">
-                {poster && (
-                  <div className="w-24 sm:w-28 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/10 relative z-30 bg-surface">
-                    <Image src={poster} alt={series.title} fill className="object-cover" priority />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1 pb-1">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-[1.1] tracking-tight text-balance break-words drop-shadow-2xl mb-3">
-                    {series.title}
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-white/90 drop-shadow-md">
-                    {releaseYear && (
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" strokeWidth={2.5} /> {releaseYear}
-                      </span>
-                    )}
-                    <span className="text-white/40">&bull;</span>
-                    <span className="flex items-center gap-1">
-                      <Layers className="w-3.5 h-3.5" strokeWidth={2.5} /> {seasonsWithEpisodes.length} S
-                    </span>
-                    <span className="text-white/40">&bull;</span>
-                    <span className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.5} /> {(series as any).rating || 'NR'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Desktop Badges */}
-              <div className="hidden md:flex flex-wrap items-center gap-3 mb-4">
-                <Badge variant="glass" className="px-3 py-1 text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
+            <div className="min-w-0 flex-1 min-h-[220px] md:min-h-[312px] lg:min-h-[336px] xl:min-h-[432px] flex flex-col pt-12 sm:pt-16 md:pt-16 lg:pt-20 xl:pt-24">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                <Badge variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
                   TV SERIES
                 </Badge>
-                {series.genres?.map((g: string | null) => (
-                  <Badge key={g} variant="glass" className="px-3 py-1 text-xs font-medium bg-white/10 border-white/20 text-white/90">
+                {series.genres?.map((g: string | null) => g && (
+                  <Badge key={g} variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-white/10 border-white/20 text-white/90">
                     {g}
                   </Badge>
                 ))}
               </div>
 
-              {/* Desktop Title */}
-              <h1 className="hidden md:block text-4xl md:text-5xl xl:text-7xl font-bold text-foreground mb-4 leading-[1.1] tracking-tight text-balance break-words max-w-5xl drop-shadow-2xl">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-3 md:mb-4 leading-[1.05] tracking-tight text-balance break-words max-w-5xl drop-shadow-2xl">
                 {series.title}
               </h1>
 
-              {/* Desktop Meta Row */}
-              <div className="hidden md:flex flex-wrap items-center gap-4 mb-6 text-sm font-semibold text-white/90 drop-shadow-md">
+              <div className="flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-1 mb-3 md:mb-5 text-xs md:text-sm font-semibold text-white/90 drop-shadow-md">
                 {releaseYear && (
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-primary" strokeWidth={2.5} /> {releaseYear}
+                  <span className="flex items-center gap-1 md:gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={2.5} /> {releaseYear}
                   </span>
                 )}
                 <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-primary" strokeWidth={2.5} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
+                <span className="flex items-center gap-1 md:gap-1.5">
+                  <Layers className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={2.5} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
                 </span>
                 <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <FileVideo className="w-4 h-4 text-primary" strokeWidth={2.5} /> {totalEpisodesCount} Episodes
+                <span className="flex items-center gap-1 md:gap-1.5">
+                  <FileVideo className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={2.5} /> {totalEpisodesCount} Episodes
                 </span>
                 <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.5} /> {(series as any).rating || 'NR'}
+                <span className="flex items-center gap-1 md:gap-1.5">
+                  <Star className="w-3.5 h-3.5 md:w-4 md:h-4 fill-primary text-primary" strokeWidth={2.5} /> {(series as any).rating || 'NR'}
                 </span>
               </div>
 
-              {/* Teaser */}
-              <p className="text-sm md:text-base lg:text-lg text-white/90 leading-relaxed mb-6 md:mb-8 max-w-3xl line-clamp-3 drop-shadow-lg font-medium">
+              <p className="text-xs sm:text-sm md:text-base xl:text-lg text-white/90 leading-relaxed mb-4 md:mb-5 max-w-3xl line-clamp-3 drop-shadow-lg font-medium">
                 {(series as any).shortTeaser || series.description}
               </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-4">
-                <a href="#episodes">
-                  <Button size="lg" className="rounded-full px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
-                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes & Downloads
-                  </Button>
-                </a>
-                {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
+              {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
+                <div className="mb-3 md:mb-4">
                   <a href="#batch-downloads">
-                    <Button size="lg" variant="secondary" className="rounded-full px-6 gap-2 font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 hover:scale-105 transition-apple shadow-lg">
+                    <Button size="sm" variant="secondary" className="rounded-full px-3 sm:px-4 gap-2 text-[10px] sm:text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-apple shadow-lg">
                       <Download className="w-4 h-4 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
                     </Button>
                   </a>
-                )}
+                </div>
+              )}
+
+              <div className="mt-auto pt-2">
+                <a href="#episodes">
+                  <Button size="lg" className="rounded-full px-3 sm:px-8 gap-2 text-xs sm:text-base font-semibold bg-primary text-primary-foreground hover:scale-[1.03] transition-apple shadow-lg border border-primary/20">
+                    <Play className="w-4 h-4 shrink-0" fill="currentColor" />
+                    <span className="sm:hidden">Browse Episodes</span>
+                    <span className="hidden sm:inline">Browse Episodes & Downloads</span>
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
@@ -297,7 +253,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
       </div>
 
       {/* Spacer for desktop poster overlap */}
-      <div className="hidden md:block h-16 md:h-24 w-full bg-background" />
+      <div className="hidden md:block h-12 md:h-16 w-full bg-background" />
 
       {/* Main Grid Content */}
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">

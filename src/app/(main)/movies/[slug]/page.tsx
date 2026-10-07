@@ -172,7 +172,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       />
                   {/* Movie Hero/Backdrop Layer */}
       <div className="w-full relative bg-background">
-        <div className="w-full min-h-[640px] md:min-h-[560px] lg:min-h-[620px] relative flex flex-col justify-end">
+        <div className="w-full min-h-[620px] sm:min-h-[640px] md:min-h-[600px] lg:min-h-[680px] xl:min-h-[740px] relative flex flex-col justify-end">
            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
            <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10 w-2/3" />
            
@@ -188,80 +188,45 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
              <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
            )}
            
-           <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 md:px-10 pb-10 md:pb-12 flex gap-6 md:gap-10 items-end">
-             
+           <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pb-8 md:pb-0 flex gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-end md:translate-y-8">
              {(movie as any).imageUrl && (
-               <div className="hidden md:block w-40 md:w-48 lg:w-64 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 relative z-30 transform translate-y-12 md:translate-y-16 lg:translate-y-24">
-                 <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />
+               <div className="relative z-30 w-[34%] max-w-[144px] sm:max-w-[160px] md:w-52 md:max-w-none lg:w-56 xl:w-72 2xl:w-80 aspect-[2/3] shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.55)] border border-white/10 bg-surface">
+                 <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" priority />
                </div>
              )}
-             
-             <div className="flex-1 text-left mt-2 md:mt-0 w-full">
-                {/* Mobile Poster (Shown next to title on mobile for premium look) */}
-                <div className="md:hidden mb-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
-                      MOVIE
-                    </Badge>
-                    {((movie as any).genres || []).map((g: string) => (
-                      <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] font-medium bg-white/10 border-white/20 text-white/90">
-                        {g}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="md:hidden flex gap-4 items-start mb-4">
-                  {(movie as any).imageUrl && (
-                    <div className="w-24 sm:w-28 aspect-[2/3] shrink-0 rounded-lg overflow-hidden shadow-2xl border border-white/10 relative z-30">
-                      <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1 pb-1">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-[1.1] tracking-tight text-balance break-words drop-shadow-2xl mb-3">
-                      {movie.title}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-white/90 drop-shadow-md">
-                      <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={2.5} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
-                      <span className="text-white/40">&bull;</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
-                        <span className="text-white/40">&bull;</span>
-                        <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.5} /> {movie.rating || 'NR'}</span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Desktop Badges */}
-                <div className="hidden md:flex flex-wrap items-center gap-3 mb-4">
-                  <Badge variant="glass" className="px-3 py-1 text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
+             <div className="min-w-0 flex-1 min-h-[220px] md:min-h-[312px] lg:min-h-[336px] xl:min-h-[432px] flex flex-col pt-12 sm:pt-16 md:pt-16 lg:pt-20 xl:pt-24">
+                <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                  <Badge variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
                     MOVIE
                   </Badge>
                   {((movie as any).genres || []).map((g: string) => (
-                    <Badge key={g} variant="glass" className="px-3 py-1 text-xs font-medium bg-white/10 border-white/20 text-white/90">
+                    <Badge key={g} variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-white/10 border-white/20 text-white/90">
                       {g}
                     </Badge>
                   ))}
                 </div>
 
-                <h1 className="hidden md:block text-4xl md:text-5xl xl:text-7xl font-bold text-foreground mb-4 leading-[1.1] tracking-tight text-balance break-words max-w-5xl drop-shadow-2xl">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-3 md:mb-4 leading-[1.05] tracking-tight text-balance break-words max-w-5xl drop-shadow-2xl">
                   {movie.title}
                 </h1>
-                
-                <div className="hidden md:flex flex-wrap items-center gap-3 mb-6 text-sm font-semibold text-white/90 drop-shadow-md">
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" strokeWidth={2.5} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
+
+                <div className="flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-1 mb-3 md:mb-5 text-xs md:text-sm font-semibold text-white/90 drop-shadow-md">
+                  <span className="flex items-center gap-1 md:gap-1.5"><Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={2.5} /> {movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'TBA'}</span>
                   <span className="text-white/40">&bull;</span>
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
+                  <span className="flex items-center gap-1 md:gap-1.5"><Clock className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={2.5} /> {formatDuration(movie.runtime)}</span>
                   <span className="text-white/40">&bull;</span>
-                  <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.5} /> {movie.rating || 'NR'}</span>
+                  <span className="flex items-center gap-1 md:gap-1.5"><Star className="w-3.5 h-3.5 md:w-4 md:h-4 fill-primary text-primary" strokeWidth={2.5} /> {movie.rating || 'NR'}</span>
                 </div>
-                
-                <p className="text-sm md:text-lg text-white/90 leading-relaxed mb-6 md:mb-8 max-w-3xl line-clamp-3 drop-shadow-lg font-medium">
+
+                <p className="text-xs sm:text-sm md:text-base xl:text-lg text-white/90 leading-relaxed mb-4 md:mb-6 max-w-3xl line-clamp-3 drop-shadow-lg font-medium">
                   {(movie as any).shortTeaser || movie.description}
                 </p>
- 
-                <div className="flex flex-wrap items-center gap-4">
-                   <Button size="lg" className="rounded-pill px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
-                      <Play className="w-4 h-4" fill="currentColor" /> Watch Trailer
-                   </Button>
+
+                <div className="mt-auto pt-2">
+                  <Button size="lg" className="rounded-pill px-6 md:px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-[1.03] transition-apple shadow-lg border border-primary/20">
+                    <Play className="w-4 h-4" fill="currentColor" /> Watch Trailer
+                  </Button>
                 </div>
              </div>
            </div>
@@ -269,7 +234,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       </div>
       
       {/* Spacer for desktop poster overlap */}
-      <div className="hidden md:block h-16 md:h-24 w-full bg-background" />
+      <div className="hidden md:block h-12 md:h-16 w-full bg-background" />
 
       
 
