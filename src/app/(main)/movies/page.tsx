@@ -40,7 +40,7 @@ export default async function MoviesIndexPage({
   const sort = searchParams.sort;
 
   const movies = await fetchCatalogItems("movie", 1, 30, genre, sort);
-  const spotlightMovie = movies.length > 0 && !genre ? movies[0] : null;
+  const spotlightMovie = movies.length > 0 ? movies[0] : null;
 
   return (
     <div className="w-full relative pb-24 space-y-8">
@@ -73,7 +73,6 @@ export default async function MoviesIndexPage({
 
         {/* 4. Responsive Netflix / IMDb Style Cards Grid */}
         <CatalogGrid
-          key={`${genre || "all"}-${sort || "latest"}`}
           initialItems={movies}
           type="movie"
           genre={genre}

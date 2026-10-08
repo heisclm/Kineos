@@ -24,11 +24,12 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
       {/* Background Backdrop Artwork */}
       {artwork && (
         <Image
+          key={item.id}
           src={artwork}
           alt={item.title}
           fill
           sizes="100vw"
-          className="object-cover opacity-50 md:opacity-55 group-hover:opacity-65 transition-opacity duration-700 object-center"
+          className="object-cover opacity-50 md:opacity-55 group-hover:opacity-65 transition-opacity duration-700 object-center animate-in fade-in duration-500"
           priority
         />
       )}

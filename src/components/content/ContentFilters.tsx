@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTransition, useState, useEffect } from "react";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,9 +15,21 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const currentGenre = searchParams.get("genre") || "All";
   const currentSort = searchParams.get("sort") || "Latest";
+
+  const [activeGenre, setActiveGenre] = useState(currentGenre);
+  const [activeSort, setActiveSort] = useState(currentSort);
+
+  useEffect(() => {
+    setActiveGenre(currentGenre);
+  }, [currentGenre]);
+
+  useEffect(() => {
+    setActiveSort(currentSort);
+  }, [currentSort]);
 
   const genrePills = [
     "All",
@@ -35,6 +48,9 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
   const sorts = ["Latest", "Popular", "Rating", "A-Z"];
 
   const handleUpdate = (key: string, value: string) => {
+    if (key === "genre") setActiveGenre(value);
+    if (key === "sort") setActiveSort(value);
+
     const params = new URLSearchParams(searchParams.toString());
     if (value === "All" || value === "All Genres" || value === "Latest") {
       params.delete(key);
@@ -43,14 +59,44 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
     }
 
     const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    const targetUrl = query ? `${pathname}?${query}` : pathname;
+
+    // Record the current scroll position before navigation
+    const currentScrollY = typeof window !== "undefined" ? window.scrollY : 0;
+
+    startTransition(() => {
+      router.push(targetUrl, { scroll: false });
+    });
+
+    // Safeguard: strictly maintain scroll position across re-renders
+    if (typeof window !== "undefined") {
+      requestAnimationFrame(() => {
+        if (Math.abs(window.scrollY - currentScrollY) > 5) {
+          window.scrollTo({ top: currentScrollY, behavior: "instant" });
+        }
+      });
+    }
   };
 
   const clearFilters = () => {
-    router.push(pathname, { scroll: false });
+    setActiveGenre("All");
+    setActiveSort("Latest");
+    const currentScrollY = typeof window !== "undefined" ? window.scrollY : 0;
+
+    startTransition(() => {
+      router.push(pathname, { scroll: false });
+    });
+
+    if (typeof window !== "undefined") {
+      requestAnimationFrame(() => {
+        if (Math.abs(window.scrollY - currentScrollY) > 5) {
+          window.scrollTo({ top: currentScrollY, behavior: "instant" });
+        }
+      });
+    }
   };
 
-  const hasActiveFilters = currentGenre !== "All" || currentSort !== "Latest";
+  const hasActiveFilters = activeGenre !== "All" || activeSort !== "Latest";
 
   return (
     <div className="space-y-4 w-full relative z-40">
@@ -60,8 +106,8 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
         <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-1 -mx-2 px-2 sm:mx-0 sm:px-0">
           {genrePills.map((genre) => {
             const isActive =
-              (genre === "All" && (!searchParams.get("genre") || currentGenre === "All")) ||
-              currentGenre.toLowerCase() === genre.toLowerCase();
+              (genre === "All" && (!activeGenre || activeGenre === "All")) ||
+              activeGenre.toLowerCase() === genre.toLowerCase();
 
             return (
               <button
