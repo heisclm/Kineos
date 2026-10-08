@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Play, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface TopTenRowProps {
   title?: string;
@@ -80,7 +81,7 @@ export function TopTenRow({
         <div
           ref={rowRef}
           onScroll={checkScroll}
-          className="flex overflow-x-auto gap-5 sm:gap-7 pb-4 pt-2 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 scroll-smooth items-center"
+          className="flex overflow-x-auto gap-2.5 sm:gap-4 md:gap-6 pb-6 pt-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 scroll-smooth items-end"
         >
           {items.slice(0, 10).map((item, idx) => {
             const rank = idx + 1;
@@ -90,16 +91,36 @@ export function TopTenRow({
             return (
               <div
                 key={item.id}
-                className="flex items-center shrink-0 snap-start group/card cursor-pointer"
+                className="flex items-end shrink-0 snap-start group/card cursor-pointer"
               >
-                {/* Netflix-style Giant Stylized Number */}
-                <div className="relative select-none pointer-events-none -mr-4 sm:-mr-6 z-10">
+                {/* Giant Stylized Ranking Number with Kineos Brand Accent Glow (Option B) */}
+                <div
+                  className={cn(
+                    "relative select-none pointer-events-none z-10 flex items-end justify-end shrink-0 transition-transform duration-300 group-hover/card:-translate-y-1.5",
+                    rank === 1
+                      ? "w-8 sm:w-12 md:w-14 -mr-2 sm:-mr-3 md:-mr-4"
+                      : rank === 10
+                      ? "w-20 sm:w-28 md:w-32 -mr-7 sm:-mr-10 md:-mr-12"
+                      : "w-14 sm:w-20 md:w-24 -mr-5 sm:-mr-7 md:-mr-9"
+                  )}
+                >
+                  {/* Layer 1: Ambient Brand Neon Aura Glow */}
                   <span
-                    className="text-7xl sm:text-8xl md:text-9xl font-black italic tracking-tighter leading-none"
+                    aria-hidden="true"
+                    className="absolute inset-0 flex items-end justify-end text-primary opacity-35 group-hover/card:opacity-85 blur-md sm:blur-xl font-black tracking-tighter leading-[0.8] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] transition-opacity duration-300"
+                  >
+                    {rank}
+                  </span>
+
+                  {/* Layer 2: Core Metallic & Brand-Accent Text with Crisp Rim Light Outline */}
+                  <span
+                    className="relative font-black tracking-tighter leading-[0.8] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] transition-all duration-300"
                     style={{
-                      WebkitTextStroke: "2px rgba(255, 255, 255, 0.35)",
-                      color: "rgba(10, 10, 14, 0.95)",
-                      filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.8))",
+                      background: "linear-gradient(180deg, #FFFFFF 0%, #BAE6FD 35%, #0284C7 70%, rgba(2, 132, 199, 0.25) 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      WebkitTextStroke: "1.5px rgba(255, 255, 255, 0.55)",
+                      filter: "drop-shadow(0 0 16px rgba(14, 165, 233, 0.45)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.95))",
                     }}
                   >
                     {rank}
@@ -109,7 +130,7 @@ export function TopTenRow({
                 {/* Poster Card */}
                 <Link
                   href={href}
-                  className="w-[125px] sm:w-[150px] md:w-[170px] aspect-[2/3] relative rounded-xl overflow-hidden bg-surface-elevated border border-white/10 shadow-xl group-hover/card:scale-105 group-hover/card:border-primary/50 transition-all duration-300 z-20"
+                  className="w-[125px] sm:w-[150px] md:w-[170px] aspect-[2/3] relative rounded-xl overflow-hidden bg-surface-elevated border border-white/10 shadow-xl group-hover/card:scale-105 group-hover/card:border-primary/50 transition-all duration-300 z-20 shrink-0"
                 >
                   {/* Poster Image */}
                   {(item.imageUrl || (item as any).posterUrl) ? (
