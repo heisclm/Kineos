@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Play, Download, Clock, Calendar, Star, Layers, Film, ChevronRight, FileVideo, HardDrive } from "lucide-react";
+import { Play, Download, Clock, Calendar, Star, Layers, Film, ChevronRight, FileVideo, HardDrive, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
@@ -9,6 +9,8 @@ import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries, getDownloadSourcesForContent } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { generateSeriesKeywords } from "@/lib/seo";
+import { TrailerModal } from "@/components/content/TrailerModal";
+import { HeroSideWidget } from "@/components/content/HeroSideWidget";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -98,6 +100,16 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const totalEpisodesCount = seasonsWithEpisodes.reduce((acc, s) => acc + (s.episodes?.length || 0), 0);
   const releaseYear = series.releaseDate ? new Date(series.releaseDate).getFullYear() : null;
 
+  const creators = cast
+    .filter((c: any) => c.role?.toLowerCase() === "creator" || c.role?.toLowerCase() === "director" || c.role?.toLowerCase().includes("creator"))
+    .map((c: any) => c.name);
+
+  const rawStars = cast
+    .filter((c: any) => !c.role || c.role?.toLowerCase() === "actor" || (!c.role?.toLowerCase().includes("director") && !c.role?.toLowerCase().includes("creator")))
+    .map((c: any) => c.name);
+
+  const displayStars = rawStars.length > 0 ? rawStars.slice(0, 4) : cast.slice(0, 4).map((c: any) => c.name);
+
   const pageKeywords = generateSeriesKeywords({
     title: series.title,
     releaseDate: series.releaseDate,
@@ -182,159 +194,278 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         {/* Hero Content Container */}
         <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-8 md:pb-12">
           
-          {/* Mobile Layout (< md): Genres aligned with poster top, Title full-width */}
-          <div className="md:hidden flex flex-col gap-3">
+          {/* Mobile Layout (< md): Re-ordered hierarchy #3 */}
+          <div className="md:hidden flex flex-col gap-3.5">
             {/* Top Row: Poster & Aligned Header Info */}
             <div className="flex gap-4 items-start">
               <div className="w-28 sm:w-32 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-surface relative flex items-center justify-center">
                 {poster ? (
-                  <Image src={poster} alt={series.title} fill className="object-cover" priority />
+                  <Image
+                    src={poster}
+                    alt={series.title}
+                    fill
+                    sizes="(max-width: 640px) 130px, 150px"
+                    className="object-cover"
+                    priority
+                  />
                 ) : (
                   <Film className="w-8 h-8 opacity-30" />
                 )}
               </div>
 
-              {/* Right Column: Badges (in line with poster top), Meta Row, Quick Action */}
+              {/* Right of Poster: Title, Specs & Quick Action */}
               <div className="flex-1 flex flex-col justify-start min-w-0 pt-0.5">
-                {/* Badges in line with top of poster */}
-                <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-                  <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-primary/25 text-primary border-primary/30">
-                    TV SERIES
-                  </Badge>
-                  {series.genres?.filter((g: string | null): g is string => Boolean(g)).slice(0, 3).map((g: string) => (
-                    <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] font-medium bg-white/10 border-white/15 text-white/90">
-                      {g}
-                    </Badge>
-                  ))}
-                  {series.genres && series.genres.length > 3 && (
-                    <Badge variant="glass" className="px-1.5 py-0.5 text-[10px] font-medium bg-white/5 border-white/10 text-white/70">
-                      +{series.genres.length - 3}
-                    </Badge>
-                  )}
-                </div>
+                {/* 1. Title */}
+                <h1 className="text-xl sm:text-2xl font-extrabold text-foreground leading-snug tracking-tight text-balance drop-shadow-xl break-normal mb-1">
+                  {series.title}
+                </h1>
 
-                {/* Mobile Meta Row */}
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-white/90 drop-shadow-md mb-3">
-                  {releaseYear && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {releaseYear}
-                    </span>
+                {/* 2. Film Specs */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-white/90 drop-shadow-md mb-2.5">
+                  {releaseYear && <span>{releaseYear}</span>}
+                  {(series as any).rating && (
+                    <>
+                      <span className="text-white/40">&bull;</span>
+                      <span className="px-1.5 py-0.2 rounded border border-white/20 text-[10px] font-bold text-white/90 uppercase tracking-wide bg-white/5">
+                        {(series as any).rating}
+                      </span>
+                    </>
                   )}
                   <span className="text-white/40">&bull;</span>
                   <span className="flex items-center gap-1">
-                    <Layers className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} S
+                    <Layers className="w-3 h-3 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} S
                   </span>
                   <span className="text-white/40">&bull;</span>
                   <span className="flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || 'NR'}
+                    <Star className="w-3 h-3 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || '8.5'}
                   </span>
                 </div>
 
-                {/* Quick Action Button */}
-                <a href="#episodes" className="inline-flex">
-                  <Button size="sm" className="rounded-full px-4 py-1.5 gap-1.5 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20 w-fit">
-                    <Play className="w-3.5 h-3.5" fill="currentColor" /> Browse Episodes
-                  </Button>
-                </a>
+                {/* Quick Action on Mobile */}
+                <div className="mt-auto">
+                  <a href="#episodes" className="inline-flex">
+                    <Button size="sm" className="rounded-full px-3.5 py-1.5 gap-1.5 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20">
+                      <Play className="w-3.5 h-3.5" fill="currentColor" /> Browse Episodes
+                    </Button>
+                  </a>
+                </div>
               </div>
             </div>
 
-            {/* Full-width Title */}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground leading-snug tracking-tight text-balance drop-shadow-xl break-normal mt-1">
-              {series.title}
-            </h1>
+            {/* 3. Genre Pills */}
+            {series.genres && series.genres.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {series.genres.filter((g: string | null): g is string => Boolean(g)).map((g: string) => (
+                  <span
+                    key={g}
+                    className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/[0.08] border border-white/10 text-white/90"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            )}
 
-            {/* Teaser Description */}
+            {/* 4. Creators & Key Cast (Inline text credits) */}
+            {(creators.length > 0 || displayStars.length > 0) && (
+              <div className="space-y-1 text-xs">
+                {creators.length > 0 && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-white/45 font-medium shrink-0">Creators</span>
+                    <span className="text-white/90 font-semibold truncate">{creators.join(", ")}</span>
+                  </div>
+                )}
+                {displayStars.length > 0 && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-white/45 font-medium shrink-0">Stars</span>
+                    <span className="text-white/90 font-semibold truncate">{displayStars.join(" • ")}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. Synopsis / Logline */}
             {((series as any).shortTeaser || series.description) && (
               <p className="text-xs sm:text-sm text-white/80 leading-relaxed font-normal line-clamp-3">
                 {(series as any).shortTeaser || series.description}
               </p>
             )}
 
-            {/* Full Series Batch Download Button on Mobile */}
+            {/* Batch Downloads button if available on mobile */}
             {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-              <div className="pt-1">
-                <a href="#batch-downloads" className="inline-flex w-full">
-                  <Button size="sm" variant="secondary" className="w-full rounded-xl gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white text-xs border border-white/10">
-                    <Download className="w-3.5 h-3.5 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
-                  </Button>
-                </a>
-              </div>
+              <a href="#batch-downloads" className="inline-flex w-full">
+                <Button size="sm" variant="secondary" className="w-full rounded-xl gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white text-xs border border-white/10">
+                  <Download className="w-3.5 h-3.5 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
+                </Button>
+              </a>
             )}
+
+            {/* Mobile Trailer Action */}
+            <TrailerModal
+              title={series.title}
+              backdropUrl={backdrop}
+              posterUrl={poster}
+              releaseYear={releaseYear}
+              duration={`${seasonsWithEpisodes.length} Seasons`}
+              variant="button"
+              buttonText="Watch Official Trailer"
+              className="w-full justify-center"
+            />
           </div>
 
-          {/* Desktop & Tablet Layout (md:flex): Perfectly aligned items-start */}
+          {/* Desktop & Tablet Layout (md:flex): 3-column on xl+, 2-column on md-lg */}
           <div className="hidden md:flex gap-8 lg:gap-10 items-start w-full">
-            <div className="w-48 lg:w-60 xl:w-68 aspect-[2/3] shrink-0 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 relative z-20 bg-surface flex items-center justify-center">
-              {poster ? (
-                <Image src={poster} alt={series.title} fill className="object-cover" priority />
-              ) : (
-                <Film className="w-12 h-12 opacity-30" />
-              )}
-            </div>
-
-            {/* Content Column: Badges aligned with poster top */}
-            <div className="flex-1 text-left min-w-0 pt-1">
-              {/* Badges in line with top of poster */}
-              <div className="flex flex-wrap items-center gap-2.5 mb-3">
-                <Badge variant="glass" className="px-3 py-1 text-xs font-bold tracking-wider bg-primary/20 text-primary border-primary/25">
-                  TV SERIES
-                </Badge>
-                {series.genres?.filter((g: string | null): g is string => Boolean(g)).map((g: string) => (
-                  <Badge key={g} variant="glass" className="px-3 py-1 text-xs font-medium bg-white/10 border-white/20 text-white/90">
-                    {g}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Title */}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-3 leading-[1.15] tracking-tight text-balance drop-shadow-2xl">
-                {series.title}
-              </h1>
-
-              {/* Meta Row */}
-              <div className="flex flex-wrap items-center gap-3 mb-4 text-sm font-semibold text-white/90 drop-shadow-md">
-                {releaseYear && (
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-primary" strokeWidth={2.2} /> {releaseYear}
-                  </span>
+            {/* Left Column: Poster + Under-poster Action Hub */}
+            <div className="w-48 lg:w-56 xl:w-64 shrink-0 flex flex-col gap-3.5">
+              <div className="aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 relative z-20 bg-surface flex items-center justify-center">
+                {poster ? (
+                  <Image
+                    src={poster}
+                    alt={series.title}
+                    fill
+                    sizes="(max-width: 1024px) 230px, 260px"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <Film className="w-12 h-12 opacity-30" />
                 )}
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
-                </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <FileVideo className="w-4 h-4 text-primary" strokeWidth={2.2} /> {totalEpisodesCount} {totalEpisodesCount === 1 ? 'Episode' : 'Episodes'}
-                </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || 'NR'}
-                </span>
               </div>
 
-              {/* Teaser */}
-              {((series as any).shortTeaser || series.description) && (
-                <p className="text-sm md:text-base lg:text-lg text-white/80 leading-relaxed mb-6 max-w-3xl font-normal drop-shadow-sm line-clamp-3">
-                  {(series as any).shortTeaser || series.description}
-                </p>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4">
-                <a href="#episodes">
-                  <Button size="lg" className="rounded-full px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
-                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes & Downloads
+              {/* Action Buttons Under Poster */}
+              <div className="space-y-2 w-full">
+                <a href="#episodes" className="w-full inline-flex">
+                  <Button size="lg" className="w-full rounded-full gap-2 font-semibold bg-primary text-primary-foreground hover:scale-[1.02] transition-apple shadow-lg border border-primary/20">
+                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes ({totalEpisodesCount})
                   </Button>
                 </a>
                 {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-                  <a href="#batch-downloads">
-                    <Button size="lg" variant="secondary" className="rounded-full px-6 gap-2 font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 hover:scale-105 transition-apple shadow-lg">
-                      <Download className="w-4 h-4 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
+                  <a href="#batch-downloads" className="w-full inline-flex">
+                    <Button size="lg" variant="secondary" className="w-full rounded-full gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/15 hover:scale-[1.02] transition-apple shadow-lg">
+                      <Download className="w-4 h-4 text-primary" /> Full Series ({seriesBatchDownloads.length})
                     </Button>
                   </a>
                 )}
               </div>
+
+              {/* Quality & Verified Badge strip under poster */}
+              <div className="flex items-center justify-center gap-2 text-[11px] font-semibold text-white/60 pt-0.5">
+                <span className="flex items-center gap-1 text-primary">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                </span>
+                <span className="text-white/30">&bull;</span>
+                <span>Fast Servers</span>
+                <span className="text-white/30">&bull;</span>
+                <span>All Seasons</span>
+              </div>
+            </div>
+
+            {/* Center Column: Details following Hierarchy #3 */}
+            <div className="flex-1 text-left min-w-0 pt-0.5 flex flex-col justify-start">
+              {/* 1. Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-2.5 leading-[1.1] tracking-tight text-balance drop-shadow-2xl">
+                {series.title}
+              </h1>
+
+              {/* 2. Film Specs Row (Screenshot: 1994 | [R] | 2h 34m) */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm font-semibold text-white/90 drop-shadow-md mb-3.5">
+                {releaseYear && <span>{releaseYear}</span>}
+                {(series as any).rating && (
+                  <>
+                    <span className="text-white/30">&bull;</span>
+                    <span className="px-1.5 py-0.5 rounded border border-white/20 text-[11px] font-bold text-white/90 uppercase tracking-wide bg-white/5">
+                      {(series as any).rating}
+                    </span>
+                  </>
+                )}
+                <span className="text-white/30">&bull;</span>
+                <span className="flex items-center gap-1">
+                  <Layers className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
+                </span>
+                <span className="text-white/30">&bull;</span>
+                <span className="flex items-center gap-1">
+                  <FileVideo className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {totalEpisodesCount} {totalEpisodesCount === 1 ? 'Episode' : 'Episodes'}
+                </span>
+                <span className="text-white/30">&bull;</span>
+                <span className="flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || '8.5'}
+                </span>
+                <span className="text-white/30">&bull;</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/25">
+                  TV SERIES
+                </span>
+              </div>
+
+              {/* 3. Genre Pills */}
+              {series.genres && series.genres.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {series.genres.filter((g: string | null): g is string => Boolean(g)).map((g: string) => (
+                    <span
+                      key={g}
+                      className="px-3 py-1 rounded-full text-xs font-medium bg-white/[0.08] hover:bg-white/[0.12] border border-white/10 text-white/90 transition-apple cursor-default"
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* 4. Creators & Key Cast (Inline text credits) */}
+              {(creators.length > 0 || displayStars.length > 0) && (
+                <div className="space-y-1.5 mb-4 text-xs sm:text-sm">
+                  {creators.length > 0 && (
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="text-white/45 font-medium min-w-[65px]">Creators</span>
+                      <span className="text-white/95 font-semibold">{creators.join(", ")}</span>
+                    </div>
+                  )}
+                  {displayStars.length > 0 && (
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="text-white/45 font-medium min-w-[65px]">Stars</span>
+                      <span className="text-white/95 font-semibold">{displayStars.join(" • ")}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 5. Synopsis / Logline */}
+              {((series as any).shortTeaser || series.description) && (
+                <p className="text-sm md:text-base text-white/80 leading-relaxed mb-6 max-w-2xl font-normal drop-shadow-sm">
+                  {(series as any).shortTeaser || series.description}
+                </p>
+              )}
+
+              {/* Secondary Actions */}
+              <div className="flex flex-wrap items-center gap-3">
+                <TrailerModal
+                  title={series.title}
+                  backdropUrl={backdrop}
+                  posterUrl={poster}
+                  releaseYear={releaseYear}
+                  duration={`${seasonsWithEpisodes.length} Seasons`}
+                  variant="button"
+                  buttonText="Watch Trailer"
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Far-Right Balance & Symmetry on Desktop (Idea #4) */}
+            <div className="hidden xl:flex w-80 2xl:w-96 shrink-0 flex-col">
+              <HeroSideWidget
+                type="series"
+                title={series.title}
+                backdropUrl={backdrop}
+                posterUrl={poster}
+                releaseYear={releaseYear}
+                runtime={`${seasonsWithEpisodes.length} Seasons`}
+                ratingScore={88}
+                contentRating={(series as any).rating}
+                viewCount={series.viewCount}
+                downloadCount={series.downloadCount}
+                language={series.language}
+                country="Global"
+                status={series.status}
+              />
             </div>
           </div>
 

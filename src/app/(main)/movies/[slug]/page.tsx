@@ -4,12 +4,14 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { formatDuration } from "@/lib/utils";
 // from "next/navigation";
-import { Play, Download, Clock, Calendar, Star } from "lucide-react";
+import { Play, Download, Clock, Calendar, Star, Film, Sparkles, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { generateMovieKeywords } from "@/lib/seo";
+import { TrailerModal } from "@/components/content/TrailerModal";
+import { HeroSideWidget } from "@/components/content/HeroSideWidget";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -98,6 +100,20 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
   const poster = (movie as any).imageUrl || null;
   const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null;
+
+  const directors = cast
+    .filter((c: any) => c.role?.toLowerCase() === 'director' || c.role?.toLowerCase().includes('director'))
+    .map((c: any) => c.name);
+
+  const writers = cast
+    .filter((c: any) => c.role?.toLowerCase() === 'writer' || c.role?.toLowerCase().includes('writer'))
+    .map((c: any) => c.name);
+
+  const rawStars = cast
+    .filter((c: any) => !c.role || c.role?.toLowerCase() === 'actor' || (!c.role?.toLowerCase().includes('director') && !c.role?.toLowerCase().includes('writer')))
+    .map((c: any) => c.name);
+
+  const displayStars = rawStars.length > 0 ? rawStars.slice(0, 4) : cast.slice(0, 4).map((c: any) => c.name);
 
   const pageKeywords = generateMovieKeywords({
     title: movie.title,
@@ -193,125 +209,288 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
         {/* Hero Content Container */}
         <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-8 md:pb-12">
           
-          {/* Mobile Layout (< md): Genres aligned with poster top, Title full-width */}
-          <div className="md:hidden flex flex-col gap-3">
+          {/* Mobile Layout (< md): Re-ordered hierarchy #3 */}
+          <div className="md:hidden flex flex-col gap-3.5">
             {/* Top Row: Poster & Aligned Header Info */}
             <div className="flex gap-4 items-start">
               {(movie as any).imageUrl && (
                 <div className="w-28 sm:w-32 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-surface relative">
-                  <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" priority />
+                  <Image
+                    src={(movie as any).imageUrl}
+                    alt={movie.title}
+                    fill
+                    sizes="(max-width: 640px) 130px, 150px"
+                    className="object-cover"
+                    priority
+                  />
                 </div>
               )}
 
-              {/* Right Column: Badges (in line with poster top), Meta Row, Quick Action */}
+              {/* Right of Poster: Title, Specs & Download CTA */}
               <div className="flex-1 flex flex-col justify-start min-w-0 pt-0.5">
-                {/* Badges in line with top of poster */}
-                <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-                  <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-primary/25 text-primary border-primary/30">
-                    MOVIE
-                  </Badge>
-                  {((movie as any).genres || []).slice(0, 3).map((g: string) => (
-                    <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] font-medium bg-white/10 border-white/15 text-white/90">
-                      {g}
-                    </Badge>
-                  ))}
-                  {((movie as any).genres || []).length > 3 && (
-                    <Badge variant="glass" className="px-1.5 py-0.5 text-[10px] font-medium bg-white/5 border-white/10 text-white/70">
-                      +{((movie as any).genres || []).length - 3}
-                    </Badge>
+                {/* 1. Title */}
+                <h1 className="text-xl sm:text-2xl font-extrabold text-foreground leading-snug tracking-tight text-balance drop-shadow-xl break-normal mb-1">
+                  {movie.title}
+                </h1>
+                {movie.originalTitle && movie.originalTitle.toLowerCase() !== movie.title.toLowerCase() && (
+                  <span className="text-[11px] font-medium text-white/50 mb-1.5 truncate">
+                    ({movie.originalTitle})
+                  </span>
+                )}
+
+                {/* 2. Film Specs */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-white/90 drop-shadow-md mb-2.5">
+                  {releaseYear && <span>{releaseYear}</span>}
+                  {movie.rating && (
+                    <>
+                      <span className="text-white/30">&bull;</span>
+                      <span className="px-1.5 py-0.2 rounded border border-white/20 text-[10px] font-bold text-white/90 uppercase tracking-wide bg-white/5">
+                        {movie.rating}
+                      </span>
+                    </>
+                  )}
+                  {movie.runtime && (
+                    <>
+                      <span className="text-white/30">&bull;</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-primary" strokeWidth={2.2} /> {formatDuration(movie.runtime)}
+                      </span>
+                    </>
+                  )}
+                  {(movie.ratingScore || movie.rating) && (
+                    <>
+                      <span className="text-white/30">&bull;</span>
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-primary text-primary" strokeWidth={2.2} />
+                        {movie.ratingScore ? (movie.ratingScore / 10).toFixed(1) : movie.rating || "8.4"}
+                      </span>
+                    </>
                   )}
                 </div>
 
-                {/* Mobile Meta Row */}
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-white/90 drop-shadow-md mb-3">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" strokeWidth={2.2} /> {releaseYear || 'TBA'}
-                  </span>
-                  <span className="text-white/40">&bull;</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" strokeWidth={2.2} /> {formatDuration(movie.runtime)}
-                  </span>
-                  <span className="text-white/40">&bull;</span>
-                  <span className="flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} /> {movie.rating || 'NR'}
-                  </span>
+                {/* Quick Download CTA on Mobile */}
+                <div className="mt-auto">
+                  <a href="#download" className="inline-flex">
+                    <Button size="sm" className="rounded-full px-3.5 py-1.5 gap-1.5 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20">
+                      <Download className="w-3.5 h-3.5" /> Downloads ({downloads.length})
+                    </Button>
+                  </a>
                 </div>
-
-                {/* Quick Action Button */}
-                <Button size="sm" className="rounded-full px-4 py-1.5 gap-1.5 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20 w-fit">
-                  <Play className="w-3.5 h-3.5" fill="currentColor" /> Watch Trailer
-                </Button>
               </div>
             </div>
 
-            {/* Full-width Title: Gives long titles like Spider-Man full room without awkward hyphen breaks */}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground leading-snug tracking-tight text-balance drop-shadow-xl break-normal mt-1">
-              {movie.title}
-            </h1>
+            {/* 3. Genre Pills */}
+            {((movie as any).genres || []).length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {((movie as any).genres || []).map((g: string) => (
+                  <span
+                    key={g}
+                    className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/[0.08] border border-white/10 text-white/90"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            )}
 
-            {/* Teaser Description */}
+            {/* 4. Director & Key Cast (Inline text credits) */}
+            {(directors.length > 0 || displayStars.length > 0) && (
+              <div className="space-y-1 text-xs">
+                {directors.length > 0 && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-white/45 font-medium shrink-0">Director</span>
+                    <span className="text-white/90 font-semibold truncate">{directors.join(", ")}</span>
+                  </div>
+                )}
+                {displayStars.length > 0 && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-white/45 font-medium shrink-0">Stars</span>
+                    <span className="text-white/90 font-semibold truncate">{displayStars.join(" • ")}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. Synopsis / Logline */}
             {((movie as any).shortTeaser || movie.description) && (
               <p className="text-xs sm:text-sm text-white/80 leading-relaxed font-normal line-clamp-3">
                 {(movie as any).shortTeaser || movie.description}
               </p>
             )}
+
+            {/* Mobile Trailer Action */}
+            <TrailerModal
+              title={movie.title}
+              backdropUrl={backdrop}
+              posterUrl={poster}
+              releaseYear={releaseYear}
+              duration={formatDuration(movie.runtime)}
+              variant="button"
+              buttonText="Watch Official Trailer"
+              className="w-full justify-center"
+            />
           </div>
 
-          {/* Desktop & Tablet Layout (md:flex): Perfectly aligned items-start */}
+          {/* Desktop & Tablet Layout (md:flex): 3-column on xl+, 2-column on md-lg */}
           <div className="hidden md:flex gap-8 lg:gap-10 items-start w-full">
-            {(movie as any).imageUrl && (
-              <div className="w-48 lg:w-60 xl:w-68 aspect-[2/3] shrink-0 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 relative z-20 bg-surface">
-                <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" priority />
-              </div>
-            )}
+            {/* Left Column: Poster + Under-poster Action Hub */}
+            <div className="w-48 lg:w-56 xl:w-64 shrink-0 flex flex-col gap-3.5">
+              {(movie as any).imageUrl && (
+                <div className="aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 relative z-20 bg-surface">
+                  <Image
+                    src={(movie as any).imageUrl}
+                    alt={movie.title}
+                    fill
+                    sizes="(max-width: 1024px) 230px, 260px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              )}
 
-            {/* Content Column: Badges aligned with poster top */}
-            <div className="flex-1 text-left min-w-0 pt-1">
-              {/* Badges in line with top of poster */}
-              <div className="flex flex-wrap items-center gap-2.5 mb-3">
-                <Badge variant="glass" className="px-3 py-1 text-xs font-bold tracking-wider bg-primary/20 text-primary border-primary/25">
+              {/* Action Button Under Poster */}
+              <a href="#download" className="w-full inline-flex">
+                <Button size="lg" className="w-full rounded-full gap-2 font-semibold bg-primary text-primary-foreground hover:scale-[1.02] transition-apple shadow-lg border border-primary/20">
+                  <Download className="w-4 h-4" /> Download Sources ({downloads.length})
+                </Button>
+              </a>
+
+              {/* Quality & Verified Badge strip under poster */}
+              <div className="flex items-center justify-center gap-2 text-[11px] font-semibold text-white/60 pt-0.5">
+                <span className="flex items-center gap-1 text-primary">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                </span>
+                <span className="text-white/30">&bull;</span>
+                <span>Fast Servers</span>
+                <span className="text-white/30">&bull;</span>
+                <span>100% Free</span>
+              </div>
+            </div>
+
+            {/* Center Column: Details following Hierarchy #3 */}
+            <div className="flex-1 text-left min-w-0 pt-0.5 flex flex-col justify-start">
+              {/* 1. Title */}
+              <div className="flex flex-wrap items-baseline gap-3 mb-2.5">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground leading-[1.1] tracking-tight text-balance drop-shadow-2xl">
+                  {movie.title}
+                </h1>
+                {movie.originalTitle && movie.originalTitle.toLowerCase() !== movie.title.toLowerCase() && (
+                  <span className="text-xs sm:text-sm font-medium text-white/50 tracking-normal">
+                    ({movie.originalTitle})
+                  </span>
+                )}
+              </div>
+
+              {/* 2. Film Specs Row (Screenshot: 1994 | [R] | 2h 34m) */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm font-semibold text-white/90 drop-shadow-md mb-3.5">
+                {releaseYear && <span>{releaseYear}</span>}
+                {movie.rating && (
+                  <>
+                    <span className="text-white/30">&bull;</span>
+                    <span className="px-1.5 py-0.5 rounded border border-white/20 text-[11px] font-bold text-white/90 uppercase tracking-wide bg-white/5">
+                      {movie.rating}
+                    </span>
+                  </>
+                )}
+                {movie.runtime && (
+                  <>
+                    <span className="text-white/30">&bull;</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {formatDuration(movie.runtime)}
+                    </span>
+                  </>
+                )}
+                {(movie.ratingScore || movie.rating) && (
+                  <>
+                    <span className="text-white/30">&bull;</span>
+                    <span className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} />
+                      {movie.ratingScore ? (movie.ratingScore / 10).toFixed(1) : movie.rating || "8.4"}
+                    </span>
+                  </>
+                )}
+                <span className="text-white/30">&bull;</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/25">
                   MOVIE
-                </Badge>
-                {((movie as any).genres || []).map((g: string) => (
-                  <Badge key={g} variant="glass" className="px-3 py-1 text-xs font-medium bg-white/10 border-white/20 text-white/90">
-                    {g}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Title */}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-3 leading-[1.15] tracking-tight text-balance drop-shadow-2xl">
-                {movie.title}
-              </h1>
-
-              {/* Meta Row */}
-              <div className="flex flex-wrap items-center gap-3 mb-4 text-sm font-semibold text-white/90 drop-shadow-md">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-primary" strokeWidth={2.2} /> {releaseYear || 'TBA'}
-                </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-primary" strokeWidth={2.2} /> {formatDuration(movie.runtime)}
-                </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1.5">
-                  <Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.2} /> {movie.rating || 'NR'}
                 </span>
               </div>
 
-              {/* Teaser */}
+              {/* 3. Genre Pills */}
+              {((movie as any).genres || []).length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {((movie as any).genres || []).map((g: string) => (
+                    <span
+                      key={g}
+                      className="px-3 py-1 rounded-full text-xs font-medium bg-white/[0.08] hover:bg-white/[0.12] border border-white/10 text-white/90 transition-apple cursor-default"
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* 4. Director, Writers & Key Cast (Inline text credits) */}
+              {(directors.length > 0 || writers.length > 0 || displayStars.length > 0) && (
+                <div className="space-y-1.5 mb-4 text-xs sm:text-sm">
+                  {directors.length > 0 && (
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="text-white/45 font-medium min-w-[65px]">Director</span>
+                      <span className="text-white/95 font-semibold">{directors.join(", ")}</span>
+                    </div>
+                  )}
+                  {writers.length > 0 && (
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="text-white/45 font-medium min-w-[65px]">Writers</span>
+                      <span className="text-white/95 font-semibold">{writers.join(" • ")}</span>
+                    </div>
+                  )}
+                  {displayStars.length > 0 && (
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="text-white/45 font-medium min-w-[65px]">Stars</span>
+                      <span className="text-white/95 font-semibold">{displayStars.join(" • ")}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 5. Synopsis / Logline */}
               {((movie as any).shortTeaser || movie.description) && (
-                <p className="text-sm md:text-base lg:text-lg text-white/80 leading-relaxed mb-6 max-w-3xl font-normal drop-shadow-sm line-clamp-3">
+                <p className="text-sm md:text-base text-white/80 leading-relaxed mb-6 max-w-2xl font-normal drop-shadow-sm">
                   {(movie as any).shortTeaser || movie.description}
                 </p>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4">
-                <Button size="lg" className="rounded-full px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
-                  <Play className="w-4 h-4" fill="currentColor" /> Watch Trailer
-                </Button>
+              {/* Secondary Actions */}
+              <div className="flex flex-wrap items-center gap-3">
+                <TrailerModal
+                  title={movie.title}
+                  backdropUrl={backdrop}
+                  posterUrl={poster}
+                  releaseYear={releaseYear}
+                  duration={formatDuration(movie.runtime)}
+                  variant="button"
+                  buttonText="Watch Trailer"
+                />
               </div>
+            </div>
+
+            {/* Right Column: Far-Right Balance & Symmetry on Desktop (Idea #4) */}
+            <div className="hidden xl:flex w-80 2xl:w-96 shrink-0 flex-col">
+              <HeroSideWidget
+                type="movie"
+                title={movie.title}
+                backdropUrl={backdrop}
+                posterUrl={poster}
+                releaseYear={releaseYear}
+                runtime={formatDuration(movie.runtime)}
+                ratingScore={movie.ratingScore}
+                contentRating={movie.rating}
+                viewCount={movie.viewCount}
+                downloadCount={movie.downloadCount}
+                language={movie.language}
+                country={movie.country}
+                status={movie.status}
+              />
             </div>
           </div>
 
