@@ -160,122 +160,188 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ViewTracker id={series.id} type="series" />
-
       {/* Series Hero/Backdrop Layer */}
-      <div className="w-full relative bg-background">
-        <div className="w-full min-h-[430px] sm:min-h-[460px] md:min-h-[460px] lg:min-h-[500px] xl:min-h-[560px] 2xl:min-h-[600px] relative flex flex-col justify-end">
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
-          <div className="md:hidden absolute inset-0 bg-gradient-to-r from-transparent via-background/45 to-background/85 z-10" />
-          <div className="hidden md:block absolute inset-y-0 left-0 w-[82%] bg-gradient-to-r from-background via-background/85 to-transparent z-10" />
-
+      <div className="w-full relative bg-background overflow-hidden">
+        {/* Backdrop Background */}
+        <div className="absolute inset-0 z-0">
           {backdrop ? (
             <Image
               src={backdrop}
               alt={series.title}
               fill
-              className="object-cover object-top z-0 opacity-40 md:opacity-50"
+              className="object-cover object-top opacity-35 md:opacity-45"
               priority
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent z-0 opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent opacity-60" />
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent/30" />
+        </div>
 
-          <div className="relative z-20 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pb-8 md:pb-0 md:translate-y-8">
-            <div className="relative flex gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-end">
-            <div className="relative z-30 w-[40%] max-w-[160px] md:w-52 md:max-w-none lg:w-56 xl:w-72 2xl:w-80 aspect-[2/3] shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.55)] border border-white/10 bg-surface flex items-center justify-center">
-              {poster ? (
-                <Image src={poster} alt={series.title} fill className="object-cover" priority />
-              ) : (
-                <Film className="w-10 h-10 md:w-12 md:h-12 opacity-30" />
-              )}
+        {/* Hero Content Container */}
+        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-8 md:pb-12">
+          
+          {/* Mobile Layout (< md): Genres aligned with poster top, Title full-width */}
+          <div className="md:hidden flex flex-col gap-3">
+            {/* Top Row: Poster & Aligned Header Info */}
+            <div className="flex gap-4 items-start">
+              <div className="w-28 sm:w-32 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-surface relative flex items-center justify-center">
+                {poster ? (
+                  <Image src={poster} alt={series.title} fill className="object-cover" priority />
+                ) : (
+                  <Film className="w-8 h-8 opacity-30" />
+                )}
+              </div>
+
+              {/* Right Column: Badges (in line with poster top), Meta Row, Quick Action */}
+              <div className="flex-1 flex flex-col justify-start min-w-0 pt-0.5">
+                {/* Badges in line with top of poster */}
+                <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                  <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-primary/25 text-primary border-primary/30">
+                    TV SERIES
+                  </Badge>
+                  {series.genres?.filter((g: string | null): g is string => Boolean(g)).slice(0, 3).map((g: string) => (
+                    <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] font-medium bg-white/10 border-white/15 text-white/90">
+                      {g}
+                    </Badge>
+                  ))}
+                  {series.genres && series.genres.length > 3 && (
+                    <Badge variant="glass" className="px-1.5 py-0.5 text-[10px] font-medium bg-white/5 border-white/10 text-white/70">
+                      +{series.genres.length - 3}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Mobile Meta Row */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-white/90 drop-shadow-md mb-3">
+                  {releaseYear && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {releaseYear}
+                    </span>
+                  )}
+                  <span className="text-white/40">&bull;</span>
+                  <span className="flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} S
+                  </span>
+                  <span className="text-white/40">&bull;</span>
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || 'NR'}
+                  </span>
+                </div>
+
+                {/* Quick Action Button */}
+                <a href="#episodes" className="inline-flex">
+                  <Button size="sm" className="rounded-full px-4 py-1.5 gap-1.5 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20 w-fit">
+                    <Play className="w-3.5 h-3.5" fill="currentColor" /> Browse Episodes
+                  </Button>
+                </a>
+              </div>
             </div>
 
-            <div className="min-w-0 flex-1 min-h-[220px] md:min-h-[312px] lg:min-h-[336px] xl:min-h-[432px] flex flex-col pt-14 sm:pt-16 md:pt-16 lg:pt-20 xl:pt-24">
-              <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                <Badge variant="glass" className="px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-semibold tracking-wider bg-primary/20 text-primary border-primary/20">
-                  TV SERIES
-                </Badge>
-                {series.genres?.filter((g: string | null): g is string => Boolean(g)).map((g: string, index: number) => (
-                  <Badge key={g} variant="glass" className={`${index >= 2 ? "hidden md:inline-flex" : ""} px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-white/10 border-white/20 text-white/90`}>
-                    {g}
-                  </Badge>
-                ))}
-              </div>
+            {/* Full-width Title */}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground leading-snug tracking-tight text-balance drop-shadow-xl break-normal mt-1">
+              {series.title}
+            </h1>
 
-              <h1 className="text-xl sm:text-2xl md:text-4xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-3 md:mb-4 leading-[1.05] tracking-tight text-balance break-words max-w-5xl drop-shadow-2xl">
-                {series.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-1 mb-3 md:mb-5 text-xs md:text-sm font-semibold text-white/90 drop-shadow-md">
-                {releaseYear && (
-                  <span className="flex items-center gap-1 md:gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={2.5} /> {releaseYear}
-                  </span>
-                )}
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1 md:gap-1.5">
-                  <Layers className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={2.5} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
-                </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1 md:gap-1.5">
-                  <FileVideo className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={2.5} /> {totalEpisodesCount} Episodes
-                </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="flex items-center gap-1 md:gap-1.5">
-                  <Star className="w-3.5 h-3.5 md:w-4 md:h-4 fill-primary text-primary" strokeWidth={2.5} /> {(series as any).rating || 'NR'}
-                </span>
-              </div>
-
-              <p className="hidden md:block text-xs sm:text-sm md:text-base xl:text-lg text-white/90 leading-relaxed mb-4 md:mb-5 max-w-3xl line-clamp-2 drop-shadow-lg font-medium">
+            {/* Teaser Description */}
+            {((series as any).shortTeaser || series.description) && (
+              <p className="text-xs sm:text-sm text-white/80 leading-relaxed font-normal line-clamp-3">
                 {(series as any).shortTeaser || series.description}
               </p>
+            )}
 
-              {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-                <div className="hidden md:block mb-3 md:mb-4">
-                  <a href="#batch-downloads">
-                    <Button size="sm" variant="secondary" className="rounded-full px-3 sm:px-4 gap-2 text-[10px] sm:text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-apple shadow-lg">
-                      <Download className="w-4 h-4 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
-                    </Button>
-                  </a>
-                </div>
-              )}
-
-              <div className="hidden md:block mt-auto pt-2">
-                <a href="#episodes">
-                  <Button size="lg" className="rounded-full px-3 sm:px-8 gap-2 text-xs sm:text-base font-semibold bg-primary text-primary-foreground hover:scale-[1.03] transition-apple shadow-lg border border-primary/20">
-                    <Play className="w-4 h-4 shrink-0" fill="currentColor" />
-                    <span className="sm:hidden">Browse Episodes</span>
-                    <span className="hidden sm:inline">Browse Episodes & Downloads</span>
-                  </Button>
-                </a>
-              </div>
-              <div className="md:hidden mt-auto pt-2">
-                <a href="#episodes">
-                  <Button size="lg" className="rounded-full px-3 sm:px-5 gap-2 text-xs sm:text-sm font-semibold bg-primary text-primary-foreground shadow-lg border border-primary/20">
-                    <Play className="w-4 h-4 shrink-0" fill="currentColor" /> Browse Episodes
-                  </Button>
-                </a>
-              </div>
-            </div>
-            </div>
-            <p className="md:hidden mt-4 max-w-2xl text-sm text-white/85 leading-relaxed line-clamp-2 drop-shadow-lg font-medium">
-              {(series as any).shortTeaser || series.description}
-            </p>
+            {/* Full Series Batch Download Button on Mobile */}
             {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-              <div className="md:hidden mt-3">
-                <a href="#batch-downloads">
-                  <Button size="sm" variant="secondary" className="rounded-full px-3 gap-2 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15">
-                    <Download className="w-4 h-4 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
+              <div className="pt-1">
+                <a href="#batch-downloads" className="inline-flex w-full">
+                  <Button size="sm" variant="secondary" className="w-full rounded-xl gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white text-xs border border-white/10">
+                    <Download className="w-3.5 h-3.5 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
                   </Button>
                 </a>
               </div>
             )}
           </div>
+
+          {/* Desktop & Tablet Layout (md:flex): Perfectly aligned items-start */}
+          <div className="hidden md:flex gap-8 lg:gap-10 items-start w-full">
+            <div className="w-48 lg:w-60 xl:w-68 aspect-[2/3] shrink-0 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 relative z-20 bg-surface flex items-center justify-center">
+              {poster ? (
+                <Image src={poster} alt={series.title} fill className="object-cover" priority />
+              ) : (
+                <Film className="w-12 h-12 opacity-30" />
+              )}
+            </div>
+
+            {/* Content Column: Badges aligned with poster top */}
+            <div className="flex-1 text-left min-w-0 pt-1">
+              {/* Badges in line with top of poster */}
+              <div className="flex flex-wrap items-center gap-2.5 mb-3">
+                <Badge variant="glass" className="px-3 py-1 text-xs font-bold tracking-wider bg-primary/20 text-primary border-primary/25">
+                  TV SERIES
+                </Badge>
+                {series.genres?.filter((g: string | null): g is string => Boolean(g)).map((g: string) => (
+                  <Badge key={g} variant="glass" className="px-3 py-1 text-xs font-medium bg-white/10 border-white/20 text-white/90">
+                    {g}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground mb-3 leading-[1.15] tracking-tight text-balance drop-shadow-2xl">
+                {series.title}
+              </h1>
+
+              {/* Meta Row */}
+              <div className="flex flex-wrap items-center gap-3 mb-4 text-sm font-semibold text-white/90 drop-shadow-md">
+                {releaseYear && (
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-primary" strokeWidth={2.2} /> {releaseYear}
+                  </span>
+                )}
+                <span className="text-white/40">&bull;</span>
+                <span className="flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
+                </span>
+                <span className="text-white/40">&bull;</span>
+                <span className="flex items-center gap-1.5">
+                  <FileVideo className="w-4 h-4 text-primary" strokeWidth={2.2} /> {totalEpisodesCount} {totalEpisodesCount === 1 ? 'Episode' : 'Episodes'}
+                </span>
+                <span className="text-white/40">&bull;</span>
+                <span className="flex items-center gap-1.5">
+                  <Star className="w-4 h-4 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || 'NR'}
+                </span>
+              </div>
+
+              {/* Teaser */}
+              {((series as any).shortTeaser || series.description) && (
+                <p className="text-sm md:text-base lg:text-lg text-white/80 leading-relaxed mb-6 max-w-3xl font-normal drop-shadow-sm line-clamp-3">
+                  {(series as any).shortTeaser || series.description}
+                </p>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4">
+                <a href="#episodes">
+                  <Button size="lg" className="rounded-full px-8 gap-2 font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple shadow-lg border border-primary/20">
+                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes & Downloads
+                  </Button>
+                </a>
+                {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
+                  <a href="#batch-downloads">
+                    <Button size="lg" variant="secondary" className="rounded-full px-6 gap-2 font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 hover:scale-105 transition-apple shadow-lg">
+                      <Download className="w-4 h-4 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
+                    </Button>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      {/* Spacer for desktop poster overlap */}
-      <div className="hidden md:block h-12 md:h-16 w-full bg-background" />
+      
 
       {/* Main Grid Content */}
       <div className="mt-4 px-6 md:px-10 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
