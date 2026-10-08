@@ -323,6 +323,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
               title={movie.title}
               backdropUrl={backdrop}
               posterUrl={poster}
+              trailerUrl={(movie as any).trailerUrl}
               releaseYear={releaseYear}
               duration={formatDuration(movie.runtime)}
               variant="button"
@@ -466,6 +467,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   title={movie.title}
                   backdropUrl={backdrop}
                   posterUrl={poster}
+                  trailerUrl={(movie as any).trailerUrl}
                   releaseYear={releaseYear}
                   duration={formatDuration(movie.runtime)}
                   variant="button"
@@ -481,6 +483,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                 title={movie.title}
                 backdropUrl={backdrop}
                 posterUrl={poster}
+                trailerUrl={(movie as any).trailerUrl}
                 releaseYear={releaseYear}
                 runtime={formatDuration(movie.runtime)}
                 ratingScore={movie.ratingScore}
@@ -490,6 +493,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                 language={movie.language}
                 country={movie.country}
                 status={movie.status}
+                sources={downloads as any}
               />
             </div>
           </div>

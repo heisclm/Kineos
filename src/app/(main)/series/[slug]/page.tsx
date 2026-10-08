@@ -110,6 +110,11 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
 
   const displayStars = rawStars.length > 0 ? rawStars.slice(0, 4) : cast.slice(0, 4).map((c: any) => c.name);
 
+  const allSeriesSources = [
+    ...(seriesBatchDownloads || []),
+    ...seasonsWithEpisodes.flatMap((s: any) => s.episodes?.flatMap((e: any) => e.sources || []) || []),
+  ];
+
   const pageKeywords = generateSeriesKeywords({
     title: series.title,
     releaseDate: series.releaseDate,
@@ -305,6 +310,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               title={series.title}
               backdropUrl={backdrop}
               posterUrl={poster}
+              trailerUrl={(series as any).trailerUrl}
               releaseYear={releaseYear}
               duration={`${seasonsWithEpisodes.length} Seasons`}
               variant="button"
@@ -441,6 +447,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   title={series.title}
                   backdropUrl={backdrop}
                   posterUrl={poster}
+                  trailerUrl={(series as any).trailerUrl}
                   releaseYear={releaseYear}
                   duration={`${seasonsWithEpisodes.length} Seasons`}
                   variant="button"
@@ -456,15 +463,17 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 title={series.title}
                 backdropUrl={backdrop}
                 posterUrl={poster}
+                trailerUrl={(series as any).trailerUrl}
                 releaseYear={releaseYear}
                 runtime={`${seasonsWithEpisodes.length} Seasons`}
-                ratingScore={88}
+                ratingScore={(series as any).ratingScore || 85}
                 contentRating={(series as any).rating}
                 viewCount={series.viewCount}
                 downloadCount={series.downloadCount}
                 language={series.language}
-                country="Global"
+                country={(series as any).country || "Global"}
                 status={series.status}
+                sources={allSeriesSources}
               />
             </div>
           </div>

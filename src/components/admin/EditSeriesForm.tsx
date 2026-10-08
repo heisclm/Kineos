@@ -129,7 +129,74 @@ export function EditSeriesForm({ series }: { series: any }) {
                 />
               </div>
 
-              <div><label className={labelClasses}>Release Date</label><input name="releaseDate" type="date" defaultValue={series.releaseDate ? new Date(series.releaseDate).toISOString().split("T")[0] : ""} style={{ colorScheme: "dark" }} className={inputClasses} /></div><div><label className={labelClasses}>Rating</label><input name="rating" maxLength={32} defaultValue={(series as any).rating || ""} className={inputClasses} placeholder="TV-MA" /></div><div><label className={labelClasses}>Language</label><input name="language" defaultValue={(series as any).language || ""} className={inputClasses} placeholder="e.g. English, Spanish" /></div></div></div></div>
+              <div>
+                <label className={labelClasses}>Release Date</label>
+                <input
+                  name="releaseDate"
+                  type="date"
+                  defaultValue={series.releaseDate ? new Date(series.releaseDate).toISOString().split("T")[0] : ""}
+                  style={{ colorScheme: "dark" }}
+                  className={inputClasses}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClasses}>Rating</label>
+                  <input
+                    name="rating"
+                    maxLength={32}
+                    defaultValue={(series as any).rating || ""}
+                    className={inputClasses}
+                    placeholder="TV-MA"
+                  />
+                </div>
+                <div>
+                  <label className={labelClasses}>Language</label>
+                  <input
+                    name="language"
+                    defaultValue={(series as any).language || ""}
+                    className={inputClasses}
+                    placeholder="e.g. English, Spanish"
+                  />
+                </div>
+                <div>
+                  <label className={labelClasses}>Country</label>
+                  <input
+                    name="country"
+                    defaultValue={(series as any).country || ""}
+                    className={inputClasses}
+                    placeholder="e.g. United States"
+                  />
+                </div>
+                <div>
+                  <label className={labelClasses}>Kineos Score (0 - 100)</label>
+                  <input
+                    name="ratingScore"
+                    type="number"
+                    step="0.1"
+                    defaultValue={(series as any).ratingScore || ""}
+                    className={inputClasses}
+                    placeholder="e.g. 84 for 8.4/10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClasses}>YouTube Trailer URL</label>
+                <input
+                  name="trailerUrl"
+                  defaultValue={(series as any).trailerUrl || ""}
+                  className={inputClasses}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                />
+                <span className="text-[11px] text-muted block mt-1">
+                  Users can play this trailer directly on your site. Leave blank to auto-fetch from TMDB.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="lg:col-span-3 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">
             <h3 className="text-xl font-bold text-foreground flex items-center gap-3 pb-2 border-b border-white/5">

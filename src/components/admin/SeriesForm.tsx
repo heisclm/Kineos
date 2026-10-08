@@ -149,6 +149,48 @@ export function SeriesForm() {
                   className={inputClasses}
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClasses}>Rating</label>
+                  <input
+                    name="rating"
+                    maxLength={32}
+                    className={inputClasses}
+                    placeholder="TV-MA"
+                  />
+                </div>
+                <div>
+                  <label className={labelClasses}>Language</label>
+                  <input name="language" className={inputClasses} placeholder="e.g. English, Spanish" />
+                </div>
+                <div>
+                  <label className={labelClasses}>Country</label>
+                  <input name="country" className={inputClasses} placeholder="e.g. United States" />
+                </div>
+                <div>
+                  <label className={labelClasses}>Kineos Score (0 - 100)</label>
+                  <input
+                    name="ratingScore"
+                    type="number"
+                    step="0.1"
+                    className={inputClasses}
+                    placeholder="e.g. 84 for 8.4/10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClasses}>YouTube Trailer URL</label>
+                <input
+                  name="trailerUrl"
+                  className={inputClasses}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                />
+                <span className="text-[11px] text-muted block mt-1">
+                  Users can play this trailer directly on your site. Leave blank to auto-fetch from TMDB.
+                </span>
+              </div>
             </div>
           </div>
         </div>

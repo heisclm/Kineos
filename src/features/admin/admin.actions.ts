@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadMedia, deleteMediaByUrl, supabaseAdmin } from "@/lib/supabase";
+import { fetchTmdbMetadata } from "@/lib/tmdb";
 
 export async function verifyAdminAccess() {
   const supabase = createClient();
@@ -49,6 +50,19 @@ export async function createMovie(formData: FormData) {
   const runtime = parseInt(formData.get("runtime") as string) || null;
   const rating = formData.get("rating") as string;
   const language = formData.get("language") as string;
+  let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
+  const rawScore = formData.get("ratingScore") as string;
+  let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
+
+  // Method B: Automatic from TMDB if trailerUrl or ratingScore is not manually provided
+  if (!trailerUrl || !ratingScore) {
+    const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
+    const tmdbData = await fetchTmdbMetadata(title, "movie", releaseYear).catch(() => null);
+    if (tmdbData) {
+      if (!ratingScore && tmdbData.ratingScore) ratingScore = tmdbData.ratingScore;
+      if (!trailerUrl && tmdbData.trailerUrl) trailerUrl = tmdbData.trailerUrl;
+    }
+  }
 
   try {
     const posterUrl = (formData.get("posterUrl") as string) || "";
@@ -62,6 +76,8 @@ export async function createMovie(formData: FormData) {
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
       runtime,
       rating,
+      ratingScore: ratingScore || null,
+      trailerUrl: trailerUrl || null,
       language: language || undefined,
       shortTeaser: shortTeaser || null,
     }).returning({ id: movies.id });
@@ -165,6 +181,20 @@ export async function createSeries(formData: FormData) {
   const releaseDate = formData.get("releaseDate") as string;
     const rating = formData.get("rating") as string;
     const language = formData.get("language") as string;
+    const country = formData.get("country") as string;
+    let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
+    const rawScore = formData.get("ratingScore") as string;
+    let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
+
+    // Method B: Automatic from TMDB if trailerUrl or ratingScore is not manually provided
+    if (!trailerUrl || !ratingScore) {
+      const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
+      const tmdbData = await fetchTmdbMetadata(title, "series", releaseYear).catch(() => null);
+      if (tmdbData) {
+        if (!ratingScore && tmdbData.ratingScore) ratingScore = tmdbData.ratingScore;
+        if (!trailerUrl && tmdbData.trailerUrl) trailerUrl = tmdbData.trailerUrl;
+      }
+    }
 
   try {
     let posterUrl = "";
@@ -187,8 +217,11 @@ export async function createSeries(formData: FormData) {
       description,
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
-        rating: rating || null,
-        language: language || undefined,
+      rating: rating || null,
+      ratingScore: ratingScore || null,
+      trailerUrl: trailerUrl || null,
+      country: country || null,
+      language: language || undefined,
       shortTeaser: shortTeaser || null,
     }).returning({ id: series.id });
     
@@ -451,6 +484,19 @@ export async function updateMovie(id: string, formData: FormData) {
   const runtime = parseInt(formData.get("runtime") as string) || null;
   const rating = formData.get("rating") as string;
   const language = formData.get("language") as string;
+  let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
+  const rawScore = formData.get("ratingScore") as string;
+  let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
+
+  // Method B: Automatic from TMDB if trailerUrl or ratingScore is missing
+  if (!trailerUrl || !ratingScore) {
+    const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
+    const tmdbData = await fetchTmdbMetadata(title, "movie", releaseYear).catch(() => null);
+    if (tmdbData) {
+      if (!ratingScore && tmdbData.ratingScore) ratingScore = tmdbData.ratingScore;
+      if (!trailerUrl && tmdbData.trailerUrl) trailerUrl = tmdbData.trailerUrl;
+    }
+  }
 
   try {
     const oldMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
@@ -476,6 +522,8 @@ export async function updateMovie(id: string, formData: FormData) {
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
       runtime,
       rating,
+      ratingScore: ratingScore || null,
+      trailerUrl: trailerUrl || null,
       language: language || undefined,
       shortTeaser: shortTeaser || null,
     }).where(eq(movies.id, id));
@@ -557,6 +605,20 @@ export async function updateSeries(id: string, formData: FormData) {
   const releaseDate = formData.get("releaseDate") as string;
     const rating = formData.get("rating") as string;
     const language = formData.get("language") as string;
+    const country = formData.get("country") as string;
+    let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
+    const rawScore = formData.get("ratingScore") as string;
+    let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
+
+    // Method B: Automatic from TMDB if trailerUrl or ratingScore is missing
+    if (!trailerUrl || !ratingScore) {
+      const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
+      const tmdbData = await fetchTmdbMetadata(title, "series", releaseYear).catch(() => null);
+      if (tmdbData) {
+        if (!ratingScore && tmdbData.ratingScore) ratingScore = tmdbData.ratingScore;
+        if (!trailerUrl && tmdbData.trailerUrl) trailerUrl = tmdbData.trailerUrl;
+      }
+    }
 
   try {
     const oldMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
@@ -580,8 +642,11 @@ export async function updateSeries(id: string, formData: FormData) {
       description,
       publicationStatus: status,
       releaseDate: releaseDate ? new Date(releaseDate).toISOString() : null,
-        rating: rating || null,
-        language: language || undefined,
+      rating: rating || null,
+      ratingScore: ratingScore || null,
+      trailerUrl: trailerUrl || null,
+      country: country || null,
+      language: language || undefined,
       shortTeaser: shortTeaser || null,
     }).where(eq(series.id, id));
 

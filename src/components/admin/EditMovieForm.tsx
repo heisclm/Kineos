@@ -150,7 +150,41 @@ export function EditMovieForm({ movie }: { movie: any }) {
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-muted">min</span>
                   </div>
                 </div>
-                <div><label className={labelClasses}>Rating</label><input name="rating" maxLength={32} defaultValue={movie.rating || ""} className={inputClasses} placeholder="PG-13" /></div></div><div><label className={labelClasses}>Language</label><input name="language" defaultValue={movie.language || ""} className={inputClasses} placeholder="e.g. English, Spanish" /></div></div></div>
+                <div>
+                  <label className={labelClasses}>Rating</label>
+                  <input name="rating" maxLength={32} defaultValue={movie.rating || ""} className={inputClasses} placeholder="PG-13" />
+                </div>
+                <div>
+                  <label className={labelClasses}>Language</label>
+                  <input name="language" defaultValue={movie.language || ""} className={inputClasses} placeholder="e.g. English, Spanish" />
+                </div>
+                <div>
+                  <label className={labelClasses}>Kineos Score (0 - 100)</label>
+                  <input
+                    name="ratingScore"
+                    type="number"
+                    step="0.1"
+                    defaultValue={movie.ratingScore || ""}
+                    className={inputClasses}
+                    placeholder="e.g. 84 for 8.4/10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClasses}>YouTube Trailer URL</label>
+                <input
+                  name="trailerUrl"
+                  defaultValue={movie.trailerUrl || ""}
+                  className={inputClasses}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                />
+                <span className="text-[11px] text-muted block mt-1">
+                  Users can play this trailer directly on your site. Leave blank to auto-fetch from TMDB.
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="lg:col-span-3 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">

@@ -210,6 +210,28 @@ export function MovieForm() {
                   <label className={labelClasses}>Language</label>
                   <input name="language" className={inputClasses} placeholder="e.g. English, Spanish" />
                 </div>
+                <div>
+                  <label className={labelClasses}>Kineos Score (0 - 100)</label>
+                  <input
+                    name="ratingScore"
+                    type="number"
+                    step="0.1"
+                    className={inputClasses}
+                    placeholder="e.g. 84 for 8.4/10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClasses}>YouTube Trailer URL</label>
+                <input
+                  name="trailerUrl"
+                  className={inputClasses}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                />
+                <span className="text-[11px] text-muted block mt-1">
+                  Users can play this trailer directly on your site. Leave blank to auto-fetch from TMDB.
+                </span>
               </div>
             </div>
           </div>

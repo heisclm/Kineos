@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Play, X, Film, ExternalLink, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { extractYouTubeId, getYouTubeEmbedUrl } from "@/lib/tmdb";
 
 interface TrailerModalProps {
   title: string;
@@ -12,6 +13,7 @@ interface TrailerModalProps {
   trailerUrl?: string | null;
   releaseYear?: number | string | null;
   duration?: string;
+  qualityBadge?: string;
   variant?: "card" | "button";
   buttonText?: string;
   className?: string;
@@ -24,6 +26,7 @@ export function TrailerModal({
   trailerUrl,
   releaseYear,
   duration,
+  qualityBadge = "HD",
   variant = "card",
   buttonText = "Watch Trailer",
   className = "",
@@ -55,14 +58,13 @@ export function TrailerModal({
   }, [isOpen]);
 
   // Determine video embed source
-  const searchQuery = encodeURIComponent(`${title} ${releaseYear ? releaseYear + " " : ""}official trailer`);
-  const embedSrc = trailerUrl
-    ? trailerUrl.includes("watch?v=")
-      ? trailerUrl.replace("watch?v=", "embed/")
-      : trailerUrl
-    : `https://www.youtube-nocookie.com/embed?listType=search&list=${searchQuery}&autoplay=1`;
+  const videoId = extractYouTubeId(trailerUrl);
+  const embedSrc = getYouTubeEmbedUrl(trailerUrl, title, releaseYear);
 
-  const youtubeSearchLink = `https://www.youtube.com/results?search_query=${searchQuery}`;
+  const youtubeDirectLink = videoId
+    ? `https://www.youtube.com/watch?v=${videoId}`
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${releaseYear || ""} official trailer`.trim())}`;
+
   const thumbnail = backdropUrl || posterUrl;
 
   return (
@@ -125,7 +127,7 @@ export function TrailerModal({
                 </span>
               )}
               <span className="px-1.5 py-0.5 rounded bg-primary/20 border border-primary/30 text-[10px] font-bold text-primary">
-                HD
+                {qualityBadge}
               </span>
             </div>
           </div>
@@ -152,7 +154,7 @@ export function TrailerModal({
               </div>
               <div className="flex items-center gap-2">
                 <a
-                  href={youtubeSearchLink}
+                  href={youtubeDirectLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-semibold text-white/70 hover:text-white px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"

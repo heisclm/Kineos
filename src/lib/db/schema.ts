@@ -80,6 +80,7 @@ export const movies = pgTable(
     seoDescription: text("seo_description"),
     rating: varchar("rating", { length: 32 }), // e.g., PG-13, TV-MA / 16+
     ratingScore: integer("rating_score").default(0), // Out of 100
+    trailerUrl: text("trailer_url"),
     viewCount: integer("view_count").default(0).notNull(),
     downloadCount: integer("download_count").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -102,7 +103,10 @@ export const series = pgTable(
     status: contentStatusEnum("status").default("released").notNull(),
     publicationStatus: publicationStatusEnum("publication_status").default("draft").notNull(),
     language: varchar("language", { length: 50 }),
-      rating: varchar("rating", { length: 32 }),
+    country: varchar("country", { length: 100 }),
+    rating: varchar("rating", { length: 32 }),
+    ratingScore: integer("rating_score").default(0),
+    trailerUrl: text("trailer_url"),
     viewCount: integer("view_count").default(0).notNull(),
     downloadCount: integer("download_count").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
