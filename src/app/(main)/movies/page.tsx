@@ -1,6 +1,7 @@
 import { fetchCatalogItems } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
+import { CatalogSpotlight } from "@/components/content/CatalogSpotlight";
 
 import type { Metadata } from "next";
 
@@ -38,32 +39,41 @@ export default async function MoviesIndexPage({
   const genre = searchParams.genre;
   const sort = searchParams.sort;
 
-  let movies = await fetchCatalogItems("movie", 1, 30, genre, sort);
-
-  
+  const movies = await fetchCatalogItems("movie", 1, 30, genre, sort);
+  const spotlightMovie = movies.length > 0 && !genre ? movies[0] : null;
 
   return (
-    <div className="w-full relative pb-24 space-y-12 max-w-[1920px] mx-auto pt-8 px-6 md:px-10">
-      
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-3">Movies</h1>
-          <p className="text-lg text-muted max-w-xl">
-            Explore our curated collection of critically acclaimed films, blockbuster hits, and hidden gems.
-          </p>
+    <div className="w-full relative pb-24 space-y-8 max-w-[1920px] mx-auto pt-6 px-4 sm:px-6 md:px-10">
+      {/* 1. Netflix-style Top Billboard Spotlight (when browsing all movies) */}
+      {spotlightMovie && (
+        <CatalogSpotlight item={spotlightMovie} type="movie" />
+      )}
+
+      {/* 2. Catalog Header & Controls Bar */}
+      <div className="space-y-4 pb-4 border-b border-white/5">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+              {genre && genre !== "All" ? `${genre} Movies` : "All Movies"}
+            </h1>
+            <p className="text-sm sm:text-base text-muted mt-1 max-w-xl">
+              Explore critically acclaimed blockbusters, indie gems, and high-definition cinema releases.
+            </p>
+          </div>
+          <span className="text-xs font-semibold text-white/50 self-start sm:self-auto">
+            {movies.length} {movies.length === 1 ? "Title" : "Titles"} Available
+          </span>
         </div>
-        
-        <ContentFilters type="movies" />
+
+        {/* 3. Horizontal Genre Pills & Sorting Toolbar */}
+        <ContentFilters type="movies" totalCount={movies.length} />
       </div>
 
-      <div className="w-full py-2 flex justify-center">
-        
-      </div>
-
+      {/* 4. Responsive Netflix / IMDb Style Cards Grid */}
       <CatalogGrid
-        key={`${genre || 'all'}-${sort || 'latest'}`}
-        initialItems={movies} 
-        type="movie" 
+        key={`${genre || "all"}-${sort || "latest"}`}
+        initialItems={movies}
+        type="movie"
         genre={genre}
         sort={sort}
       />

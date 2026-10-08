@@ -14,9 +14,11 @@ export async function getLatestMovies(limit = 10) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
-          shortTeaser: movies.shortTeaser,
+        shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         rating: movies.rating,
+        ratingScore: movies.ratingScore,
+        runtime: movies.runtime,
         genre: genres.name,
       })
       .from(movies)
@@ -37,9 +39,11 @@ export async function getLatestMovies(limit = 10) {
           title: row.title,
           slug: row.slug,
           description: row.description,
-            shortTeaser: row.shortTeaser,
+          shortTeaser: row.shortTeaser,
           releaseDate: row.releaseDate,
           rating: row.rating,
+          ratingScore: row.ratingScore,
+          runtime: row.runtime,
           genres: [],
           imageUrl: '',
           backdropUrl: '',
@@ -74,17 +78,18 @@ export async function getTopRatedMovies(limit = 10) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
-          shortTeaser: movies.shortTeaser,
+        shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         rating: movies.rating,
         ratingScore: movies.ratingScore,
+        runtime: movies.runtime,
         genre: genres.name,
       })
       .from(movies)
       .leftJoin(movieGenres, eq(movies.id, movieGenres.movieId))
       .leftJoin(genres, eq(movieGenres.genreId, genres.id))
       .where(eq(movies.publicationStatus, "published"))
-      .orderBy(desc(movies.ratingScore))
+      .orderBy(desc(movies.ratingScore), desc(movies.viewCount))
       .limit(limit * 3); 
 
     const movieMap = new Map<string, any>();
@@ -93,8 +98,18 @@ export async function getTopRatedMovies(limit = 10) {
       if (!movieMap.has(row.id)) {
         ids.push(row.id);
         movieMap.set(row.id, {
-          id: row.id, title: row.title, slug: row.slug, description: row.description,
-            shortTeaser: row.shortTeaser, releaseDate: row.releaseDate, rating: row.rating, ratingScore: row.ratingScore, genres: [], imageUrl: '', backdropUrl: ''
+          id: row.id,
+          title: row.title,
+          slug: row.slug,
+          description: row.description,
+          shortTeaser: row.shortTeaser,
+          releaseDate: row.releaseDate,
+          rating: row.rating,
+          ratingScore: row.ratingScore,
+          runtime: row.runtime,
+          genres: [],
+          imageUrl: '',
+          backdropUrl: '',
         });
       }
       if (row.genre) movieMap.get(row.id).genres.push(row.genre);
@@ -125,9 +140,11 @@ export async function getTrendingMovies(limit = 10) {
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
-          shortTeaser: movies.shortTeaser,
+        shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
         rating: movies.rating,
+        ratingScore: movies.ratingScore,
+        runtime: movies.runtime,
         viewCount: movies.viewCount,
         genre: genres.name,
       })
@@ -144,8 +161,19 @@ export async function getTrendingMovies(limit = 10) {
       if (!movieMap.has(row.id)) {
         ids.push(row.id);
         movieMap.set(row.id, {
-          id: row.id, title: row.title, slug: row.slug, description: row.description,
-            shortTeaser: row.shortTeaser, releaseDate: row.releaseDate, rating: row.rating, viewCount: row.viewCount, genres: [], imageUrl: '', backdropUrl: ''
+          id: row.id,
+          title: row.title,
+          slug: row.slug,
+          description: row.description,
+          shortTeaser: row.shortTeaser,
+          releaseDate: row.releaseDate,
+          rating: row.rating,
+          ratingScore: row.ratingScore,
+          runtime: row.runtime,
+          viewCount: row.viewCount,
+          genres: [],
+          imageUrl: '',
+          backdropUrl: '',
         });
       }
       if (row.genre) movieMap.get(row.id).genres.push(row.genre);
@@ -601,6 +629,7 @@ export async function getPopularSeries(limit = 10) {
         shortTeaser: series.shortTeaser,
         releaseDate: series.releaseDate,
         rating: series.rating,
+        ratingScore: series.ratingScore,
         viewCount: series.viewCount,
         genre: genres.name,
       })
@@ -644,3 +673,52 @@ export async function getPopularSeries(limit = 10) {
     return [];
   }
 }
+
+/**
+ * Gets top featured blockbuster movies and series for the cinematic Hero Carousel.
+ */
+export async function getFeaturedContent(limit = 5) {
+  try {
+    const [featMovies, popSeries] = await Promise.all([
+      getFeaturedMovies(limit),
+      getPopularSeries(limit),
+    ]);
+
+    const combined = [
+      ...featMovies.map(m => ({ ...m, type: 'movie' as const })),
+      ...popSeries.map(s => ({ ...s, type: 'series' as const })),
+    ].sort((a, b) => {
+      const scoreA = (a.ratingScore || 80) * 10 + (a.viewCount || 0);
+      const scoreB = (b.ratingScore || 80) * 10 + (b.viewCount || 0);
+      return scoreB - scoreA;
+    });
+
+    return combined.slice(0, limit);
+  } catch (error: any) {
+    console.error("Database connection failed (getFeaturedContent).", error.message);
+    return [];
+  }
+}
+
+/**
+ * Gets the Top 10 most viewed movies & series for the Netflix-style Top 10 row.
+ */
+export async function getTrendingContent(limit = 10) {
+  try {
+    const [trendMovies, popSeries] = await Promise.all([
+      getTrendingMovies(limit),
+      getPopularSeries(limit),
+    ]);
+
+    const combined = [
+      ...trendMovies.map(m => ({ ...m, type: 'movie' as const })),
+      ...popSeries.map(s => ({ ...s, type: 'series' as const })),
+    ].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+
+    return combined.slice(0, limit);
+  } catch (error: any) {
+    console.error("Database connection failed (getTrendingContent).", error.message);
+    return [];
+  }
+}
+

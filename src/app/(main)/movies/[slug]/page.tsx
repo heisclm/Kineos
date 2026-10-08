@@ -257,15 +257,13 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                       </span>
                     </>
                   )}
-                  {(movie.ratingScore || movie.rating) && (
-                    <>
-                      <span className="text-white/30">&bull;</span>
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-primary text-primary" strokeWidth={2.2} />
-                        {movie.ratingScore ? (movie.ratingScore / 10).toFixed(1) : movie.rating || "8.4"}
-                      </span>
-                    </>
-                  )}
+                  <>
+                    <span className="text-white/30">&bull;</span>
+                    <span className="flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-primary text-primary" strokeWidth={2.2} />
+                      {movie.ratingScore ? (movie.ratingScore / 10).toFixed(1) : "8.4"}
+                    </span>
+                  </>
                 </div>
 
                 {/* Quick Download CTA on Mobile */}
@@ -401,15 +399,13 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                     </span>
                   </>
                 )}
-                {(movie.ratingScore || movie.rating) && (
-                  <>
-                    <span className="text-white/30">&bull;</span>
-                    <span className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} />
-                      {movie.ratingScore ? (movie.ratingScore / 10).toFixed(1) : movie.rating || "8.4"}
-                    </span>
-                  </>
-                )}
+                <>
+                  <span className="text-white/30">&bull;</span>
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} />
+                    {movie.ratingScore ? (movie.ratingScore / 10).toFixed(1) : "8.4"}
+                  </span>
+                </>
                 <span className="text-white/30">&bull;</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/25">
                   MOVIE
@@ -607,6 +603,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
             {relatedMovies.map((m) => (
               <MovieCard
                 key={m.id}
+                {...m}
                 id={m.id}
                 title={m.title}
                 slug={m.slug}

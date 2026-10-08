@@ -242,7 +242,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   </span>
                   <span className="text-white/40">&bull;</span>
                   <span className="flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || '8.5'}
+                    <Star className="w-3 h-3 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).ratingScore ? (((series as any).ratingScore / 10).toFixed(1)) : '8.5'}
                   </span>
                 </div>
 
@@ -394,7 +394,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 </span>
                 <span className="text-white/30">&bull;</span>
                 <span className="flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).rating || '8.5'}
+                  <Star className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={2.2} /> {(series as any).ratingScore ? (((series as any).ratingScore / 10).toFixed(1)) : '8.5'}
                 </span>
                 <span className="text-white/30">&bull;</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/25">
@@ -749,6 +749,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
             {relatedSeries.map((s: any) => (
               <MovieCard
                 key={s.id}
+                {...s}
                 id={s.id}
                 title={s.title}
                 slug={s.slug}
