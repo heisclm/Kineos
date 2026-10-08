@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Play, X, Film, ExternalLink, Sparkles } from "lucide-react";
+import { Play, X, Film, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { extractYouTubeId, getYouTubeEmbedUrl } from "@/lib/tmdb";
 
@@ -116,20 +116,8 @@ export function TrailerModal({
           </div>
 
           {/* Card Footer Bar */}
-          <div className="absolute bottom-0 inset-x-0 p-3 flex items-center justify-between text-[11px] font-semibold text-white/90 z-10 bg-gradient-to-t from-black/80 to-transparent">
-            <span className="flex items-center gap-1.5 truncate max-w-[200px]">
-              <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" /> Official Trailer
-            </span>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {duration && (
-                <span className="px-1.5 py-0.5 rounded bg-black/60 border border-white/15 text-[10px] text-white/80">
-                  {duration}
-                </span>
-              )}
-              <span className="px-1.5 py-0.5 rounded bg-primary/20 border border-primary/30 text-[10px] font-bold text-primary">
-                {qualityBadge}
-              </span>
-            </div>
+          <div className="absolute bottom-0 inset-x-0 p-3 flex items-center text-xs font-semibold text-white/90 z-10 bg-gradient-to-t from-black/80 to-transparent">
+            <span>Official Trailer</span>
           </div>
         </div>
       )}
