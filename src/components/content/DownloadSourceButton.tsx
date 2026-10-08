@@ -39,8 +39,16 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
   }
 
   const handleDownload = () => {
-    // In a real app, R2 links might require a signed URL generation here.
-    // For MVP, we use the URL directly (which is stored in the DB).
+    // If a Monetag Direct Link is configured, open the sponsored offer tab
+    const directLink = process.env.NEXT_PUBLIC_MONETAG_DIRECT_LINK;
+    if (directLink) {
+      try {
+        window.open(directLink, "_blank", "noopener,noreferrer");
+      } catch (err) {
+        console.warn("Direct link trigger:", err);
+      }
+    }
+
     if (isMagnet) {
       window.location.href = source.url;
     } else {
@@ -68,7 +76,7 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
           <span>{source.label ? (source.quality ? `${source.quality} ${source.format || ''}` : source.sourceType.replace('_', ' ')) : source.sourceType.replace('_', ' ')}</span>
           {source.fileSize ? (
             <>
-              <span className="text-muted-foreground/40">•</span>
+              <span className="text-muted-foreground/40">â€¢</span>
               <span>{formatBytes(Number(source.fileSize) / (1024 * 1024))}</span>
             </>
           ) : null}
