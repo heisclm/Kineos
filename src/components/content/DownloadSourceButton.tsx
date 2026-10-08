@@ -76,7 +76,7 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
           <span>{source.label ? (source.quality ? `${source.quality} ${source.format || ''}` : source.sourceType.replace('_', ' ')) : source.sourceType.replace('_', ' ')}</span>
           {source.fileSize ? (
             <>
-              <span className="text-muted-foreground/40">â€¢</span>
+              <span className="text-muted-foreground/40">&bull;</span>
               <span>{formatBytes(Number(source.fileSize) / (1024 * 1024))}</span>
             </>
           ) : null}
@@ -89,4 +89,3 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
     </Button>
   );
 }
-
