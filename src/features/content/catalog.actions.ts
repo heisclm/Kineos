@@ -56,29 +56,35 @@ export async function fetchCatalogItems(
       const results = await query.limit(limit).offset(offset);
       const ids = results.map(r => r.id);
       
-      let posters: any[] = [];
+      let mediaList: any[] = [];
       let itemGenres: any[] = [];
       if (ids.length > 0) {
-        const [pRows, gRows] = await Promise.all([
+        const [mRows, gRows] = await Promise.all([
           db.select().from(mediaAssets).where(
-            and(inArray(mediaAssets.contentId, ids), eq(mediaAssets.type, 'poster'), eq(mediaAssets.contentType, 'movie'))
+            and(
+              inArray(mediaAssets.contentId, ids),
+              eq(mediaAssets.contentType, 'movie'),
+              inArray(mediaAssets.type, ['poster', 'backdrop'])
+            )
           ),
           db.select({ contentId: movieGenres.movieId, name: genres.name })
             .from(movieGenres)
             .innerJoin(genres, eq(movieGenres.genreId, genres.id))
             .where(inArray(movieGenres.movieId, ids))
         ]);
-        posters = pRows;
+        mediaList = mRows;
         itemGenres = gRows;
       }
 
       return results.map(m => {
-        const poster = posters.find(p => p.contentId === m.id);
+        const poster = mediaList.find(p => p.contentId === m.id && p.type === 'poster');
+        const backdrop = mediaList.find(p => p.contentId === m.id && p.type === 'backdrop');
         const gList = itemGenres.filter(g => g.contentId === m.id).map(g => g.name);
         return {
           ...m,
           genres: gList.length > 0 ? gList : [genre && genre !== "All Genres" ? genre : 'Movie'],
-          imageUrl: poster ? poster.url : ""
+          imageUrl: poster ? poster.url : "",
+          backdropUrl: backdrop ? backdrop.url : ""
         };
       });
     } else {
@@ -121,30 +127,36 @@ export async function fetchCatalogItems(
       const results = await query.limit(limit).offset(offset);
       const ids = results.map(r => r.id);
       
-      let posters: any[] = [];
+      let mediaList: any[] = [];
       let itemGenres: any[] = [];
       if (ids.length > 0) {
-        const [pRows, gRows] = await Promise.all([
+        const [mRows, gRows] = await Promise.all([
           db.select().from(mediaAssets).where(
-            and(inArray(mediaAssets.contentId, ids), eq(mediaAssets.type, 'poster'), eq(mediaAssets.contentType, 'series'))
+            and(
+              inArray(mediaAssets.contentId, ids),
+              eq(mediaAssets.contentType, 'series'),
+              inArray(mediaAssets.type, ['poster', 'backdrop'])
+            )
           ),
           db.select({ contentId: seriesGenres.seriesId, name: genres.name })
             .from(seriesGenres)
             .innerJoin(genres, eq(seriesGenres.genreId, genres.id))
             .where(inArray(seriesGenres.seriesId, ids))
         ]);
-        posters = pRows;
+        mediaList = mRows;
         itemGenres = gRows;
       }
 
       return results.map(m => {
-        const poster = posters.find(p => p.contentId === m.id);
+        const poster = mediaList.find(p => p.contentId === m.id && p.type === 'poster');
+        const backdrop = mediaList.find(p => p.contentId === m.id && p.type === 'backdrop');
         const gList = itemGenres.filter(g => g.contentId === m.id).map(g => g.name);
         return {
           ...m,
           type: 'series' as const,
           genres: gList.length > 0 ? gList : [genre && genre !== "All Genres" ? genre : 'TV Series'],
-          imageUrl: poster ? poster.url : ""
+          imageUrl: poster ? poster.url : "",
+          backdropUrl: backdrop ? backdrop.url : ""
         };
       });
     }

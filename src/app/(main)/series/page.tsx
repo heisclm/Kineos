@@ -39,7 +39,7 @@ export default async function SeriesIndexPage({
   const sort = searchParams.sort;
 
   const series = await fetchCatalogItems("series", 1, 30, genre, sort);
-  const spotlightSeries = series.length > 0 ? series[0] : null;
+  const spotlightSeries = series.find(s => Boolean(s.backdropUrl)) || series[0] || null;
 
   return (
     <div className="w-full relative pb-24 space-y-8">
