@@ -37,7 +37,7 @@ export default function TermsOfService() {
 
         <section className="space-y-4">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">4. Third-Party Links & Ads</h2>
-          <p>Our Website contains links to third-party websites and advertisements provided by networks like Google AdSense. We have no control over the content, privacy policies, or practices of any third-party sites or services. You acknowledge and agree that Kineos shall not be responsible or liable, directly or indirectly, for any damage or loss caused by or in connection with the use of any such content, goods, or services available on or through any such third-party web sites or services.</p>
+          <p>Our Website contains links to third-party websites and advertisements provided by third-party advertising partners. We have no control over the content, privacy policies, or practices of any third-party sites or services. You acknowledge and agree that Kineos shall not be responsible or liable, directly or indirectly, for any damage or loss caused by or in connection with the use of any such content, goods, or services available on or through any such third-party web sites or services.</p>
         </section>
 
         <section className="space-y-4">

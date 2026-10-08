@@ -31,8 +31,8 @@ export default function PrivacyPolicy() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">4. Google DoubleClick DART Cookie</h2>
-          <p>Google is one of a third-party vendor on our site. It also uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to www.kineos.fun and other sites on the internet. However, visitors may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at the following URL: <a href="https://policies.google.com/technologies/ads" className="text-primary hover:underline">https://policies.google.com/technologies/ads</a>.</p>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">4. Third-Party Cookies & Beacons</h2>
+          <p>Third-party partners may use cookies or web beacons to understand usage trends and deliver relevant advertising content based upon visits to our site and other sites on the internet. Visitors may choose to decline or manage cookies through their individual browser settings or industry-standard opt-out tools.</p>
         </section>
 
         <section className="space-y-4">
