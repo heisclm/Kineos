@@ -20,7 +20,7 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
   const artwork = item.backdropUrl || item.imageUrl;
 
   return (
-    <div className="relative w-full h-[360px] sm:h-[400px] md:h-[460px] rounded-2xl overflow-hidden bg-surface-elevated border border-white/10 shadow-2xl mb-8 group">
+    <div className="relative -mt-6 sm:mt-0 -mx-4 sm:mx-0 w-[calc(100%+2rem)] sm:w-full h-[420px] sm:h-[440px] md:h-[480px] rounded-none sm:rounded-2xl overflow-hidden bg-background sm:bg-surface-elevated border-0 sm:border sm:border-white/10 shadow-none sm:shadow-2xl mb-8 group">
       {/* Background Backdrop Artwork */}
       {artwork && (
         <Image
@@ -28,17 +28,18 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
           alt={item.title}
           fill
           sizes="100vw"
-          className="object-cover opacity-45 group-hover:opacity-55 transition-opacity duration-700 object-center"
+          className="object-cover opacity-50 md:opacity-55 group-hover:opacity-65 transition-opacity duration-700 object-center"
           priority
         />
       )}
 
-      {/* Cinematic Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent w-full md:w-3/4 z-10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
+      {/* Cinematic Overlays that blend seamlessly into the background */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-transparent z-10 pointer-events-none md:hidden" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent w-full md:w-3/4 z-10 pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-20 h-full p-6 sm:p-8 md:p-12 flex flex-col justify-end md:justify-center max-w-2xl">
+      <div className="relative z-20 h-full p-5 sm:p-8 md:p-12 pb-8 sm:pb-8 flex flex-col justify-end md:justify-center max-w-2xl">
         {/* Spotlight Pill strip */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <Badge className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-full bg-primary/25 text-primary border-primary/30">

@@ -53,7 +53,7 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
   const hasActiveFilters = currentGenre !== "All" || currentSort !== "Latest";
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full relative z-40">
       {/* Top Filter Bar: Horizontal Genre Chips + Sort Dropdown */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         {/* Genre Pill Chips (Netflix / Prime Video style) */}
@@ -81,7 +81,7 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
         </div>
 
         {/* Right side: Sort Controls */}
-        <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+        <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto relative z-50">
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
