@@ -27,6 +27,7 @@ export function MovieCard({ title, slug, description, shortTeaser, imageUrl, pri
             src={imageUrl}
             alt={title}
             fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
             className="object-cover z-10 transition-apple group-hover:scale-110 duration-slow"
           />
         )}

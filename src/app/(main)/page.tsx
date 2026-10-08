@@ -136,7 +136,7 @@ function SpotlightRow({ title, movies }: { title: string; movies: any[] }) {
               {idx + 1}
             </h1>
             <div className="aspect-[2/3] w-24 shrink-0 rounded-md bg-surface-overlay overflow-hidden relative shadow-lg group-hover:scale-105 transition-apple">
-              <div className="absolute inset-0 bg-gradient-to-tr from-surface-elevated to-transparent z-10" />{(movie as any).imageUrl && <Image src={(movie as any).imageUrl} alt={movie.title} fill className="object-cover" />}</div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-surface-elevated to-transparent z-10" />{(movie as any).imageUrl && <Image src={(movie as any).imageUrl} alt={movie.title} fill sizes="96px" className="object-cover" />}</div>
             <div className="flex flex-col justify-center">
               <span className="text-[10px] font-semibold tracking-wider uppercase text-primary mb-1">
                 {movie.genres?.[0] || 'Trending'}

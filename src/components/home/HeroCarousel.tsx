@@ -43,6 +43,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
           src={movie.backdropUrl || movie.imageUrl}
           alt={movie.title}
           fill
+          sizes="100vw"
           className="object-cover z-0 opacity-50 md:opacity-60 animate-in fade-in duration-1000"
           priority
         />
