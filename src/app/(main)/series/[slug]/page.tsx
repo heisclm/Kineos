@@ -192,8 +192,9 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
           ) : (
             <div className="absolute inset-0 bg-gradient-to-bl from-primary/20 via-transparent to-transparent opacity-60" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 via-25% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-transparent to-transparent pointer-events-none" />
+          <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent/30 pointer-events-none" />
         </div>
 
         {/* Hero Content Container */}

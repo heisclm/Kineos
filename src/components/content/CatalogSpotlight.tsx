@@ -20,7 +20,7 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
   const artwork = item.backdropUrl || item.imageUrl;
 
   return (
-    <div className="relative -mt-6 sm:mt-0 -mx-4 sm:mx-0 w-[calc(100%+2rem)] sm:w-full h-[420px] sm:h-[440px] md:h-[480px] rounded-none sm:rounded-2xl overflow-hidden bg-background sm:bg-surface-elevated border-0 sm:border sm:border-white/10 shadow-none sm:shadow-2xl mb-8 group">
+    <div className="relative w-full h-[460px] sm:h-[480px] md:h-[540px] lg:h-[600px] rounded-none overflow-hidden bg-background border-0 shadow-none mb-6 md:mb-8 group">
       {/* Background Backdrop Artwork */}
       {artwork && (
         <Image
@@ -33,13 +33,14 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
         />
       )}
 
-      {/* Cinematic Overlays that blend seamlessly into the background */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-transparent z-10 pointer-events-none md:hidden" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent w-full md:w-3/4 z-10 pointer-events-none" />
+      {/* Cinematic Overlays that blend seamlessly into the background on ALL devices */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 via-25% to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-transparent to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 via-40% to-transparent w-full md:w-4/5 lg:w-3/5 z-10 pointer-events-none" />
 
-      {/* Content */}
-      <div className="relative z-20 h-full p-5 sm:p-8 md:p-12 pb-8 sm:pb-8 flex flex-col justify-end md:justify-center max-w-2xl">
+      {/* Content aligned to site grid */}
+      <div className="relative z-20 h-full w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12 pb-10 sm:pb-12 md:pb-14 pt-20 flex flex-col justify-end">
+        <div className="max-w-xl lg:max-w-2xl">
         {/* Spotlight Pill strip */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <Badge className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-full bg-primary/25 text-primary border-primary/30">
@@ -106,6 +107,7 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
               <Download className="w-4 h-4" /> Download
             </Button>
           </Link>
+        </div>
         </div>
       </div>
     </div>

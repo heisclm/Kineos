@@ -43,40 +43,43 @@ export default async function MoviesIndexPage({
   const spotlightMovie = movies.length > 0 && !genre ? movies[0] : null;
 
   return (
-    <div className="w-full relative pb-24 space-y-8 max-w-[1920px] mx-auto pt-6 px-4 sm:px-6 md:px-10">
-      {/* 1. Netflix-style Top Billboard Spotlight (when browsing all movies) */}
+    <div className="w-full relative pb-24 space-y-8">
+      {/* 1. Full-Bleed Top Billboard Spotlight (when browsing all movies) */}
       {spotlightMovie && (
         <CatalogSpotlight item={spotlightMovie} type="movie" />
       )}
 
-      {/* 2. Catalog Header & Controls Bar */}
-      <div className="space-y-4 pb-4 border-b border-white/5 relative z-30">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-          <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-              {genre && genre !== "All" ? `${genre} Movies` : "All Movies"}
-            </h1>
-            <p className="text-sm sm:text-base text-muted mt-1 max-w-xl">
-              Explore critically acclaimed blockbusters, indie gems, and high-definition cinema releases.
-            </p>
+      {/* 2. Main Content Container */}
+      <div className={`w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 space-y-8 ${!spotlightMovie ? "pt-6" : ""}`}>
+        {/* Catalog Header & Controls Bar */}
+        <div className="space-y-4 pb-4 border-b border-white/5 relative z-30">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+            <div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+                {genre && genre !== "All" ? `${genre} Movies` : "All Movies"}
+              </h1>
+              <p className="text-sm sm:text-base text-muted mt-1 max-w-xl">
+                Explore critically acclaimed blockbusters, indie gems, and high-definition cinema releases.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-white/50 self-start sm:self-auto">
+              {movies.length} {movies.length === 1 ? "Title" : "Titles"} Available
+            </span>
           </div>
-          <span className="text-xs font-semibold text-white/50 self-start sm:self-auto">
-            {movies.length} {movies.length === 1 ? "Title" : "Titles"} Available
-          </span>
+
+          {/* 3. Horizontal Genre Pills & Sorting Toolbar */}
+          <ContentFilters type="movies" totalCount={movies.length} />
         </div>
 
-        {/* 3. Horizontal Genre Pills & Sorting Toolbar */}
-        <ContentFilters type="movies" totalCount={movies.length} />
+        {/* 4. Responsive Netflix / IMDb Style Cards Grid */}
+        <CatalogGrid
+          key={`${genre || "all"}-${sort || "latest"}`}
+          initialItems={movies}
+          type="movie"
+          genre={genre}
+          sort={sort}
+        />
       </div>
-
-      {/* 4. Responsive Netflix / IMDb Style Cards Grid */}
-      <CatalogGrid
-        key={`${genre || "all"}-${sort || "latest"}`}
-        initialItems={movies}
-        type="movie"
-        genre={genre}
-        sort={sort}
-      />
     </div>
   );
 }

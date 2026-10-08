@@ -34,10 +34,11 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
 
   return (
-    <div className="relative w-full h-[500px] sm:h-[440px] md:h-[500px] lg:h-[600px] rounded-none sm:rounded-2xl overflow-hidden bg-surface flex group shadow-2xl border-0 sm:border sm:border-white/10 transition-apple">
-      {/* Background/Artwork with Cinematic Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent z-10 w-full md:w-3/4 lg:w-2/3 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10 h-full opacity-95 md:opacity-85 pointer-events-none" />
+    <div className="relative w-full h-[520px] sm:h-[540px] md:h-[600px] lg:h-[680px] rounded-none overflow-hidden bg-background flex group border-0 shadow-none transition-apple">
+      {/* Background/Artwork with Cinematic Gradients on ALL devices */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 via-25% to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-transparent to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 via-40% to-transparent z-10 w-full md:w-4/5 lg:w-3/5 pointer-events-none" />
       
       {/* Backdrop Artwork */}
       {(item.backdropUrl || item.imageUrl) ? (
@@ -47,7 +48,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
           alt={item.title}
           fill
           sizes="100vw"
-          className="object-cover z-0 opacity-55 md:opacity-65 animate-in fade-in duration-1000"
+          className="object-cover z-0 opacity-55 md:opacity-65 animate-in fade-in duration-1000 object-center"
           priority
         />
       ) : (
@@ -57,12 +58,13 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
         />
       )}
       
-      {/* Content */}
+      {/* Content Container aligned with site grid */}
       <div 
         key={`content-${item.id}`} 
-        className="relative z-20 w-full md:w-4/5 lg:w-3/5 p-6 pb-16 pt-12 md:p-12 lg:p-16 flex flex-col justify-end md:justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700"
+        className="relative z-20 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12 pb-14 pt-20 md:pb-16 md:pt-24 flex flex-col justify-end md:justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700"
       >
-        {/* Badges strip: Type + 4K UHD + Genres */}
+        <div className="max-w-xl lg:max-w-2xl">
+          {/* Badges strip: Type + 4K UHD + Genres */}
         <div className="flex flex-wrap items-center gap-2 mb-3.5 md:mb-5">
           <Badge className="px-2.5 py-0.5 text-[10px] md:text-[11px] uppercase tracking-wider font-extrabold rounded-full bg-primary/25 text-primary border-primary/35">
             {isSeries ? "TV SERIES" : "FEATURED MOVIE"}
@@ -135,6 +137,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
               <Download className="w-4 h-4 md:w-5 md:h-5" /> Download
             </Button>
           </Link>
+        </div>
         </div>
       </div>
 
