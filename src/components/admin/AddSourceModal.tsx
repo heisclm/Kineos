@@ -78,7 +78,10 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
     }
 
     if (sourceType === "CLOUDFLARE_R2") {
-      if (!fileToUpload) return alert("Please select a file.");
+      if (!fileToUpload) {
+        toast.error("Please select a file to upload.");
+        return;
+      }
       
       try {
         const init = await generateR2UploadUrl(fileToUpload.name, fileToUpload.type);
@@ -93,6 +96,28 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
         toast.error("Cloudflare R2 simulated upload failed");
         return;
       }
+    } else {
+      const rawUrl = (formData.get("url") as string) || "";
+      const trimmedUrl = rawUrl.trim();
+
+      if (!trimmedUrl) {
+        toast.error("Please provide a valid URL.");
+        return;
+      }
+
+      if (sourceType === "DIRECT_URL") {
+        if (!/^https?:\/\//i.test(trimmedUrl)) {
+          toast.error("Direct URL must start with http:// or https://");
+          return;
+        }
+      } else if (sourceType === "TORRENT_MAGNET") {
+        if (!trimmedUrl.toLowerCase().startsWith("magnet:?") && !/^https?:\/\//i.test(trimmedUrl)) {
+          toast.error("Please enter a valid Magnet URI (magnet:?...) or .torrent URL.");
+          return;
+        }
+      }
+
+      formData.set("url", trimmedUrl);
     }
 
     startTransition(async () => {
@@ -184,7 +209,14 @@ export function AddSourceModal({ isOpen, onClose, contentId, contentType, series
             {sourceType === "TORRENT_MAGNET" && (
               <div className="space-y-1.5 pt-2">
                 <label className="text-xs font-medium text-muted-foreground">Magnet URI or Torrent URL</label>
-                <input name="url" type="text" pattern="^(magnet:\?xt=urn:btih:.*|https?://.*\.torrent)$" placeholder="magnet:?xt=urn:btih:... or https://.../*.torrent" required className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple" />
+                <input
+                  name="url"
+                  type="text"
+                  placeholder="magnet:?xt=urn:... or https://.../*.torrent"
+                  required
+                  className="w-full bg-surface-elevated border border-white/5 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 text-foreground transition-apple font-mono text-xs"
+                />
+                <p className="text-[11px] text-muted">Supports any magnet URI (BitTorrent v1/v2) or direct .torrent URL.</p>
               </div>
             )}
 

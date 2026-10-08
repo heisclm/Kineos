@@ -97,6 +97,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
   const poster = (movie as any).imageUrl || null;
+  const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null;
 
   const pageKeywords = generateMovieKeywords({
     title: movie.title,
