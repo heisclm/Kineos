@@ -201,6 +201,7 @@ export function MovieForm() {
                   <label className={labelClasses}>Rating</label>
                   <input
                     name="rating"
+                    maxLength={32}
                     className={inputClasses}
                     placeholder="PG-13"
                   />
