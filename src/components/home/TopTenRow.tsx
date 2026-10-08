@@ -126,11 +126,11 @@ export function TopTenRow({
                     </div>
                   )}
 
-                  {/* Top Badge: Type if series */}
-                  {isSeries && (
-                    <div className="absolute top-2 right-2 z-30">
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-primary/30 text-primary border border-primary/40 backdrop-blur-md">
-                        TV
+                  {/* Top Left: First Genre Only */}
+                  {(item.genres?.[0] || (isSeries ? "TV Series" : "Movie")) && (
+                    <div className="absolute top-2 left-2 z-30 pointer-events-none">
+                      <span className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-black/65 text-white/90 border border-white/15 backdrop-blur-md shadow-md">
+                        {item.genres?.[0] || (isSeries ? "TV Series" : "Movie")}
                       </span>
                     </div>
                   )}
@@ -145,11 +145,8 @@ export function TopTenRow({
                     </div>
                   </div>
 
-                  {/* Card Bottom: Title & Genre */}
+                  {/* Card Bottom: Title */}
                   <div className="absolute bottom-0 left-0 w-full p-2.5 z-30">
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-wider line-clamp-1 mb-0.5">
-                      {item.genres?.[0] || (isSeries ? "TV Series" : "Movie")}
-                    </p>
                     <h4 className="text-white font-bold text-xs sm:text-sm line-clamp-1 leading-tight group-hover/card:text-primary transition-colors">
                       {item.title}
                     </h4>

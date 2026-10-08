@@ -94,7 +94,6 @@ export default async function HomePage() {
           items={newReleases}
           link="/movies"
           type="movie"
-          qualityBadge="4K UHD"
         />
 
         {/* 4. Popular TV Series */}
@@ -104,7 +103,6 @@ export default async function HomePage() {
           items={popularSeries}
           link="/series"
           type="series"
-          qualityBadge="HD"
         />
 
         {/* 5. IMDb-style Top Rated & Masterworks */}
@@ -114,7 +112,6 @@ export default async function HomePage() {
           items={topRatedMovies}
           link="/movies?sort=Rating"
           type="movie"
-          qualityBadge="4K UHD"
         />
       </div>
     </>

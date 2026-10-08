@@ -11,7 +11,6 @@ interface ContentRowProps {
   items: any[];
   link?: string;
   type?: "movie" | "series";
-  qualityBadge?: string;
 }
 
 export function ContentRow({
@@ -20,7 +19,6 @@ export function ContentRow({
   items,
   link,
   type = "movie",
-  qualityBadge,
 }: ContentRowProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -103,7 +101,6 @@ export function ContentRow({
                 type={(item.type as any) || type}
                 primaryGenre={item.genres?.[0] || (type === "series" ? "TV Series" : "Movie")}
                 imageUrl={(item as any).imageUrl || ""}
-                qualityBadge={qualityBadge}
               />
             </div>
           ))}
