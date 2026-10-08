@@ -7,18 +7,14 @@ import Link from "next/link";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: {
-    absolute: "Kineos — Stream Movies & TV Series Online in HD",
-  },
-  description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+  title: "Discover Movies & TV Shows",
+  description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
   keywords: [
     "Kineos",
     "kineos fun",
     "kineos movies",
-    "watch movies online",
-    "stream TV series",
-    "movies index",
-    "free movies online",
+    "movie catalog",
+    "TV series catalog",
     "new releases",
     "top rated movies",
     "TV series episodes"
@@ -27,8 +23,8 @@ export const metadata: Metadata = {
     canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun",
   },
   openGraph: {
-    title: "Kineos — Stream Movies & TV Series Online in HD",
-    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+    title: "Discover Movies & TV Shows | Kineos",
+    description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun",
     siteName: "Kineos",
     type: "website",
@@ -43,8 +39,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Kineos — Stream Movies & TV Series Online in HD",
-    description: "Discover, stream, and explore movies and TV series with complete storylines, verified cast details, and high-definition streaming sources on Kineos.",
+    title: "Discover Movies & TV Shows | Kineos",
+    description: "Explore movie and TV series details, cast, storylines, release information, and available sources on Kineos.",
     images: ["/icon-512.png"],
   },
 };
