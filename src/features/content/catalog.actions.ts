@@ -214,4 +214,25 @@ export async function fetchCatalogTotalCount(
   }
 }
 
+export async function fetchCatalogSpotlightItem(
+  type: "movie" | "series",
+  genre?: string
+) {
+  try {
+    // 1. If a specific genre is selected, first attempt to find a title with a backdrop in that genre
+    if (genre && genre !== "All" && genre !== "All Genres") {
+      const genreItems = await fetchCatalogItems(type, 1, 10, genre);
+      const genreSpotlight = genreItems.find(i => Boolean(i.backdropUrl)) || genreItems[0];
+      if (genreSpotlight) return genreSpotlight;
+    }
+
+    // 2. Fall back to the top title in the overall catalog with a backdrop so the hero section NEVER vanishes
+    const generalItems = await fetchCatalogItems(type, 1, 10);
+    return generalItems.find(i => Boolean(i.backdropUrl)) || generalItems[0] || null;
+  } catch (error: any) {
+    console.error("Database connection failed (fetchCatalogSpotlightItem).", error.message);
+    return null;
+  }
+}
+
 

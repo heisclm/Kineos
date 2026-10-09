@@ -1,4 +1,4 @@
-import { fetchCatalogItems, fetchCatalogTotalCount } from "@/features/content/catalog.actions";
+import { fetchCatalogItems, fetchCatalogTotalCount, fetchCatalogSpotlightItem } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 import { CatalogSpotlight } from "@/components/content/CatalogSpotlight";
@@ -39,11 +39,12 @@ export default async function MoviesIndexPage({
   const genre = searchParams.genre;
   const sort = searchParams.sort;
 
-  const [movies, totalCount] = await Promise.all([
+  const [movies, totalCount, fallbackSpotlight] = await Promise.all([
     fetchCatalogItems("movie", 1, 30, genre, sort),
     fetchCatalogTotalCount("movie", genre),
+    fetchCatalogSpotlightItem("movie"),
   ]);
-  const spotlightMovie = movies.find(m => Boolean(m.backdropUrl)) || movies[0] || null;
+  const spotlightMovie = movies.find(m => Boolean(m.backdropUrl)) || movies[0] || fallbackSpotlight;
 
   return (
     <div className="w-full relative pb-24 space-y-8">

@@ -1,4 +1,4 @@
-import { fetchCatalogItems, fetchCatalogTotalCount } from "@/features/content/catalog.actions";
+import { fetchCatalogItems, fetchCatalogTotalCount, fetchCatalogSpotlightItem } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 import { CatalogSpotlight } from "@/components/content/CatalogSpotlight";
@@ -38,11 +38,12 @@ export default async function SeriesIndexPage({
   const genre = searchParams.genre;
   const sort = searchParams.sort;
 
-  const [series, totalCount] = await Promise.all([
+  const [series, totalCount, fallbackSpotlight] = await Promise.all([
     fetchCatalogItems("series", 1, 30, genre, sort),
     fetchCatalogTotalCount("series", genre),
+    fetchCatalogSpotlightItem("series"),
   ]);
-  const spotlightSeries = series.find(s => Boolean(s.backdropUrl)) || series[0] || null;
+  const spotlightSeries = series.find(s => Boolean(s.backdropUrl)) || series[0] || fallbackSpotlight;
 
   return (
     <div className="w-full relative pb-24 space-y-8">

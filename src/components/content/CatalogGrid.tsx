@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { Button } from "@/components/ui/button";
 import { fetchCatalogItems } from "@/features/content/catalog.actions";
@@ -57,9 +58,19 @@ export function CatalogGrid({ initialItems, type, genre, sort, totalCount }: Cat
 
   if (items.length === 0) {
     return (
-      <div className="py-24 text-center">
-        <p className="text-xl font-medium text-foreground">No {type === 'movie' ? 'movies' : 'series'} found.</p>
-        <p className="text-muted mt-2">Try adjusting your filters.</p>
+      <div className="py-20 text-center flex flex-col items-center justify-center">
+        <p className="text-xl font-bold text-foreground">No {type === "movie" ? "movies" : "series"} found.</p>
+        <p className="text-muted mt-2 max-w-sm text-sm">
+          There are currently no titles available in this category. Try selecting another genre or browse all titles.
+        </p>
+        <Link href={type === "movie" ? "/movies" : "/series"} className="mt-6">
+          <Button
+            variant="outline"
+            className="rounded-full px-6 border-white/10 hover:bg-white/10 text-sm font-semibold transition-apple"
+          >
+            Browse All {type === "movie" ? "Movies" : "Series"}
+          </Button>
+        </Link>
       </div>
     );
   }
