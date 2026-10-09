@@ -56,7 +56,7 @@ export function CatalogGrid({ initialItems, type, genre, sort }: CatalogGridProp
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 relative z-0">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-in fade-in duration-300">
         {items.map((item) => (
           <MovieCard

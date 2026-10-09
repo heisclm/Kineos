@@ -69,7 +69,7 @@ export function MovieCard({
 
         {/* Top Left: First Genre Only */}
         {primaryGenre && (
-          <div className="absolute top-2.5 left-2.5 z-30 pointer-events-none">
+          <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
             <Badge
               variant="glass"
               className="text-[10px] px-2.5 py-0.5 rounded-full bg-black/65 backdrop-blur-md border border-white/15 text-white/90 font-medium tracking-wide shadow-md"

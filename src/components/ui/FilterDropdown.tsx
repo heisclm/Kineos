@@ -36,7 +36,7 @@ export function FilterDropdown({ options, value, onChange, className }: FilterDr
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-[#141419] border border-white/20 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute top-full right-0 mt-2 w-48 bg-[#141419] bg-opacity-100 border border-white/20 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-150">
           <div className="py-1 max-h-60 overflow-y-auto scrollbar-hide">
             {options.map((option) => (
               <button
