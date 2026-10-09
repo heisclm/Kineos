@@ -11,7 +11,6 @@ import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { generateMovieKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
-import { HeroSideWidget } from "@/components/content/HeroSideWidget";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -472,27 +471,6 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                 />
               </div>
             </div>
-
-            {/* Right Column: Far-Right Balance & Symmetry on Desktop (Idea #4) */}
-            <div className="hidden xl:flex w-80 2xl:w-96 shrink-0 flex-col">
-              <HeroSideWidget
-                type="movie"
-                title={movie.title}
-                backdropUrl={backdrop}
-                posterUrl={poster}
-                trailerUrl={(movie as any).trailerUrl}
-                releaseYear={releaseYear}
-                runtime={formatDuration(movie.runtime)}
-                ratingScore={movie.ratingScore}
-                contentRating={movie.rating}
-                viewCount={movie.viewCount}
-                downloadCount={movie.downloadCount}
-                language={movie.language}
-                country={movie.country}
-                status={movie.status}
-                sources={downloads as any}
-              />
-            </div>
           </div>
 
         </div>
@@ -548,7 +526,19 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
            </div>
         </div>
         
-        <div className="lg:col-span-4 xl:col-span-3 space-y-8">
+        <div className="lg:col-span-4 xl:col-span-3 space-y-6">
+           {/* Official Trailer Video Card (Beside Storyline, Above Movie Info) */}
+           <TrailerModal
+             title={movie.title}
+             backdropUrl={backdrop}
+             posterUrl={poster}
+             trailerUrl={(movie as any).trailerUrl}
+             releaseYear={releaseYear}
+             duration={formatDuration(movie.runtime)}
+             qualityBadge="HD"
+             variant="card"
+           />
+
            <div className="p-8 rounded-xl bg-surface border border-white/5">
               <h3 className="text-lg font-semibold tracking-tight text-foreground mb-6">Movie Info</h3>
               <dl className="space-y-5 text-sm">

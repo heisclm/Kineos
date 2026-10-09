@@ -11,7 +11,6 @@ import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries
 import { MovieCard } from "@/components/movie/MovieCard";
 import { generateSeriesKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
-import { HeroSideWidget } from "@/components/content/HeroSideWidget";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -457,27 +456,6 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 />
               </div>
             </div>
-
-            {/* Right Column: Far-Right Balance & Symmetry on Desktop (Idea #4) */}
-            <div className="hidden xl:flex w-80 2xl:w-96 shrink-0 flex-col">
-              <HeroSideWidget
-                type="series"
-                title={series.title}
-                backdropUrl={backdrop}
-                posterUrl={poster}
-                trailerUrl={(series as any).trailerUrl}
-                releaseYear={releaseYear}
-                runtime={`${seasonsWithEpisodes.length} Seasons`}
-                ratingScore={(series as any).ratingScore || 85}
-                contentRating={(series as any).rating}
-                viewCount={series.viewCount}
-                downloadCount={series.downloadCount}
-                language={series.language}
-                country={(series as any).country || "Global"}
-                status={series.status}
-                sources={allSeriesSources}
-              />
-            </div>
           </div>
 
         </div>
@@ -652,7 +630,19 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         </div>
 
         {/* Sidebar: Comprehensive Series Info */}
-        <div className="lg:col-span-4 xl:col-span-3 space-y-8">
+        <div className="lg:col-span-4 xl:col-span-3 space-y-6">
+          {/* Official Trailer Video Card (Beside Storyline, Above Series Info) */}
+          <TrailerModal
+            title={series.title}
+            backdropUrl={backdrop}
+            posterUrl={poster}
+            trailerUrl={(series as any).trailerUrl}
+            releaseYear={releaseYear}
+            duration={`${seasonsWithEpisodes.length} Seasons`}
+            qualityBadge="HD"
+            variant="card"
+          />
+
           <div className="p-8 rounded-2xl bg-surface border border-white/5 shadow-xl space-y-6">
             <h3 className="text-lg font-bold tracking-tight text-foreground pb-3 border-b border-white/5">
               Series Info
