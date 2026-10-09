@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { KineosLogo } from "@/components/ui/logo";
 import { SecretAdminTrigger } from "@/components/admin/SecretAdminTrigger";
+import { MonetagAds } from "@/components/layout/MonetagAds";
 
 export default function MainLayout({
   children,
@@ -10,6 +11,7 @@ export default function MainLayout({
 }) {
   return (
     <>
+    <MonetagAds />
     <div className="flex flex-col min-h-screen relative bg-background">
       {/* Subtle cinematic blur background */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />

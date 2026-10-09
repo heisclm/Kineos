@@ -56,16 +56,6 @@ export default function RootLayout({
         <link rel="icon" href="/icon-96.png" sizes="96x96" type="image/png" />
         <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(s){s.dataset.zone='11986009',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(s){s.dataset.zone='11986011',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`
-          }}
-        />
       </head>
       <body className={`font-sans min-h-screen bg-background text-foreground antialiased selection:bg-primary selection:text-white overflow-x-hidden`}>
         <NextTopLoader color="#3b82f6" initialPosition={0.08} crawlSpeed={200} height={3} crawl={true} showSpinner={false} easing="ease" speed={200} shadow="0 0 10px #3b82f6,0 0 5px #3b82f6" />
