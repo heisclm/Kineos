@@ -52,22 +52,22 @@ export function ContentRow({
   return (
     <section className="relative px-4 sm:px-6 md:px-10 group/row">
       {/* Header */}
-      <div className="flex items-end justify-between mb-3.5 md:mb-5">
-        <div>
-          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+      <div className="flex items-center justify-between gap-3 sm:gap-4 mb-3.5 md:mb-5">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5 truncate sm:overflow-visible sm:whitespace-normal">
             {title}
           </h3>
           {subtitle && (
-            <p className="text-xs sm:text-sm text-muted mt-0.5 max-w-xl">{subtitle}</p>
+            <p className="text-xs sm:text-sm text-muted mt-0.5 max-w-xl line-clamp-1 sm:line-clamp-none">{subtitle}</p>
           )}
         </div>
         {link && (
           <Link
             href={link}
-            className="text-xs sm:text-sm font-semibold text-primary hover:text-primary-hover transition-colors flex items-center gap-1 group/link"
+            className="shrink-0 whitespace-nowrap text-xs sm:text-sm font-semibold text-primary hover:text-primary-hover transition-colors inline-flex items-center gap-1 group/link py-1 px-2.5 -mr-2 rounded-lg hover:bg-primary/10 active:scale-95"
           >
             <span>See All</span>
-            <ChevronRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5" />
+            <ChevronRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5 shrink-0" />
           </Link>
         )}
       </div>
