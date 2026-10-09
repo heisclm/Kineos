@@ -1,7 +1,8 @@
 export function MonetagAds() {
-  const isEnabled = process.env.NEXT_PUBLIC_MONETAG_ENABLED === "true";
+  // Enabled in production environment on www.kineos.fun now that the site is verified
+  const isEnabled = process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_MONETAG_ENABLED === "true";
 
-  if (!isEnabled) {
+  if (!isEnabled || process.env.NEXT_PUBLIC_MONETAG_ENABLED === "false") {
     return null;
   }
 
