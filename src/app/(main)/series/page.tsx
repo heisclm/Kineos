@@ -1,4 +1,4 @@
-import { fetchCatalogItems } from "@/features/content/catalog.actions";
+import { fetchCatalogItems, fetchCatalogTotalCount } from "@/features/content/catalog.actions";
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 import { CatalogSpotlight } from "@/components/content/CatalogSpotlight";
@@ -38,7 +38,10 @@ export default async function SeriesIndexPage({
   const genre = searchParams.genre;
   const sort = searchParams.sort;
 
-  const series = await fetchCatalogItems("series", 1, 30, genre, sort);
+  const [series, totalCount] = await Promise.all([
+    fetchCatalogItems("series", 1, 30, genre, sort),
+    fetchCatalogTotalCount("series", genre),
+  ]);
   const spotlightSeries = series.find(s => Boolean(s.backdropUrl)) || series[0] || null;
 
   return (
@@ -62,12 +65,12 @@ export default async function SeriesIndexPage({
               </p>
             </div>
             <span className="text-xs font-semibold text-white/50 self-start sm:self-auto">
-              {series.length} {series.length === 1 ? "Show" : "Shows"} Available
+              {totalCount} {totalCount === 1 ? "Show" : "Shows"} Available
             </span>
           </div>
 
           {/* 3. Horizontal Genre Pills & Sorting Toolbar */}
-          <ContentFilters type="series" totalCount={series.length} />
+          <ContentFilters type="series" totalCount={totalCount} />
         </div>
 
         {/* 4. Responsive Netflix / IMDb Style Cards Grid */}
@@ -76,6 +79,7 @@ export default async function SeriesIndexPage({
           type="series"
           genre={genre}
           sort={sort}
+          totalCount={totalCount}
         />
       </div>
     </div>

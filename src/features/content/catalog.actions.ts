@@ -35,7 +35,7 @@ export async function fetchCatalogItems(
         .where(eq(movies.publicationStatus, "published"))
         .$dynamic();
 
-      if (genre && genre !== "All Genres") {
+      if (genre && genre !== "All Genres" && genre !== "All") {
         query = query.where(and(
           eq(movies.publicationStatus, "published"),
           ilike(genres.name, genre)
@@ -107,7 +107,7 @@ export async function fetchCatalogItems(
         .where(eq(series.publicationStatus, "published"))
         .$dynamic();
 
-      if (genre && genre !== "All Genres") {
+      if (genre && genre !== "All Genres" && genre !== "All") {
         query = query.where(and(
           eq(series.publicationStatus, "published"),
           ilike(genres.name, genre)
@@ -165,4 +165,53 @@ export async function fetchCatalogItems(
     return [];
   }
 }
+
+export async function fetchCatalogTotalCount(
+  type: "movie" | "series",
+  genre?: string
+): Promise<number> {
+  try {
+    if (type === "movie") {
+      let query = db
+        .select({ total: sql<number>`count(distinct ${movies.id})::int` })
+        .from(movies)
+        .leftJoin(movieGenres, eq(movies.id, movieGenres.movieId))
+        .leftJoin(genres, eq(movieGenres.genreId, genres.id))
+        .where(eq(movies.publicationStatus, "published"))
+        .$dynamic();
+
+      if (genre && genre !== "All Genres" && genre !== "All") {
+        query = query.where(and(
+          eq(movies.publicationStatus, "published"),
+          ilike(genres.name, genre)
+        ));
+      }
+
+      const res = await query;
+      return res[0]?.total || 0;
+    } else {
+      let query = db
+        .select({ total: sql<number>`count(distinct ${series.id})::int` })
+        .from(series)
+        .leftJoin(seriesGenres, eq(series.id, seriesGenres.seriesId))
+        .leftJoin(genres, eq(seriesGenres.genreId, genres.id))
+        .where(eq(series.publicationStatus, "published"))
+        .$dynamic();
+
+      if (genre && genre !== "All Genres" && genre !== "All") {
+        query = query.where(and(
+          eq(series.publicationStatus, "published"),
+          ilike(genres.name, genre)
+        ));
+      }
+
+      const res = await query;
+      return res[0]?.total || 0;
+    }
+  } catch (error: any) {
+    console.error("Database connection failed (fetchCatalogTotalCount).", error.message);
+    return 0;
+  }
+}
+
 
