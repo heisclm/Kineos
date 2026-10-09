@@ -468,11 +468,11 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         <div className="lg:col-span-8 xl:col-span-9 space-y-12">
           {/* Storyline */}
           {series.description && (
-            <section>
-              <h3 className="text-2xl font-bold tracking-tight text-foreground mb-4">Storyline</h3>
-              <div className="p-6 md:p-10 rounded-2xl md:rounded-3xl bg-surface/40 backdrop-blur-sm border border-white/5 shadow-inner text-white/80 text-base md:text-lg leading-relaxed md:leading-[1.8] font-medium text-left text-pretty">
+            <section className="space-y-3">
+              <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Storyline</h3>
+              <p className="text-[15px] sm:text-base md:text-lg text-white/85 leading-relaxed md:leading-[1.8] font-normal text-left text-pretty whitespace-pre-line">
                 {series.description}
-              </div>
+              </p>
             </section>
           )}
 
