@@ -48,9 +48,6 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
             {isSeries ? "SPOTLIGHT SERIES" : "SPOTLIGHT MOVIE"}
           </Badge>
 
-          <Badge variant="glass" className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-black/60 text-white/90 border-white/15">
-            4K UHD
-          </Badge>
 
           {item.genres?.slice(0, 2).map((g: string) => (
             <Badge key={g} variant="glass" className="px-2 py-0.5 text-[10px] rounded-full bg-white/5 text-white/80 border-white/10">

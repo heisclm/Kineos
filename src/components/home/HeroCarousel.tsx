@@ -64,14 +64,10 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
         className="relative z-20 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12 pb-14 pt-20 md:pb-16 md:pt-24 flex flex-col justify-end md:justify-center h-full animate-in fade-in slide-in-from-bottom-4 duration-700"
       >
         <div className="max-w-xl lg:max-w-2xl">
-          {/* Badges strip: Type + 4K UHD + Genres */}
+          {/* Badges strip: Type + Genres */}
         <div className="flex flex-wrap items-center gap-2 mb-3.5 md:mb-5">
           <Badge className="px-2.5 py-0.5 text-[10px] md:text-[11px] uppercase tracking-wider font-extrabold rounded-full bg-primary/25 text-primary border-primary/35">
             {isSeries ? "TV SERIES" : "FEATURED MOVIE"}
-          </Badge>
-
-          <Badge variant="glass" className="px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold rounded-full bg-black/60 text-white/90 border-white/15 backdrop-blur-md">
-            4K UHD
           </Badge>
 
           {item.genres?.slice(0, 2).map((g: string) => (
