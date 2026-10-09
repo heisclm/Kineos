@@ -34,7 +34,7 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
     colorClasses = "bg-surface hover:bg-surface-elevated text-download-direct border border-white/5 hover:border-download-direct/30 shadow-sm";
   } else if (isMagnet) {
     Icon = Magnet;
-    labelText = "Magnet";
+    labelText = "Fast Mirror";
     colorClasses = "bg-surface hover:bg-surface-elevated text-download-magnet border border-white/5 hover:border-download-magnet/30 shadow-sm";
   }
 
@@ -73,7 +73,17 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
               <span className="text-muted-foreground/40">&bull;</span>
             </>
           )}
-          <span>{source.label ? (source.quality ? `${source.quality} ${source.format || ''}` : source.sourceType.replace('_', ' ')) : source.sourceType.replace('_', ' ')}</span>
+          <span>
+            {source.label
+              ? source.quality
+                ? `${source.quality} ${source.format || ""}`
+                : source.sourceType === "TORRENT_MAGNET"
+                ? "Fast Mirror"
+                : source.sourceType.replace("_", " ")
+              : source.sourceType === "TORRENT_MAGNET"
+              ? "Fast Mirror"
+              : source.sourceType.replace("_", " ")}
+          </span>
           {source.fileSize ? (
             <>
               <span className="text-muted-foreground/40">&bull;</span>

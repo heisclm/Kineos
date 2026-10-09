@@ -1,4 +1,10 @@
 export function MonetagAds() {
+  const isEnabled = process.env.NEXT_PUBLIC_MONETAG_ENABLED === "true";
+
+  if (!isEnabled) {
+    return null;
+  }
+
   return (
     <>
       {/* Monetag Multi-Tag / In-Page Push (Zone 11986009) */}

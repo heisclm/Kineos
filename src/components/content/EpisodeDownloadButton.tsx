@@ -53,7 +53,7 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
     ? formatBytes(Math.round(Number(source.fileSize) / (1024 * 1024)))
     : null;
 
-  const displayLabel = isMagnet ? "Torrent" : (source.quality || "HD");
+  const displayLabel = isMagnet ? "Fast Mirror" : (source.quality || "HD");
 
   return (
     <a
@@ -61,7 +61,7 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
       target={isMagnet ? undefined : "_blank"}
       rel={isMagnet ? undefined : "noopener noreferrer"}
       onClick={handleClick}
-      title={isMagnet ? "Download episode via Torrent / Magnet" : "Download episode"}
+      title={isMagnet ? "Download episode via Fast Mirror" : "Download episode"}
       className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-apple hover:scale-105 active:scale-95 cursor-pointer shadow-sm ${colorClasses}`}
     >
       <Icon className="w-3.5 h-3.5 shrink-0" />
