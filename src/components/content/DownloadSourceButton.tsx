@@ -18,7 +18,7 @@ export interface DownloadSource {
 export function DownloadSourceButton({ source }: { source: DownloadSource }) {
   const isR2 = source.sourceType === "CLOUDFLARE_R2";
   const isDirect = source.sourceType === "DIRECT_URL";
-  const isMagnet = source.sourceType === "TORRENT_MAGNET";
+  const isMagnet = source.sourceType === "TORRENT_MAGNET" || source.url?.startsWith("magnet:");
 
   // Base semantic styles based on the rule: 
   // R2 = Cloudflare accent, Direct = Kineos accent, Magnet = Magnet semantic accent

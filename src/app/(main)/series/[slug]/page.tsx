@@ -5,6 +5,7 @@ import { Play, Download, Clock, Calendar, Star, Layers, Film, ChevronRight, File
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
+import { EpisodeDownloadButton } from "@/components/content/EpisodeDownloadButton";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries, getDownloadSourcesForContent } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
@@ -634,22 +635,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                                   </span>
                                 ) : (
                                   sources.map((src: any) => (
-                                    <a
-                                      key={src.id}
-                                      href={`/api/downloads/${src.id}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/30 text-xs font-semibold text-primary transition-apple hover:scale-105 active:scale-95"
-                                    >
-                                      <Download className="w-3.5 h-3.5 shrink-0" />
-                                      <span>{src.quality || 'HD'}</span>
-                                      {src.format && <span className="text-white/60 text-[10px] uppercase font-normal">({src.format})</span>}
-                                      {src.fileSize && (
-                                        <span className="text-white/60 text-[10px] font-normal">
-                                          &bull; {(src.fileSize / (1024 * 1024)).toFixed(0)} MB
-                                        </span>
-                                      )}
-                                    </a>
+                                    <EpisodeDownloadButton key={src.id} source={src} />
                                   ))
                                 )}
                               </div>
