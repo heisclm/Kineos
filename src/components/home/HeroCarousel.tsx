@@ -48,7 +48,7 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
           alt={item.title}
           fill
           sizes="100vw"
-          className="object-cover z-0 opacity-55 md:opacity-65 animate-in fade-in duration-1000 object-center"
+          className="object-cover z-0 opacity-55 md:opacity-65 transition-opacity duration-700 object-center"
           priority
         />
       ) : (
@@ -159,17 +159,21 @@ export function HeroCarousel({ movies }: HeroFeaturedProps) {
 
       {/* Progress Indicators */}
       {movies.length > 1 && (
-        <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-32 z-30 flex items-center gap-1.5">
+        <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-32 z-30 flex items-center gap-1">
           {movies.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              aria-label={`Slide ${idx + 1}`}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-500",
-                idx === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-white/20 hover:bg-white/40"
-              )}
-            />
+              aria-label={`Go to slide ${idx + 1}`}
+              className="p-2 min-h-[32px] min-w-[28px] flex items-center justify-center -mx-0.5 rounded-full focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            >
+              <span
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-500 block",
+                  idx === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-white/20 hover:bg-white/40"
+                )}
+              />
+            </button>
           ))}
         </div>
       )}
