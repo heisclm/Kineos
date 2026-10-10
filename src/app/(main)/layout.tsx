@@ -39,10 +39,12 @@ export default function MainLayout({
             
             <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-8 w-full">
               {/* Links Group 1 */}
-              <div className="flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start gap-3.5">
                 <h4 className="text-foreground font-semibold tracking-wide uppercase text-xs mb-1">Explore</h4>
                 <Link href="/movies" className="text-sm text-muted-foreground hover:text-white transition-apple">Movies</Link>
                 <Link href="/series" className="text-sm text-muted-foreground hover:text-white transition-apple">TV Series</Link>
+                <Link href="/top-10" className="text-sm text-muted-foreground hover:text-white transition-apple">Top 10 Trending</Link>
+                <Link href="/watchlist" className="text-sm text-muted-foreground hover:text-white transition-apple">My Watchlist</Link>
                 <Link href="/search" className="text-sm text-muted-foreground hover:text-white transition-apple">Search Content</Link>
               </div>
 

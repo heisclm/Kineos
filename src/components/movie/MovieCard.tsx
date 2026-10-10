@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Play, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDuration } from "@/lib/utils";
+import { WatchlistCardButton } from "@/components/content/WatchlistButtons";
 
 export interface MovieCardProps {
   id: string;
@@ -78,6 +79,26 @@ export function MovieCard({
             </Badge>
           </div>
         )}
+
+        {/* Top Right: Watchlist Bookmark Action */}
+        <div className="absolute top-2.5 right-2.5 z-30">
+          <WatchlistCardButton
+            item={{
+              id: id || slug,
+              title,
+              slug,
+              type,
+              imageUrl,
+              primaryGenre,
+              releaseDate,
+              rating,
+              ratingScore,
+              runtime,
+              seasonsCount,
+              shortTeaser: shortTeaser || description,
+            }}
+          />
+        </div>
 
         {/* Center Hover Action: Netflix-style Play Button */}
         <div className="absolute inset-0 flex items-center justify-center z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100 pointer-events-none">

@@ -13,6 +13,7 @@ import { generateMovieKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
 import { MoreLikeThisSection } from "@/components/content/MoreLikeThisSection";
+import { WatchlistDetailButton } from "@/components/content/WatchlistButtons";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -36,8 +37,8 @@ export async function generateMetadata(
   const title = movie.seoTitle
     ? movie.seoTitle
     : releaseYear
-      ? `${movie.title} (${releaseYear})`
-      : movie.title;
+      ? `${movie.title} (${releaseYear}) - Download & Stream HD | Kineos`
+      : `${movie.title} - Download & Stream HD | Kineos`;
 
   const summary = movie.shortTeaser || movie.description || "";
   const description = movie.seoDescription || (
@@ -318,18 +319,36 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
               </p>
             )}
 
-            {/* Mobile Trailer Action */}
-            <TrailerModal
-              title={movie.title}
-              backdropUrl={backdrop}
-              posterUrl={poster}
-              trailerUrl={(movie as any).trailerUrl}
-              releaseYear={releaseYear}
-              duration={formatDuration(movie.runtime)}
-              variant="button"
-              buttonText="Watch Official Trailer"
-              className="w-full justify-center"
-            />
+            {/* Mobile Trailer & Watchlist Actions */}
+            <div className="grid grid-cols-2 gap-2 w-full pt-1">
+              <TrailerModal
+                title={movie.title}
+                backdropUrl={backdrop}
+                posterUrl={poster}
+                trailerUrl={(movie as any).trailerUrl}
+                releaseYear={releaseYear}
+                duration={formatDuration(movie.runtime)}
+                variant="button"
+                buttonText="Watch Trailer"
+                className="w-full justify-center text-xs"
+              />
+              <WatchlistDetailButton
+                className="w-full justify-center text-xs"
+                item={{
+                  id: movie.id,
+                  title: movie.title,
+                  slug: movie.slug,
+                  type: "movie",
+                  imageUrl: (movie as any).imageUrl || null,
+                  primaryGenre: ((movie as any).genres?.[0]) || "Movie",
+                  releaseDate: movie.releaseDate,
+                  rating: movie.rating,
+                  ratingScore: movie.ratingScore,
+                  runtime: movie.runtime,
+                  shortTeaser: (movie as any).shortTeaser || movie.description,
+                }}
+              />
+            </div>
           </div>
 
           {/* Desktop & Tablet Layout (md:flex): 3-column on xl+, 2-column on md-lg */}
@@ -470,6 +489,21 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   duration={formatDuration(movie.runtime)}
                   variant="button"
                   buttonText="Watch Trailer"
+                />
+                <WatchlistDetailButton
+                  item={{
+                    id: movie.id,
+                    title: movie.title,
+                    slug: movie.slug,
+                    type: "movie",
+                    imageUrl: (movie as any).imageUrl || null,
+                    primaryGenre: ((movie as any).genres?.[0]) || "Movie",
+                    releaseDate: movie.releaseDate,
+                    rating: movie.rating,
+                    ratingScore: movie.ratingScore,
+                    runtime: movie.runtime,
+                    shortTeaser: (movie as any).shortTeaser || movie.description,
+                  }}
                 />
               </div>
             </div>

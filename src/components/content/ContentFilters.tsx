@@ -99,7 +99,53 @@ export function ContentFilters({ type = "movies", totalCount }: ContentFiltersPr
   const hasActiveFilters = activeGenre !== "All" || activeSort !== "Latest";
 
   return (
-    <div className="space-y-4 w-full relative z-40">
+    <div className="space-y-3 w-full relative z-40">
+      {/* Quick Discovery Highlights Row */}
+      <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-0.5">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mr-1 hidden sm:inline">
+          Quick Filters:
+        </span>
+        <button
+          type="button"
+          onClick={() => handleUpdate("sort", "Popular")}
+          className={cn(
+            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer",
+            currentSort === "Popular"
+              ? "bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm shadow-amber-500/20"
+              : "bg-surface/60 hover:bg-surface text-white/70 hover:text-white border-white/10 hover:border-white/20"
+          )}
+        >
+          <span>🔥</span>
+          <span>Trending</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => handleUpdate("sort", "Rating")}
+          className={cn(
+            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer",
+            currentSort === "Rating"
+              ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40 shadow-sm shadow-yellow-500/20"
+              : "bg-surface/60 hover:bg-surface text-white/70 hover:text-white border-white/10 hover:border-white/20"
+          )}
+        >
+          <span>⭐</span>
+          <span>Top Rated</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => handleUpdate("sort", "Latest")}
+          className={cn(
+            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer",
+            currentSort === "Latest" && activeGenre === "All"
+              ? "bg-primary/20 text-primary border-primary/40 shadow-sm shadow-primary/20"
+              : "bg-surface/60 hover:bg-surface text-white/70 hover:text-white border-white/10 hover:border-white/20"
+          )}
+        >
+          <span>🎬</span>
+          <span>New Releases</span>
+        </button>
+      </div>
+
       {/* Top Filter Bar: Horizontal Genre Chips + Sort Dropdown */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         {/* Genre Pill Chips (Netflix / Prime Video style) */}

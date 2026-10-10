@@ -132,13 +132,7 @@ export function CatalogGrid({
 
       {/* 2. Premium Streaming Platform Pagination */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-4 border-t border-white/5">
-          {/* Summary Text */}
-          <div className="text-xs font-medium text-white/50 text-center sm:text-left">
-            Showing <span className="font-semibold text-white/80">{startCount}–{endCount}</span> of{" "}
-            <span className="font-semibold text-white/80">{totalCount}</span> titles
-          </div>
-
+        <div className="flex items-center justify-center pt-8 pb-4 border-t border-white/5">
           {/* Pagination Controls */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Previous Button */}

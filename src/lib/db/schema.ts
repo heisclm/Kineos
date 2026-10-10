@@ -306,4 +306,15 @@ export const featuredContent = pgTable("featured_content", {
   order: integer("order").default(0),
 });
 
+export const contentRequests = pgTable("content_requests", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  contentType: varchar("content_type", { length: 50 }).default("movie").notNull(),
+  releaseYear: integer("release_year"),
+  notes: text("notes"),
+  requesterEmail: varchar("requester_email", { length: 255 }),
+  status: varchar("status", { length: 50 }).default("pending").notNull(), // pending, fulfilled, rejected
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 

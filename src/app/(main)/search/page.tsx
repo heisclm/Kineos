@@ -1,6 +1,7 @@
 import { searchMovies } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { Search } from "lucide-react";
+import { SearchRequestTrigger } from "@/components/content/SearchRequestTrigger";
 
 export default async function SearchPage({
   searchParams,
@@ -31,7 +32,7 @@ export default async function SearchPage({
               title={movie.title}
               slug={movie.slug}
               description={movie.description || ""}
-              primaryGenre={"Matched"} // Ideally fetched, mocked for search preview
+              primaryGenre={"Matched"}
               imageUrl={(movie as any).imageUrl || ""}
               shortTeaser={(movie as any).shortTeaser}
             />
@@ -44,11 +45,11 @@ export default async function SearchPage({
           </div>
           <p className="text-xl font-medium text-foreground mb-3">No matching content found</p>
           <p className="text-sm text-muted max-w-md">
-            We couldn&apos;t find anything for &quot;{q}&quot;. Try adjusting your search terms, searching for an actor, or browsing our curated catalogs.
+            We couldn&apos;t find anything for &quot;{q}&quot;. Try adjusting your search terms, searching for an actor, or request it below!
           </p>
+          {q && <SearchRequestTrigger initialQuery={q} />}
         </div>
       )}
     </div>
   );
 }
-

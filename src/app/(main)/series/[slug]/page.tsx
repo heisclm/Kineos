@@ -12,6 +12,7 @@ import { generateSeriesKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
 import { MoreLikeThisSection } from "@/components/content/MoreLikeThisSection";
+import { WatchlistDetailButton } from "@/components/content/WatchlistButtons";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -33,8 +34,8 @@ export async function generateMetadata(
   const releaseYear = series.releaseDate ? new Date(series.releaseDate).getFullYear() : null;
 
   const title = releaseYear
-    ? `${series.title} (${releaseYear})`
-    : series.title;
+    ? `${series.title} (${releaseYear}) - Full Series Download & Stream | Kineos`
+    : `${series.title} - Full Series Download & Stream | Kineos`;
 
   const summary = series.shortTeaser || series.description || "";
   const description = summary
@@ -307,18 +308,36 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               </a>
             )}
 
-            {/* Mobile Trailer Action */}
-            <TrailerModal
-              title={series.title}
-              backdropUrl={backdrop}
-              posterUrl={poster}
-              trailerUrl={(series as any).trailerUrl}
-              releaseYear={releaseYear}
-              duration={`${seasonsWithEpisodes.length} Seasons`}
-              variant="button"
-              buttonText="Watch Official Trailer"
-              className="w-full justify-center"
-            />
+            {/* Mobile Trailer & Watchlist Actions */}
+            <div className="grid grid-cols-2 gap-2 w-full pt-1">
+              <TrailerModal
+                title={series.title}
+                backdropUrl={backdrop}
+                posterUrl={poster}
+                trailerUrl={(series as any).trailerUrl}
+                releaseYear={releaseYear}
+                duration={`${seasonsWithEpisodes.length} Seasons`}
+                variant="button"
+                buttonText="Watch Trailer"
+                className="w-full justify-center text-xs"
+              />
+              <WatchlistDetailButton
+                className="w-full justify-center text-xs"
+                item={{
+                  id: series.id,
+                  title: series.title,
+                  slug: series.slug,
+                  type: "series",
+                  imageUrl: (series as any).imageUrl || null,
+                  primaryGenre: ((series as any).genres?.[0]) || "TV Series",
+                  releaseDate: series.releaseDate,
+                  rating: series.rating,
+                  ratingScore: series.ratingScore,
+                  seasonsCount: seasonsWithEpisodes.length,
+                  shortTeaser: (series as any).shortTeaser || series.description,
+                }}
+              />
+            </div>
           </div>
 
           {/* Desktop & Tablet Layout (md:flex): 3-column on xl+, 2-column on md-lg */}
@@ -454,6 +473,21 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   duration={`${seasonsWithEpisodes.length} Seasons`}
                   variant="button"
                   buttonText="Watch Trailer"
+                />
+                <WatchlistDetailButton
+                  item={{
+                    id: series.id,
+                    title: series.title,
+                    slug: series.slug,
+                    type: "series",
+                    imageUrl: (series as any).imageUrl || null,
+                    primaryGenre: ((series as any).genres?.[0]) || "TV Series",
+                    releaseDate: series.releaseDate,
+                    rating: series.rating,
+                    ratingScore: series.ratingScore,
+                    seasonsCount: seasonsWithEpisodes.length,
+                    shortTeaser: (series as any).shortTeaser || series.description,
+                  }}
                 />
               </div>
             </div>
