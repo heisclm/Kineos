@@ -1,41 +1,128 @@
 import { getAllCastMembers } from "@/features/content/content.service";
-import Link from "next/link";
-import Image from "next/image";
 import { slugify } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { User, Sparkles, ChevronRight } from "lucide-react";
+import { CastFilters } from "@/components/content/CastFilters";
+import { CastGrid } from "@/components/content/CastGrid";
+import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: { absolute: "Cast & Crew Directory - Browse Actors & Filmmakers | Kineos" },
-  description:
-    "Explore the complete roster of actors, directors, and filmmakers across Kineos. Discover their full filmographies and stream their movies and TV series in HD.",
-  alternates: {
-    canonical: "https://www.kineos.fun/cast",
-  },
-  openGraph: {
-    title: "Cast & Crew Directory | Kineos",
-    description: "Browse top actors and filmmakers on Kineos.",
-    url: "https://www.kineos.fun/cast",
-    siteName: "Kineos",
-  },
-};
+const PAGE_SIZE = 24;
 
-export default async function CastDirectoryPage() {
-  const castList = await getAllCastMembers();
+export function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: { page?: string; rating?: string; letter?: string };
+}): Metadata {
+  const pageStr = searchParams?.page && parseInt(searchParams.page, 10) > 1
+    ? ` - Page ${searchParams.page}`
+    : "";
+  const letterStr = searchParams?.letter && searchParams.letter !== "All"
+    ? ` (${searchParams.letter})`
+    : "";
+
+  return {
+    title: { absolute: `Cast & Crew Directory${letterStr}${pageStr} | Kineos` },
+    description:
+      "Explore the complete roster of actors, directors, and filmmakers across Kineos. Discover their full filmographies, filter by rating, and stream their movies and TV series in HD.",
+    alternates: {
+      canonical: "https://www.kineos.fun/cast",
+    },
+    openGraph: {
+      title: "Cast & Crew Directory | Kineos",
+      description: "Browse top actors and filmmakers on Kineos.",
+      url: "https://www.kineos.fun/cast",
+      siteName: "Kineos",
+    },
+  };
+}
+
+export default async function CastDirectoryPage({
+  searchParams,
+}: {
+  searchParams?: {
+    page?: string;
+    rating?: string;
+    sort?: string;
+    letter?: string;
+    q?: string;
+  };
+}) {
+  const allCast = await getAllCastMembers();
+
+  const page = Math.max(1, parseInt(searchParams?.page || "1", 10) || 1);
+  const ratingParam = searchParams?.rating || "All Ratings";
+  const sortParam = searchParams?.sort || "A - Z (Alphabetical)";
+  const letterParam = searchParams?.letter || "All";
+  const queryParam = (searchParams?.q || "").trim().toLowerCase();
+
+  // 1. Filter by Rating
+  let filtered = allCast;
+  if (ratingParam.includes("8")) {
+    filtered = filtered.filter((c) => c.highestRating !== null && c.highestRating >= 8.0);
+  } else if (ratingParam.includes("7")) {
+    filtered = filtered.filter((c) => c.highestRating !== null && c.highestRating >= 7.0);
+  } else if (ratingParam.includes("6")) {
+    filtered = filtered.filter((c) => c.highestRating !== null && c.highestRating >= 6.0);
+  }
+
+  // 2. Filter by Alphabet Letter
+  if (letterParam && letterParam !== "All") {
+    filtered = filtered.filter((c) =>
+      c.name.trim().toUpperCase().startsWith(letterParam.toUpperCase())
+    );
+  }
+
+  // 3. Filter by Search Query
+  if (queryParam) {
+    filtered = filtered.filter((c) =>
+      c.name.toLowerCase().includes(queryParam)
+    );
+  }
+
+  // 4. Sort (Default is A - Z Alphabetical)
+  filtered = [...filtered];
+  if (sortParam === "Z - A") {
+    filtered.sort((a, b) => b.name.localeCompare(a.name, undefined, { sensitivity: "base" }));
+  } else if (sortParam === "Highest Rating") {
+    filtered.sort(
+      (a, b) =>
+        (b.highestRating || 0) - (a.highestRating || 0) ||
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+    );
+  } else if (sortParam === "Most Credits") {
+    filtered.sort(
+      (a, b) =>
+        b.totalCredits - a.totalCredits ||
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+    );
+  } else {
+    // Default: Alphabetical (A - Z)
+    filtered.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  }
+
+  // 5. Pagination calculations
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedList = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun";
 
+  // Structured Data
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Kineos Cast & Crew Directory",
     description: "A directory of prominent actors and filmmakers featured on Kineos.",
-    itemListElement: castList.slice(0, 50).map((c, index) => ({
+    numberOfItems: totalCount,
+    itemListElement: paginatedList.map((c, index) => ({
       "@type": "ListItem",
-      position: index + 1,
+      position: (currentPage - 1) * PAGE_SIZE + index + 1,
       item: {
         "@type": "Person",
         name: c.name,
@@ -54,15 +141,18 @@ export default async function CastDirectoryPage() {
       />
 
       {/* Header */}
-      <div className="w-full relative bg-background border-b border-white/5 pt-3 sm:pt-4 md:pt-5 pb-10 md:pb-12">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10">
+      <div className="w-full relative bg-background border-b border-white/5 pt-3 sm:pt-4 md:pt-5 pb-8 md:pb-10">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 space-y-4">
           {/* Top Left Breadcrumbs */}
           <Breadcrumbs
             items={[
               { label: "Home", href: "/" },
               { label: "Cast & Crew" },
+              ...(letterParam && letterParam !== "All"
+                ? [{ label: `Letter ${letterParam}` }]
+                : []),
             ]}
-            className="mb-4 sm:mb-6"
+            className="mb-2"
             includeJsonLd={false}
           />
 
@@ -75,58 +165,28 @@ export default async function CastDirectoryPage() {
             </h1>
             <p className="text-xs sm:text-sm text-white/70 max-w-2xl leading-relaxed">
               Browse actors, actresses, and directors featured in Kineos movies and TV series.
-              Select any artist to view their complete filmography and download high-definition titles.
+              Arranged alphabetically with rating filters, credit counts, and complete filmographies.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Grid of Cast Members */}
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 mt-8">
-        {castList.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-5">
-            {castList.map((member) => {
-              const slug = slugify(member.name);
-              return (
-                <Link
-                  key={member.id}
-                  href={`/cast/${slug}`}
-                  className="group flex flex-col items-center p-4 rounded-2xl bg-surface border border-white/5 hover:border-primary/40 hover:bg-surface-elevated transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 shadow-md hover:shadow-2xl hover:shadow-primary/10"
-                >
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mb-3 border-2 border-white/10 group-hover:border-primary/60 transition-colors bg-surface-elevated shadow-inner">
-                    {member.imageUrl ? (
-                      <Image
-                        src={member.imageUrl}
-                        alt={member.name}
-                        fill
-                        sizes="(max-width: 640px) 96px, 112px"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-white/40">
-                        <User className="w-8 h-8 mb-0.5" />
-                        <span className="text-xs font-bold">{member.name.charAt(0)}</span>
-                      </div>
-                    )}
-                  </div>
+      {/* Main Content Area */}
+      <div
+        id="cast-catalog-content"
+        className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 mt-6 sm:mt-8 space-y-6 sm:space-y-8"
+      >
+        {/* Interactive Filters: Rating, Sort, Alphabet Quick Ribbon, Search */}
+        <CastFilters totalCount={totalCount} />
 
-                  <span className="text-sm font-semibold text-foreground text-center line-clamp-1 group-hover:text-primary transition-colors">
-                    {member.name}
-                  </span>
-                  <span className="text-[11px] text-white/50 font-medium mt-0.5 uppercase tracking-wider">
-                    View Filmography
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="py-24 text-center rounded-2xl bg-surface border border-white/5">
-            <p className="text-base text-white/60 font-medium">
-              No cast members found in the catalog.
-            </p>
-          </div>
-        )}
+        {/* Responsive Grid with Badges & Pagination */}
+        <CastGrid
+          items={paginatedList}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          pageSize={PAGE_SIZE}
+        />
       </div>
     </div>
   );

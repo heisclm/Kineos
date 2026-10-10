@@ -1102,34 +1102,77 @@ export async function getPersonWithFilmography(slugOrId: string) {
   }
 }
 
+export interface CastMemberWithStats {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  totalCredits: number;
+  highestRating: number | null;
+  primaryRole: string;
+}
+
 /**
  * Returns all distinct cast and crew members who have published movie or series credits,
- * for generating XML sitemaps and programmatic directory links.
+ * sorted alphabetically (A-Z) with aggregated ratings and credit counts.
  */
-export async function getAllCastMembers() {
+export async function getAllCastMembers(): Promise<CastMemberWithStats[]> {
   try {
     const moviePeople = await db
-      .select({ id: people.id, name: people.name, imageUrl: people.imageUrl })
+      .select({
+        id: people.id,
+        name: people.name,
+        imageUrl: people.imageUrl,
+        role: movieCast.roleName,
+        ratingScore: movies.ratingScore,
+      })
       .from(people)
       .innerJoin(movieCast, eq(people.id, movieCast.personId))
       .innerJoin(movies, eq(movieCast.movieId, movies.id))
       .where(eq(movies.publicationStatus, "published"));
 
     const seriesPeople = await db
-      .select({ id: people.id, name: people.name, imageUrl: people.imageUrl })
+      .select({
+        id: people.id,
+        name: people.name,
+        imageUrl: people.imageUrl,
+        role: seriesCast.roleName,
+        ratingScore: series.ratingScore,
+      })
       .from(people)
       .innerJoin(seriesCast, eq(people.id, seriesCast.personId))
       .innerJoin(series, eq(seriesCast.seriesId, series.id))
       .where(eq(series.publicationStatus, "published"));
 
-    const uniqueMap = new Map<string, { id: string; name: string; imageUrl: string | null }>();
+    const uniqueMap = new Map<string, CastMemberWithStats>();
+
     for (const p of [...moviePeople, ...seriesPeople]) {
-      if (!uniqueMap.has(p.id)) {
-        uniqueMap.set(p.id, p);
+      const rating = p.ratingScore ? Math.round((p.ratingScore / 10) * 10) / 10 : null;
+      const existing = uniqueMap.get(p.id);
+
+      if (!existing) {
+        uniqueMap.set(p.id, {
+          id: p.id,
+          name: p.name,
+          imageUrl: p.imageUrl,
+          totalCredits: 1,
+          highestRating: rating,
+          primaryRole: p.role || "Actor",
+        });
+      } else {
+        existing.totalCredits += 1;
+        if (rating !== null) {
+          existing.highestRating =
+            existing.highestRating !== null
+              ? Math.max(existing.highestRating, rating)
+              : rating;
+        }
       }
     }
 
-    return Array.from(uniqueMap.values());
+    const list = Array.from(uniqueMap.values());
+    list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
+    return list;
   } catch (e: any) {
     console.error("Error in getAllCastMembers:", e.message);
     return [];
