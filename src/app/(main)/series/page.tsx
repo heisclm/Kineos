@@ -2,6 +2,7 @@ import { fetchCatalogItems, fetchCatalogTotalCount, fetchCatalogSpotlightItem } 
 import { CatalogGrid } from "@/components/content/CatalogGrid";
 import { ContentFilters } from "@/components/content/ContentFilters";
 import { CatalogSpotlight } from "@/components/content/CatalogSpotlight";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 import type { Metadata } from "next";
 
@@ -52,12 +53,28 @@ export default async function SeriesIndexPage({
   return (
     <div className="w-full relative pb-24 space-y-8">
       {/* 1. Full-Bleed Top Billboard Spotlight (when browsing all series) */}
-      {spotlightSeries && (
-        <CatalogSpotlight item={spotlightSeries} type="series" />
+      {spotlightSeries ? (
+        <CatalogSpotlight
+          item={spotlightSeries}
+          type="series"
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: genre && genre !== "All" ? `${genre} Series` : "TV Series" },
+          ]}
+        />
+      ) : (
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20">
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: genre && genre !== "All" ? `${genre} Series` : "TV Series" },
+            ]}
+          />
+        </div>
       )}
 
       {/* 2. Main Content Container */}
-      <div id="catalog-content" className={`w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 space-y-8 ${!spotlightSeries ? "pt-6" : ""}`}>
+      <div id="catalog-content" className={`w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 space-y-8 ${!spotlightSeries ? "pt-2" : ""}`}>
         {/* Catalog Header & Controls Bar */}
         <div className="space-y-4 pb-4 border-b border-white/5 relative z-40">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">

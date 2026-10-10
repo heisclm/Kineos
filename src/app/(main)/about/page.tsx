@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Film, Compass, ShieldCheck, Sparkles, Database, Mail, ArrowRight } from 'lucide-react';
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -10,7 +11,16 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="w-full min-h-screen py-16 px-6 md:px-10 max-w-5xl mx-auto">
+    <div className="w-full min-h-screen py-10 sm:py-16 px-6 md:px-10 max-w-5xl mx-auto">
+      {/* Top Left Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "About Us" },
+        ]}
+        className="mb-8 sm:mb-12"
+      />
+
       {/* Hero Section */}
       <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold tracking-wide uppercase">

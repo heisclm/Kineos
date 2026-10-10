@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Film, Tv, Sparkles, User, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CastFilmographyView } from "@/components/content/CastFilmographyView";
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -164,18 +165,16 @@ export default async function CastDetailPage(props: PageProps) {
         </div>
 
         <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-10 md:pb-14">
-          {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-white/50 mb-6 font-medium">
-            <Link href="/" className="hover:text-white transition-colors">
-              Home
-            </Link>
-            <ChevronRight className="w-3 h-3 text-white/30" />
-            <Link href="/cast" className="hover:text-white transition-colors">
-              Cast & Crew
-            </Link>
-            <ChevronRight className="w-3 h-3 text-white/30" />
-            <span className="text-white/90 truncate">{person.name}</span>
-          </nav>
+          {/* Top Left Breadcrumbs */}
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Cast & Crew", href: "/cast" },
+              { label: person.name },
+            ]}
+            className="mb-6"
+            includeJsonLd={false}
+          />
 
           {/* Profile Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">

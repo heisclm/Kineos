@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import { Metadata } from 'next';
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 export const metadata: Metadata = {
   title: 'DMCA Notice',
@@ -8,7 +9,16 @@ export const metadata: Metadata = {
 
 export default function DMCAPolicy() {
   return (
-    <div className="w-full min-h-screen py-16 px-6 md:px-10 max-w-4xl mx-auto">
+    <div className="w-full min-h-screen py-10 sm:py-16 px-6 md:px-10 max-w-4xl mx-auto">
+      {/* Top Left Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "DMCA Notice" },
+        ]}
+        className="mb-8"
+      />
+
       <div className="mb-12">
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-4">DMCA Copyright Policy</h1>
         <p className="text-muted-foreground text-sm">Last Updated: {new Date().toLocaleDateString()}</p>

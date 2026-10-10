@@ -15,6 +15,7 @@ import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
 import { MoreLikeThisSection } from "@/components/content/MoreLikeThisSection";
 import { WatchlistDetailButton } from "@/components/content/WatchlistButtons";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -212,6 +213,16 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
 
         {/* Hero Content Container */}
         <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-8 md:pb-12">
+          {/* Top Left Breadcrumbs */}
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Movies", href: "/movies" },
+              { label: movie.title },
+            ]}
+            className="mb-4 sm:mb-6"
+            includeJsonLd={false}
+          />
           
           {/* Mobile Layout (< md): Re-ordered hierarchy #3 */}
           <div className="md:hidden flex flex-col gap-3.5">

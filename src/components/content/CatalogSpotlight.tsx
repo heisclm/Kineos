@@ -4,13 +4,15 @@ import { Play, Download, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDuration } from "@/lib/utils";
+import { Breadcrumbs, type BreadcrumbItem } from "@/components/ui/Breadcrumbs";
 
 interface CatalogSpotlightProps {
   item: any;
   type: "movie" | "series";
+  breadcrumbs?: BreadcrumbItem[];
 }
 
-export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
+export function CatalogSpotlight({ item, type, breadcrumbs }: CatalogSpotlightProps) {
   if (!item) return null;
 
   const isSeries = type === "series";
@@ -21,6 +23,12 @@ export function CatalogSpotlight({ item, type }: CatalogSpotlightProps) {
 
   return (
     <div className="relative w-full h-[460px] sm:h-[480px] md:h-[540px] lg:h-[600px] rounded-none overflow-hidden bg-background border-0 shadow-none mb-6 md:mb-8 group">
+      {/* Top Left Breadcrumbs */}
+      {breadcrumbs && (
+        <div className="absolute top-20 sm:top-24 left-4 sm:left-6 md:left-10 lg:left-12 z-30 pointer-events-auto max-w-[calc(100%-2rem)]">
+          <Breadcrumbs items={breadcrumbs} className="text-white/60" />
+        </div>
+      )}
       {/* Background Backdrop Artwork */}
       {artwork && (
         <Image

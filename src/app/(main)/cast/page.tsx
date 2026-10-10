@@ -2,6 +2,7 @@ import { getAllCastMembers } from "@/features/content/content.service";
 import Link from "next/link";
 import Image from "next/image";
 import { slugify } from "@/lib/utils";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { User, Sparkles, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -55,13 +56,15 @@ export default async function CastDirectoryPage() {
       {/* Header */}
       <div className="w-full relative bg-background border-b border-white/5 pt-20 md:pt-24 lg:pt-28 pb-10 md:pb-12">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-white/50 mb-4 font-medium">
-            <Link href="/" className="hover:text-white transition-colors">
-              Home
-            </Link>
-            <ChevronRight className="w-3 h-3 text-white/30" />
-            <span className="text-white/90">Cast &amp; Crew</span>
-          </nav>
+          {/* Top Left Breadcrumbs */}
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Cast & Crew" },
+            ]}
+            className="mb-4"
+            includeJsonLd={false}
+          />
 
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs font-semibold">

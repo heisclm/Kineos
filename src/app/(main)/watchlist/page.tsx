@@ -6,6 +6,7 @@ import { MovieCard } from "@/components/movie/MovieCard";
 import { Bookmark, Film, Tv, Trash2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 export default function WatchlistPage() {
   const { items, count, isLoaded } = useWatchlist();
@@ -18,6 +19,15 @@ export default function WatchlistPage() {
 
   return (
     <div className="w-full min-h-[70vh] py-10 sm:py-16 px-4 sm:px-6 md:px-10 max-w-[1920px] mx-auto space-y-8 animate-in fade-in duration-300">
+      {/* Top Left Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "My Watchlist" },
+        ]}
+        className="mb-2"
+      />
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-white/5">
         <div>

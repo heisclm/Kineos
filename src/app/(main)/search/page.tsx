@@ -2,6 +2,7 @@ import { searchMovies } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { Search } from "lucide-react";
 import { SearchRequestTrigger } from "@/components/content/SearchRequestTrigger";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 
 export default async function SearchPage({
   searchParams,
@@ -13,7 +14,17 @@ export default async function SearchPage({
   const results = q ? await searchMovies(q) : [];
 
   return (
-    <div className="space-y-12 pb-24 pt-8 px-6 md:px-10 max-w-[1920px] mx-auto w-full">
+    <div className="space-y-8 pb-24 pt-8 px-6 md:px-10 max-w-[1920px] mx-auto w-full">
+      {/* Top Left Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Search", href: q ? "/search" : undefined },
+          ...(q ? [{ label: `"${q}"` }] : []),
+        ]}
+        className="mb-2"
+      />
+
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           {q ? `Search Results for "${q}"` : "Search Kineos"}
