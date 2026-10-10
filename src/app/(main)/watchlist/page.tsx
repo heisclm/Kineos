@@ -18,14 +18,14 @@ export default function WatchlistPage() {
   });
 
   return (
-    <div className="w-full min-h-[70vh] py-10 sm:py-16 px-4 sm:px-6 md:px-10 max-w-[1920px] mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="w-full min-h-[70vh] pt-3 sm:pt-4 md:pt-5 pb-16 px-4 sm:px-6 md:px-10 max-w-[1920px] mx-auto space-y-8 animate-in fade-in duration-300">
       {/* Top Left Breadcrumbs */}
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "My Watchlist" },
         ]}
-        className="mb-2"
+        className="mb-4 sm:mb-6"
       />
 
       {/* Page Header */}

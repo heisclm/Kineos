@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="w-full min-h-screen py-10 sm:py-16 px-6 md:px-10 max-w-4xl mx-auto flex flex-col">
+    <div className="w-full min-h-screen pt-3 sm:pt-4 md:pt-5 pb-16 px-4 sm:px-6 md:px-10 max-w-4xl mx-auto flex flex-col">
       {/* Top Left Breadcrumbs */}
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Contact Us" },
         ]}
-        className="mb-8"
+        className="mb-6 sm:mb-8"
       />
 
       <div className="flex-1 flex flex-col items-center justify-center text-center">

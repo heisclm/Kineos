@@ -54,7 +54,7 @@ export default async function CastDirectoryPage() {
       />
 
       {/* Header */}
-      <div className="w-full relative bg-background border-b border-white/5 pt-20 md:pt-24 lg:pt-28 pb-10 md:pb-12">
+      <div className="w-full relative bg-background border-b border-white/5 pt-3 sm:pt-4 md:pt-5 pb-10 md:pb-12">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10">
           {/* Top Left Breadcrumbs */}
           <Breadcrumbs
@@ -62,7 +62,7 @@ export default async function CastDirectoryPage() {
               { label: "Home", href: "/" },
               { label: "Cast & Crew" },
             ]}
-            className="mb-4"
+            className="mb-4 sm:mb-6"
             includeJsonLd={false}
           />
 

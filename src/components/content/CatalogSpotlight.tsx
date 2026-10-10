@@ -25,7 +25,7 @@ export function CatalogSpotlight({ item, type, breadcrumbs }: CatalogSpotlightPr
     <div className="relative w-full h-[460px] sm:h-[480px] md:h-[540px] lg:h-[600px] rounded-none overflow-hidden bg-background border-0 shadow-none mb-6 md:mb-8 group">
       {/* Top Left Breadcrumbs */}
       {breadcrumbs && (
-        <div className="absolute top-20 sm:top-24 left-4 sm:left-6 md:left-10 lg:left-12 z-30 pointer-events-auto max-w-[calc(100%-2rem)]">
+        <div className="absolute top-3 sm:top-4 md:top-5 left-4 sm:left-6 md:left-10 lg:left-12 z-30 pointer-events-auto max-w-[calc(100%-2rem)]">
           <Breadcrumbs items={breadcrumbs} className="text-white/60" />
         </div>
       )}

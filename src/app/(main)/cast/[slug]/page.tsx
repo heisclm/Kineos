@@ -166,7 +166,7 @@ export default async function CastDetailPage(props: PageProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
         </div>
 
-        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-10 md:pb-14">
+        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-3 sm:pt-4 md:pt-5 pb-10 md:pb-14">
           {/* Top Left Breadcrumbs */}
           <Breadcrumbs
             items={[
@@ -174,7 +174,7 @@ export default async function CastDetailPage(props: PageProps) {
               { label: "Cast & Crew", href: "/cast" },
               { label: person.name },
             ]}
-            className="mb-6"
+            className="mb-4 sm:mb-6"
             includeJsonLd={false}
           />
 

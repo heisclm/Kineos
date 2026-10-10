@@ -29,7 +29,7 @@ export default async function SearchPage({
   const results = q ? await searchMovies(q) : [];
 
   return (
-    <div className="space-y-8 pb-24 pt-8 px-6 md:px-10 max-w-[1920px] mx-auto w-full">
+    <div className="space-y-8 pb-24 pt-3 sm:pt-4 md:pt-5 px-4 sm:px-6 md:px-10 max-w-[1920px] mx-auto w-full">
       {/* Top Left Breadcrumbs */}
       <Breadcrumbs
         items={[
@@ -37,7 +37,7 @@ export default async function SearchPage({
           { label: "Search", href: q ? "/search" : undefined },
           ...(q ? [{ label: `"${q}"` }] : []),
         ]}
-        className="mb-2"
+        className="mb-4 sm:mb-6"
       />
 
       <div className="flex flex-col gap-2">

@@ -64,7 +64,7 @@ export default async function MoviesIndexPage({
           ]}
         />
       ) : (
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-3 sm:pt-4 md:pt-5">
           <Breadcrumbs
             items={[
               { label: "Home", href: "/" },

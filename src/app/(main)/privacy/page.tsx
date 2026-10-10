@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicy() {
   return (
-    <div className="w-full min-h-screen py-10 sm:py-16 px-6 md:px-10 max-w-4xl mx-auto">
+    <div className="w-full min-h-screen pt-3 sm:pt-4 md:pt-5 pb-16 px-4 sm:px-6 md:px-10 max-w-4xl mx-auto">
       {/* Top Left Breadcrumbs */}
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Privacy Policy" },
         ]}
-        className="mb-8"
+        className="mb-6 sm:mb-8"
       />
 
       <div className="mb-12">

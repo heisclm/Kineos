@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="w-full min-h-screen py-10 sm:py-16 px-6 md:px-10 max-w-5xl mx-auto">
+    <div className="w-full min-h-screen pt-3 sm:pt-4 md:pt-5 pb-16 px-4 sm:px-6 md:px-10 max-w-5xl mx-auto">
       {/* Top Left Breadcrumbs */}
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "About Us" },
         ]}
-        className="mb-8 sm:mb-12"
+        className="mb-6 sm:mb-8"
       />
 
       {/* Hero Section */}

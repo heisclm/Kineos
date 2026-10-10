@@ -50,7 +50,7 @@ export function Breadcrumbs({
       <nav
         aria-label="Breadcrumb"
         className={cn(
-          "w-full flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-white/50 overflow-x-auto no-scrollbar whitespace-nowrap py-1 select-none",
+          "w-full flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-white/60 overflow-x-auto no-scrollbar whitespace-nowrap py-0.5 select-none",
           className
         )}
       >
@@ -71,8 +71,8 @@ export function Breadcrumbs({
                   className={cn(
                     "truncate",
                     isLast
-                      ? "text-white/95 font-semibold max-w-[170px] sm:max-w-[320px] md:max-w-none"
-                      : "text-white/50"
+                      ? "text-white/95 font-semibold max-w-[180px] sm:max-w-[340px] md:max-w-none"
+                      : "text-white/60"
                   )}
                   aria-current={isLast ? "page" : undefined}
                 >
@@ -81,7 +81,7 @@ export function Breadcrumbs({
               )}
 
               {!isLast && (
-                <ChevronRight className="w-3 h-3 text-white/30 shrink-0" aria-hidden="true" />
+                <ChevronRight className="w-3 h-3 text-white/35 shrink-0" aria-hidden="true" />
               )}
             </div>
           );

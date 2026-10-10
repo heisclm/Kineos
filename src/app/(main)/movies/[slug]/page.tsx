@@ -215,7 +215,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
         </div>
 
         {/* Hero Content Container */}
-        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-20 md:pt-24 lg:pt-28 pb-8 md:pb-12">
+        <div className="relative z-10 w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 pt-3 sm:pt-4 md:pt-5 pb-8 md:pb-12">
           {/* Top Left Breadcrumbs */}
           <Breadcrumbs
             items={[
@@ -223,7 +223,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
               { label: "Movies", href: "/movies" },
               { label: movie.title },
             ]}
-            className="mb-4 sm:mb-6"
+            className="mb-3 sm:mb-4 md:mb-6"
             includeJsonLd={false}
           />
           
