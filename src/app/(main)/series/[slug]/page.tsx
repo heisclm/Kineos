@@ -8,10 +8,10 @@ import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { EpisodeDownloadButton } from "@/components/content/EpisodeDownloadButton";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries, getDownloadSourcesForContent } from "@/features/content/content.service";
-import { MovieCard } from "@/components/movie/MovieCard";
 import { generateSeriesKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
+import { MoreLikeThisSection } from "@/components/content/MoreLikeThisSection";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -90,7 +90,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const [seasonsWithEpisodes, cast, relatedSeries, seriesBatchDownloads] = await Promise.all([
     getSeriesEpisodes(series.id).catch(() => [] as any[]),
     getCastForContent(series.id, "series").catch(() => []),
-    getRelatedSeries(series.id, 5).catch(() => []),
+    getRelatedSeries(series.id, 12).catch(() => []),
     getDownloadSourcesForContent(series.id, "series").catch(() => []),
   ]);
 
@@ -718,28 +718,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
       </div>
 
       {/* Related Series */}
-      {relatedSeries && relatedSeries.length > 0 && (
-        <div className="w-full px-6 md:px-10 max-w-[1920px] mx-auto mt-24">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">More Like This</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {relatedSeries.map((s: any) => (
-              <MovieCard
-                key={s.id}
-                {...s}
-                id={s.id}
-                title={s.title}
-                slug={s.slug}
-                description={s.description || ""}
-                imageUrl={(s as any).imageUrl || ""}
-                primaryGenre={s.genre || "TV Series"}
-                type="series"
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <MoreLikeThisSection items={relatedSeries as any} type="series" />
     </div>
   );
 }

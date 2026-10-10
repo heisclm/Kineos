@@ -12,6 +12,7 @@ import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { generateMovieKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
+import { MoreLikeThisSection } from "@/components/content/MoreLikeThisSection";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -94,7 +95,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
   // downloads can be empty for mock items
   const downloads = await getDownloadSourcesForContent(movie.id, "movie").catch(() => []);
   const cast = await getCastForContent(movie.id, "movie").catch(() => []);
-  const relatedMovies = await getRelatedMovies(movie.id, 5).catch(() => []);
+  const relatedMovies = await getRelatedMovies(movie.id, 12).catch(() => []);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
@@ -584,28 +585,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
       </div>
 
       {/* Related Movies */}
-      {relatedMovies && relatedMovies.length > 0 && (
-        <div className="w-full px-6 md:px-10 max-w-[1920px] mx-auto mt-24">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">More Like This</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {relatedMovies.map((m) => (
-              <MovieCard
-                key={m.id}
-                {...m}
-                id={m.id}
-                title={m.title}
-                slug={m.slug}
-                description={m.description || ""}
-                imageUrl={(m as any).imageUrl || ""}
-                primaryGenre={m.genre || "Movie"}
-                type="movie"
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      <MoreLikeThisSection items={relatedMovies as any} type="movie" />
     </div>
   );
 }

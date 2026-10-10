@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { movies, series, seasons, episodes, genres, movieGenres, seriesGenres, mediaAssets, downloadSources, people, movieCast, seriesCast } from "@/lib/db/schema";
-import { desc, eq, and, ilike, sql, inArray, asc } from "drizzle-orm";
+import { desc, eq, and, ilike, sql, inArray, notInArray, asc } from "drizzle-orm";
 
 
  /**
@@ -422,88 +422,303 @@ export async function getCastForContent(contentId: string, type: "movie" | "seri
   }
 }
 
-export async function getRelatedMovies(movieId: string, limit = 5) {
+export async function getRelatedMovies(movieId: string, limit = 12) {
   try {
-    // Just fetch latest movies that aren't this one as a simple fallback
-    const result = await db.select({
+    // 1. Fetch current movie's genre IDs
+    const currentGenres = await db
+      .select({ genreId: movieGenres.genreId })
+      .from(movieGenres)
+      .where(eq(movieGenres.movieId, movieId));
+
+    const genreIds = currentGenres.map((g) => g.genreId);
+    let matchedMovieIds: string[] = [];
+
+    // 2. Query movies sharing genres, ranked by match count, rating score, and popularity
+    if (genreIds.length > 0) {
+      const genreMatches = await db
+        .select({
+          id: movies.id,
+          matchCount: sql<number>`count(distinct ${movieGenres.genreId})`,
+        })
+        .from(movies)
+        .innerJoin(movieGenres, eq(movies.id, movieGenres.movieId))
+        .where(
+          and(
+            eq(movies.publicationStatus, "published"),
+            sql`${movies.id} != ${movieId}`,
+            inArray(movieGenres.genreId, genreIds)
+          )
+        )
+        .groupBy(movies.id)
+        .orderBy(
+          desc(sql`count(distinct ${movieGenres.genreId})`),
+          desc(movies.ratingScore),
+          desc(movies.viewCount),
+          desc(movies.releaseDate)
+        )
+        .limit(limit);
+
+      matchedMovieIds = genreMatches.map((m) => m.id);
+    }
+
+    // 3. Fallback / Backfill if fewer than limit matches
+    const finalIds = [...matchedMovieIds];
+    if (finalIds.length < limit) {
+      const excludedIds = [movieId, ...matchedMovieIds];
+      const backfill = await db
+        .select({ id: movies.id })
+        .from(movies)
+        .where(
+          and(
+            eq(movies.publicationStatus, "published"),
+            notInArray(movies.id, excludedIds)
+          )
+        )
+        .orderBy(
+          desc(movies.ratingScore),
+          desc(movies.viewCount),
+          desc(movies.releaseDate)
+        )
+        .limit(limit - finalIds.length);
+
+      finalIds.push(...backfill.map((b) => b.id));
+    }
+
+    if (finalIds.length === 0) return [];
+
+    // 4. Hydrate full movie details
+    const movieRows = await db
+      .select({
         id: movies.id,
         title: movies.title,
         slug: movies.slug,
         description: movies.description,
-          shortTeaser: movies.shortTeaser,
+        shortTeaser: movies.shortTeaser,
         releaseDate: movies.releaseDate,
-        genre: genres.name,
-    })
-    .from(movies)
-    .leftJoin(movieGenres, eq(movies.id, movieGenres.movieId))
-    .leftJoin(genres, eq(movieGenres.genreId, genres.id))
-    .where(and(eq(movies.publicationStatus, "published"), sql`${movies.id} != ${movieId}`))
-    .orderBy(desc(movies.createdAt))
-    .limit(limit);
-    
-    // Deduplicate by ID
-    const unique = [];
-      const seen = new Set();
-      for (const row of result) {
-        if (!seen.has(row.id)) {
-          seen.add(row.id);
-          unique.push(row);
-        }
-      }
-      
-      if (unique.length > 0) {
-        const ids = unique.map(r => r.id);
-        const media = await db.select().from(mediaAssets).where(inArray(mediaAssets.contentId, ids));
-        for (const row of unique) {
-          const m = media.find(m => m.contentId === row.id && m.type === 'poster');
-          if (m) (row as any).imageUrl = m.url;
-        }
-      }
+        rating: movies.rating,
+        ratingScore: movies.ratingScore,
+        runtime: movies.runtime,
+      })
+      .from(movies)
+      .where(inArray(movies.id, finalIds));
 
-      return unique;
+    // 5. Hydrate posters
+    const posters = await db
+      .select({
+        contentId: mediaAssets.contentId,
+        url: mediaAssets.url,
+      })
+      .from(mediaAssets)
+      .where(
+        and(
+          inArray(mediaAssets.contentId, finalIds),
+          eq(mediaAssets.type, "poster")
+        )
+      );
+
+    // 6. Hydrate genres
+    const itemGenres = await db
+      .select({
+        movieId: movieGenres.movieId,
+        genreName: genres.name,
+      })
+      .from(movieGenres)
+      .innerJoin(genres, eq(movieGenres.genreId, genres.id))
+      .where(inArray(movieGenres.movieId, finalIds));
+
+    const posterMap = new Map<string, string>();
+    for (const p of posters) {
+      if (p.contentId && !posterMap.has(p.contentId)) {
+        posterMap.set(p.contentId, p.url);
+      }
+    }
+
+    const genreMap = new Map<string, string[]>();
+    for (const g of itemGenres) {
+      if (!genreMap.has(g.movieId)) {
+        genreMap.set(g.movieId, []);
+      }
+      genreMap.get(g.movieId)!.push(g.genreName);
+    }
+
+    const movieMap = new Map(movieRows.map((m) => [m.id, m]));
+
+    // Preserve the matched ranking order
+    return finalIds
+      .map((id) => {
+        const item = movieMap.get(id);
+        if (!item) return null;
+        const gList = genreMap.get(id) || [];
+        return {
+          ...item,
+          imageUrl: posterMap.get(id) || null,
+          genre: gList[0] || "Movie",
+          primaryGenre: gList[0] || "Movie",
+          genres: gList,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
   } catch (e) {
+    console.error("Error in getRelatedMovies:", e);
     return [];
   }
 }
 
-export async function getRelatedSeries(seriesId: string, limit = 5) {
+export async function getRelatedSeries(seriesId: string, limit = 12) {
   try {
-    const result = await db.select({
+    // 1. Fetch current series's genre IDs
+    const currentGenres = await db
+      .select({ genreId: seriesGenres.genreId })
+      .from(seriesGenres)
+      .where(eq(seriesGenres.seriesId, seriesId));
+
+    const genreIds = currentGenres.map((g) => g.genreId);
+    let matchedSeriesIds: string[] = [];
+
+    // 2. Query series sharing genres, ranked by match count, rating score, and popularity
+    if (genreIds.length > 0) {
+      const genreMatches = await db
+        .select({
+          id: series.id,
+          matchCount: sql<number>`count(distinct ${seriesGenres.genreId})`,
+        })
+        .from(series)
+        .innerJoin(seriesGenres, eq(series.id, seriesGenres.seriesId))
+        .where(
+          and(
+            eq(series.publicationStatus, "published"),
+            sql`${series.id} != ${seriesId}`,
+            inArray(seriesGenres.genreId, genreIds)
+          )
+        )
+        .groupBy(series.id)
+        .orderBy(
+          desc(sql`count(distinct ${seriesGenres.genreId})`),
+          desc(series.ratingScore),
+          desc(series.viewCount),
+          desc(series.releaseDate)
+        )
+        .limit(limit);
+
+      matchedSeriesIds = genreMatches.map((s) => s.id);
+    }
+
+    // 3. Fallback / Backfill if fewer than limit matches
+    const finalIds = [...matchedSeriesIds];
+    if (finalIds.length < limit) {
+      const excludedIds = [seriesId, ...matchedSeriesIds];
+      const backfill = await db
+        .select({ id: series.id })
+        .from(series)
+        .where(
+          and(
+            eq(series.publicationStatus, "published"),
+            notInArray(series.id, excludedIds)
+          )
+        )
+        .orderBy(
+          desc(series.ratingScore),
+          desc(series.viewCount),
+          desc(series.releaseDate)
+        )
+        .limit(limit - finalIds.length);
+
+      finalIds.push(...backfill.map((b) => b.id));
+    }
+
+    if (finalIds.length === 0) return [];
+
+    // 4. Hydrate full series details
+    const seriesRows = await db
+      .select({
         id: series.id,
         title: series.title,
         slug: series.slug,
         description: series.description,
-          shortTeaser: series.shortTeaser,
+        shortTeaser: series.shortTeaser,
         releaseDate: series.releaseDate,
-        genre: genres.name,
-    })
-    .from(series)
-    .leftJoin(seriesGenres, eq(series.id, seriesGenres.seriesId))
-    .leftJoin(genres, eq(seriesGenres.genreId, genres.id))
-    .where(and(eq(series.publicationStatus, "published"), sql`${series.id} != ${seriesId}`))
-    .orderBy(desc(series.createdAt))
-    .limit(limit);
-    
-    const unique = [];
-      const seen = new Set();
-      for (const row of result) {
-        if (!seen.has(row.id)) {
-          seen.add(row.id);
-          unique.push(row);
-        }
-      }
-      
-      if (unique.length > 0) {
-        const ids = unique.map(r => r.id);
-        const media = await db.select().from(mediaAssets).where(inArray(mediaAssets.contentId, ids));
-        for (const row of unique) {
-          const m = media.find(m => m.contentId === row.id && m.type === 'poster');
-          if (m) (row as any).imageUrl = m.url;
-        }
-      }
+        rating: series.rating,
+        ratingScore: series.ratingScore,
+      })
+      .from(series)
+      .where(inArray(series.id, finalIds));
 
-      return unique;
+    // 5. Hydrate posters
+    const posters = await db
+      .select({
+        contentId: mediaAssets.contentId,
+        url: mediaAssets.url,
+      })
+      .from(mediaAssets)
+      .where(
+        and(
+          inArray(mediaAssets.contentId, finalIds),
+          eq(mediaAssets.type, "poster")
+        )
+      );
+
+    // 6. Hydrate genres
+    const itemGenres = await db
+      .select({
+        seriesId: seriesGenres.seriesId,
+        genreName: genres.name,
+      })
+      .from(seriesGenres)
+      .innerJoin(genres, eq(seriesGenres.genreId, genres.id))
+      .where(inArray(seriesGenres.seriesId, finalIds));
+
+    // 7. Hydrate seasons count
+    const seasonCounts = await db
+      .select({
+        seriesId: seasons.seriesId,
+        count: sql<number>`count(${seasons.id})::int`,
+      })
+      .from(seasons)
+      .where(inArray(seasons.seriesId, finalIds))
+      .groupBy(seasons.seriesId);
+
+    const posterMap = new Map<string, string>();
+    for (const p of posters) {
+      if (p.contentId && !posterMap.has(p.contentId)) {
+        posterMap.set(p.contentId, p.url);
+      }
+    }
+
+    const genreMap = new Map<string, string[]>();
+    for (const g of itemGenres) {
+      if (!genreMap.has(g.seriesId)) {
+        genreMap.set(g.seriesId, []);
+      }
+      genreMap.get(g.seriesId)!.push(g.genreName);
+    }
+
+    const seasonsMap = new Map<string, number>();
+    for (const sc of seasonCounts) {
+      if (sc.seriesId) {
+        seasonsMap.set(sc.seriesId, Number(sc.count));
+      }
+    }
+
+    const seriesMap = new Map(seriesRows.map((s) => [s.id, s]));
+
+    // Preserve the matched ranking order
+    return finalIds
+      .map((id) => {
+        const item = seriesMap.get(id);
+        if (!item) return null;
+        const gList = genreMap.get(id) || [];
+        return {
+          ...item,
+          imageUrl: posterMap.get(id) || null,
+          genre: gList[0] || "TV Series",
+          primaryGenre: gList[0] || "TV Series",
+          genres: gList,
+          seasonsCount: seasonsMap.get(id) || null,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
   } catch (e) {
+    console.error("Error in getRelatedSeries:", e);
     return [];
   }
 }
