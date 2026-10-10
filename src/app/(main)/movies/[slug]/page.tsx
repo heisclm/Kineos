@@ -36,11 +36,14 @@ export async function generateMetadata(
   const backdrop = (movie as any).backdropUrl || null;
   const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null;
 
-  const title = movie.seoTitle
+  const rawTitle = movie.seoTitle
     ? movie.seoTitle
     : releaseYear
-      ? `${movie.title} (${releaseYear}) - Download & Stream HD | Kineos`
-      : `${movie.title} - Download & Stream HD | Kineos`;
+      ? `${movie.title} (${releaseYear}) - Download & Stream HD`
+      : `${movie.title} - Download & Stream HD`;
+
+  const cleanTitle = rawTitle.replace(/\s*\|\s*kineos\s*$/i, "").trim();
+  const fullTitle = `${cleanTitle} | Kineos`;
 
   const summary = movie.shortTeaser || movie.description || "";
   const description = movie.seoDescription || (
@@ -58,14 +61,14 @@ export async function generateMetadata(
   });
 
   return {
-    title,
+    title: { absolute: fullTitle },
     description,
     keywords,
     alternates: {
       canonical: `${siteUrl}/movies/${movie.slug}`,
     },
     openGraph: {
-      title,
+      title: fullTitle,
       description,
       url: `${siteUrl}/movies/${movie.slug}`,
       siteName: "Kineos",
@@ -81,7 +84,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: fullTitle,
       description,
       images: (poster || backdrop) ? [poster || backdrop] : undefined,
     },

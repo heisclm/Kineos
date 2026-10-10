@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Cast & Crew Directory - Browse Actors & Filmmakers | Kineos",
+  title: { absolute: "Cast & Crew Directory - Browse Actors & Filmmakers | Kineos" },
   description:
     "Explore the complete roster of actors, directors, and filmmakers across Kineos. Discover their full filmographies and stream their movies and TV series in HD.",
   alternates: {

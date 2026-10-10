@@ -1,7 +1,7 @@
 import { SeriesForm } from "@/components/admin/SeriesForm";
 
 export const metadata = {
-  title: "Add Series | Kineos Admin",
+  title: { absolute: "Add Series | Kineos Admin" },
 };
 
 export default function NewSeriesPage() {

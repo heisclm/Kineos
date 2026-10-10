@@ -35,14 +35,21 @@ export async function generateMetadata(
   const backdrop = (series as any).backdropUrl || null;
   const releaseYear = series.releaseDate ? new Date(series.releaseDate).getFullYear() : null;
 
-  const title = releaseYear
-    ? `${series.title} (${releaseYear}) - Full Series Download & Stream | Kineos`
-    : `${series.title} - Full Series Download & Stream | Kineos`;
+  const rawTitle = (series as any).seoTitle
+    ? (series as any).seoTitle
+    : releaseYear
+      ? `${series.title} (${releaseYear}) - Full Series Download & Stream`
+      : `${series.title} - Full Series Download & Stream`;
+
+  const cleanTitle = rawTitle.replace(/\s*\|\s*kineos\s*$/i, "").trim();
+  const fullTitle = `${cleanTitle} | Kineos`;
 
   const summary = series.shortTeaser || series.description || "";
-  const description = summary
-    ? `${summary.slice(0, 105).trimEnd()}${summary.length > 105 ? "…" : ""} Cast, episode, and release details on Kineos.`
-    : `Explore ${series.title}: synopsis, cast, seasons, episodes, and release information on Kineos.`;
+  const description = (series as any).seoDescription || (
+    summary
+      ? `${summary.slice(0, 105).trimEnd()}${summary.length > 105 ? "…" : ""} Cast, episode, and release details on Kineos.`
+      : `Explore ${series.title}: synopsis, cast, seasons, episodes, and release information on Kineos.`
+  );
 
   const cast = await getCastForContent(series.id, "series").catch(() => []);
   const keywords = generateSeriesKeywords({
@@ -53,14 +60,14 @@ export async function generateMetadata(
   });
 
   return {
-    title,
+    title: { absolute: fullTitle },
     description,
     keywords,
     alternates: {
       canonical: `${siteUrl}/series/${series.slug}`,
     },
     openGraph: {
-      title,
+      title: fullTitle,
       description,
       url: `${siteUrl}/series/${series.slug}`,
       siteName: "Kineos",
@@ -76,7 +83,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: fullTitle,
       description,
       images: (poster || backdrop) ? [poster || backdrop] : undefined,
     },

@@ -23,7 +23,7 @@ export async function generateMetadata(
 
   if (!data || !data.person) {
     return {
-      title: "Cast Member Not Found | Kineos",
+      title: "Cast Member Not Found",
       description: "The requested cast or crew member could not be found on Kineos.",
     };
   }
@@ -32,13 +32,15 @@ export async function generateMetadata(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kineos.fun";
   const pageUrl = `${siteUrl}/cast/${resolvedParams.slug}`;
 
-  const title = `${person.name} Movies & TV Series - Watch & Download HD | Kineos`;
+  const rawTitle = `${person.name} Movies & TV Series - Watch & Download HD`;
+  const cleanTitle = rawTitle.replace(/\s*\|\s*kineos\s*$/i, "").trim();
+  const fullTitle = `${cleanTitle} | Kineos`;
   const description =
     person.bio ||
     `Explore all ${totalCredits} movies and TV series featuring ${person.name} on Kineos. Watch trailers, discover complete filmographies, and download titles in high definition.`;
 
   return {
-    title,
+    title: { absolute: fullTitle },
     description,
     keywords: [
       person.name,
@@ -55,7 +57,7 @@ export async function generateMetadata(
       canonical: pageUrl,
     },
     openGraph: {
-      title,
+      title: fullTitle,
       description,
       url: pageUrl,
       siteName: "Kineos",
@@ -73,7 +75,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: fullTitle,
       description,
       images: person.imageUrl ? [person.imageUrl] : [],
     },

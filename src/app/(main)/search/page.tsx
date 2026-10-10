@@ -3,6 +3,21 @@ import { MovieCard } from "@/components/movie/MovieCard";
 import { Search } from "lucide-react";
 import { SearchRequestTrigger } from "@/components/content/SearchRequestTrigger";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import type { Metadata } from "next";
+
+export function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}): Metadata {
+  const q = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
+  return {
+    title: q ? `Search: "${q}"` : "Search Movies & TV Series",
+    description: q
+      ? `Search results for "${q}" on Kineos. Find and stream movies, TV series, cast filmographies, and episodes.`
+      : "Search the Kineos catalog for movies, TV series, actors, and directors.",
+  };
+}
 
 export default async function SearchPage({
   searchParams,
