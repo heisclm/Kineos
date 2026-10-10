@@ -183,16 +183,7 @@ export function EditSeriesForm({ series }: { series: any }) {
                     placeholder="e.g. English, Spanish"
                   />
                 </div>
-                <div>
-                  <label className={labelClasses}>Country</label>
-                  <input
-                    name="country"
-                    defaultValue={(series as any).country || ""}
-                    className={inputClasses}
-                    placeholder="e.g. United States"
-                  />
-                </div>
-                <div>
+                <div className="col-span-2">
                   <label className={labelClasses}>Kineos Score (0 - 100)</label>
                   <input
                     name="ratingScore"

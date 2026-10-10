@@ -31,20 +31,24 @@ export const metadata: Metadata = {
   },
 };
 
+const PAGE_SIZE = 12;
+
 export default async function MoviesIndexPage({
   searchParams,
 }: {
-  searchParams: { genre?: string; sort?: string };
+  searchParams: { page?: string; genre?: string; sort?: string };
 }) {
+  const page = Math.max(1, parseInt(searchParams.page || "1", 10) || 1);
   const genre = searchParams.genre;
   const sort = searchParams.sort;
 
   const [movies, totalCount, fallbackSpotlight] = await Promise.all([
-    fetchCatalogItems("movie", 1, 30, genre, sort),
+    fetchCatalogItems("movie", page, PAGE_SIZE, genre, sort),
     fetchCatalogTotalCount("movie", genre),
     fetchCatalogSpotlightItem("movie"),
   ]);
   const spotlightMovie = movies.find(m => Boolean(m.backdropUrl)) || movies[0] || fallbackSpotlight;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <div className="w-full relative pb-24 space-y-8">
@@ -54,7 +58,7 @@ export default async function MoviesIndexPage({
       )}
 
       {/* 2. Main Content Container */}
-      <div className={`w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 space-y-8 ${!spotlightMovie ? "pt-6" : ""}`}>
+      <div id="catalog-content" className={`w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 space-y-8 ${!spotlightMovie ? "pt-6" : ""}`}>
         {/* Catalog Header & Controls Bar */}
         <div className="space-y-4 pb-4 border-b border-white/5 relative z-40">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
@@ -66,9 +70,6 @@ export default async function MoviesIndexPage({
                 Explore critically acclaimed blockbusters, indie gems, and high-definition cinema releases.
               </p>
             </div>
-            <span className="text-xs font-semibold text-white/50 self-start sm:self-auto">
-              {totalCount} {totalCount === 1 ? "Title" : "Titles"} Available
-            </span>
           </div>
 
           {/* 3. Horizontal Genre Pills & Sorting Toolbar */}
@@ -81,6 +82,9 @@ export default async function MoviesIndexPage({
           type="movie"
           genre={genre}
           sort={sort}
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={PAGE_SIZE}
           totalCount={totalCount}
         />
       </div>

@@ -91,43 +91,42 @@ export function TopTenRow({
             return (
               <div
                 key={item.id}
-                className="flex items-end shrink-0 snap-start group/card cursor-pointer"
+                className="relative flex items-end shrink-0 snap-start group/card cursor-pointer"
               >
-                {/* Giant Stylized Ranking Number with Kineos Brand Accent Glow (Option B) */}
+                {/* 1. Back Layer: Electric Blue Number with Neon Aura Glow (Behind poster card, z-10) */}
                 <div
                   className={cn(
                     "relative select-none pointer-events-none z-10 flex items-end justify-end shrink-0 transition-transform duration-300 group-hover/card:-translate-y-1.5",
                     rank === 1
-                      ? "w-8 sm:w-12 md:w-14 -mr-2 sm:-mr-3 md:-mr-4"
+                      ? "w-9 sm:w-14 md:w-16 -mr-4 sm:-mr-6 md:-mr-7"
                       : rank === 10
-                      ? "w-20 sm:w-28 md:w-32 -mr-7 sm:-mr-10 md:-mr-12"
-                      : "w-14 sm:w-20 md:w-24 -mr-5 sm:-mr-7 md:-mr-9"
+                      ? "w-22 sm:w-32 md:w-36 -mr-9 sm:-mr-12 md:-mr-15"
+                      : "w-16 sm:w-22 md:w-26 -mr-7 sm:-mr-10 md:-mr-12"
                   )}
                 >
-                  {/* Layer 1: Ambient Brand Neon Aura Glow */}
+                  {/* Ambient Neon Blue Aura Glow */}
                   <span
                     aria-hidden="true"
-                    className="absolute inset-0 flex items-end justify-end text-primary opacity-35 group-hover/card:opacity-85 blur-md sm:blur-xl font-black tracking-tighter leading-[0.8] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] transition-opacity duration-300"
+                    className="absolute inset-0 flex items-end justify-end text-primary opacity-50 group-hover/card:opacity-95 blur-md sm:blur-xl font-black tracking-tighter leading-[0.8] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] transition-opacity duration-300"
                   >
                     {rank}
                   </span>
 
-                  {/* Layer 2: Core Metallic & Brand-Accent Text with Crisp Rim Light Outline */}
+                  {/* Core Electric Blue Solid Gradient Fill */}
                   <span
                     className="relative font-black tracking-tighter leading-[0.8] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] transition-all duration-300"
                     style={{
-                      background: "linear-gradient(180deg, #FFFFFF 0%, #BAE6FD 35%, #0284C7 70%, rgba(2, 132, 199, 0.25) 100%)",
+                      background: "linear-gradient(180deg, #38BDF8 0%, #0284C7 45%, #0369A1 85%, #075985 100%)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
-                      WebkitTextStroke: "1.5px rgba(255, 255, 255, 0.55)",
-                      filter: "drop-shadow(0 0 16px rgba(14, 165, 233, 0.45)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.95))",
+                      filter: "drop-shadow(0 0 16px rgba(14, 165, 233, 0.55)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.95))",
                     }}
                   >
                     {rank}
                   </span>
                 </div>
 
-                {/* Poster Card */}
+                {/* 2. Middle Layer: Poster Card (z-20) */}
                 <Link
                   href={href}
                   className="w-[125px] sm:w-[150px] md:w-[170px] aspect-[2/3] relative rounded-xl overflow-hidden bg-surface-elevated border border-white/10 shadow-xl group-hover/card:scale-105 group-hover/card:border-primary/50 transition-all duration-300 z-20 shrink-0"
@@ -173,6 +172,30 @@ export function TopTenRow({
                     </h4>
                   </div>
                 </Link>
+
+                {/* 3. Front Layer: Transparent Overlapping Stroke Number (In Front of poster card, z-30) */}
+                <div
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute left-0 bottom-0 select-none pointer-events-none z-30 flex items-end justify-end shrink-0 transition-transform duration-300 group-hover/card:-translate-y-1.5",
+                    rank === 1
+                      ? "w-9 sm:w-14 md:w-16 -mr-4 sm:-mr-6 md:-mr-7"
+                      : rank === 10
+                      ? "w-22 sm:w-32 md:w-36 -mr-9 sm:-mr-12 md:-mr-15"
+                      : "w-16 sm:w-22 md:w-26 -mr-7 sm:-mr-10 md:-mr-12"
+                  )}
+                >
+                  <span
+                    className="font-black tracking-tighter leading-[0.8] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] transition-all duration-300 select-none"
+                    style={{
+                      WebkitTextFillColor: "transparent",
+                      WebkitTextStroke: "2.5px rgba(224, 242, 254, 0.95)",
+                      filter: "drop-shadow(0 0 8px rgba(56, 189, 248, 0.8)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9))",
+                    }}
+                  >
+                    {rank}
+                  </span>
+                </div>
               </div>
             );
           })}

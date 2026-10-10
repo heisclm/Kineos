@@ -36,7 +36,6 @@ export function SeriesForm() {
   const [releaseDate, setReleaseDate] = useState("");
   const [rating, setRating] = useState("");
   const [language, setLanguage] = useState("");
-  const [country, setCountry] = useState("");
   const [ratingScore, setRatingScore] = useState("");
   const [trailerUrl, setTrailerUrl] = useState("");
   const [genres, setGenres] = useState("");
@@ -260,17 +259,7 @@ export function SeriesForm() {
                     placeholder="e.g. English, Spanish" 
                   />
                 </div>
-                <div>
-                  <label className={labelClasses}>Country</label>
-                  <input 
-                    name="country" 
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className={inputClasses} 
-                    placeholder="e.g. United States" 
-                  />
-                </div>
-                <div>
+                <div className="col-span-2">
                   <label className={labelClasses}>Kineos Score (0 - 100)</label>
                   <input
                     name="ratingScore"

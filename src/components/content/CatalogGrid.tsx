@@ -2,58 +2,95 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { Button } from "@/components/ui/button";
-import { fetchCatalogItems } from "@/features/content/catalog.actions";
-import { Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CatalogGridProps {
   initialItems: any[];
   type: "movie" | "series";
   genre?: string;
   sort?: string;
+  currentPage?: number;
+  totalPages?: number;
+  pageSize?: number;
   totalCount?: number;
 }
 
-export function CatalogGrid({ initialItems, type, genre, sort, totalCount }: CatalogGridProps) {
+export function CatalogGrid({
+  initialItems,
+  type,
+  genre,
+  sort,
+  currentPage = 1,
+  totalPages = 1,
+  pageSize = 12,
+  totalCount = 0,
+}: CatalogGridProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [items, setItems] = useState(initialItems);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(initialItems.length >= 30);
 
   useEffect(() => {
     setItems(initialItems);
-    setPage(1);
-    setHasMore(initialItems.length >= 30 && (totalCount ? initialItems.length < totalCount : true));
-  }, [initialItems, totalCount]);
+  }, [initialItems]);
 
-  const loadMore = async () => {
-    if (loading) return;
-    setLoading(true);
-    
-    try {
-      const nextPage = page + 1;
-      const newItems = await fetchCatalogItems(type, nextPage, 30, genre, sort);
-      
-      if (newItems.length < 30) {
-        setHasMore(false);
-      }
-      
-      setItems(prev => {
-        const existingIds = new Set(prev.map(i => i.id));
-        const unique = newItems.filter(i => !existingIds.has(i.id));
-        const combined = [...prev, ...unique];
-        if (totalCount && combined.length >= totalCount) {
-          setHasMore(false);
-        }
-        return combined;
-      });
-      setPage(nextPage);
-    } catch (error) {
-      console.error("Failed to load more items", error);
-    } finally {
-      setLoading(false);
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (newPage === 1) {
+      params.delete("page");
+    } else {
+      params.set("page", String(newPage));
     }
+
+    const query = params.toString();
+    const targetUrl = query ? `${pathname}?${query}` : pathname;
+
+    router.push(targetUrl, { scroll: false });
+
+    // Smoothly scroll back to the top of catalog grid results
+    if (typeof window !== "undefined") {
+      const targetEl = document.getElementById("catalog-content");
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 350, behavior: "smooth" });
+      }
+    }
+  };
+
+  // Generate page numbers array with ellipsis for clean navigation
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [];
+    pages.push(1);
+
+    if (currentPage > 3) {
+      pages.push("...");
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (currentPage < totalPages - 2) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
+    return pages;
   };
 
   if (items.length === 0) {
@@ -75,46 +112,91 @@ export function CatalogGrid({ initialItems, type, genre, sort, totalCount }: Cat
     );
   }
 
+  const startCount = (currentPage - 1) * pageSize + 1;
+  const endCount = Math.min(currentPage * pageSize, totalCount || items.length);
+
   return (
-    <div className="space-y-12 relative z-0">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-in fade-in duration-300">
+    <div className="space-y-10 relative z-0">
+      {/* 1. Responsive Netflix-Style Movie Card Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-6 animate-in fade-in duration-300">
         {items.map((item) => (
           <MovieCard
             key={item.id}
             {...item}
             type={type}
-            primaryGenre={item.genres?.[0] || (type === 'movie' ? 'Movie' : 'Series')}
+            primaryGenre={item.genres?.[0] || (type === "movie" ? "Movie" : "Series")}
             imageUrl={item.imageUrl || ""}
           />
         ))}
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-3 pt-6 pb-2">
-        {hasMore ? (
-          <>
-            <Button 
-              onClick={loadMore} 
-              disabled={loading}
-              size="lg"
-              className="rounded-full px-8 bg-surface-elevated hover:bg-surface-elevated/80 text-foreground border border-white/10 shadow-lg font-semibold transition-apple hover:scale-105 active:scale-95"
-            >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
-              {loading ? "Loading Titles..." : `Load More ${type === 'movie' ? 'Movies' : 'Series'}`}
-            </Button>
-            <p className="text-xs text-white/50 font-medium">
-              Showing {items.length}{totalCount ? ` of ${totalCount}` : ""} titles
-            </p>
-          </>
-        ) : items.length > 15 ? (
-          <div className="flex items-center gap-3 text-xs text-white/40 font-medium py-4">
-            <span className="w-12 h-px bg-white/10" />
-            <span>You&apos;ve reached the end of the catalog ({items.length} titles)</span>
-            <span className="w-12 h-px bg-white/10" />
+      {/* 2. Premium Streaming Platform Pagination */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-4 border-t border-white/5">
+          {/* Summary Text */}
+          <div className="text-xs font-medium text-white/50 text-center sm:text-left">
+            Showing <span className="font-semibold text-white/80">{startCount}–{endCount}</span> of{" "}
+            <span className="font-semibold text-white/80">{totalCount}</span> titles
           </div>
-        ) : null}
-      </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Previous Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="rounded-full px-3 sm:px-4 h-9 border-white/10 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold gap-1 text-white/90 transition-apple"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Previous</span>
+            </Button>
+
+            {/* Desktop / Tablet Numbered Pills */}
+            <div className="hidden sm:flex items-center gap-1.5">
+              {getPageNumbers().map((p, idx) =>
+                p === "..." ? (
+                  <span key={`ellipsis-${idx}`} className="px-2 text-white/40 text-xs font-bold select-none">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={`page-${p}`}
+                    type="button"
+                    onClick={() => handlePageChange(p as number)}
+                    className={cn(
+                      "w-9 h-9 rounded-full text-xs font-bold transition-all duration-200 border cursor-pointer flex items-center justify-center",
+                      currentPage === p
+                        ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30 scale-105"
+                        : "bg-surface-elevated/80 hover:bg-surface-elevated text-white/70 hover:text-white border-white/10 hover:border-white/20"
+                    )}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* Mobile Compact Page Indicator */}
+            <div className="flex sm:hidden items-center px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/80">
+              Page {currentPage} of {totalPages}
+            </div>
+
+            {/* Next Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="rounded-full px-3 sm:px-4 h-9 border-white/10 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold gap-1 text-white/90 transition-apple"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-

@@ -130,7 +130,7 @@ export function HeroSideWidget({
         {/* Quick specs footer */}
         <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/60">
           <span className="truncate max-w-[150px]">
-            {language || "English"} &bull; {country || (type === "movie" ? "Global" : "TV Series")}
+            {type === "series" ? (language || "English") : (country ? `${language || "English"} • ${country}` : (language || "English"))}
           </span>
           <span className="capitalize font-medium text-white/80 flex items-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Verified
