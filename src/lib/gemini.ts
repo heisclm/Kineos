@@ -26,20 +26,88 @@ const TONE_PROMPTS: Record<NarrativeTone, string> = {
 - Evocative, high-stakes, grand dramatic scale, and emotional gravitas.
 - Focus on the moral conflict, personal dilemma, and the world our characters inhabit.
 - Elegant, immersive prose that feels like an award-winning feature profile.`,
-  
+
   hook: `TONE: HOOK-HEAVY & SUSPENSEFUL.
 - Urgent stakes, cliffhanger energy, sharp twists, and burning questions.
 - Creates intense curiosity and irresistible FOMO.
 - Fast, tension-building rhythm that pulls the reader into the conflict immediately.`,
-  
+
   casual: `TONE: CASUAL, WITTY & ENGAGING.
 - Natural, conversational, and energetic — like a passionate cinema enthusiast enthusiastically pitching a must-watch title to a close friend.
-- Charismatic, accessible, and punchy without dumbing down the plot.`
+- Charismatic, accessible, and punchy without dumbing down the plot.`,
 };
+
+function parseGeneratedJson(rawText: string): GeneratedNarrativeResult {
+  // Direct JSON parse
+  try {
+    const parsed = JSON.parse(rawText);
+    if (parsed.teaser && parsed.storyline) {
+      return { teaser: parsed.teaser.trim(), storyline: parsed.storyline.trim() };
+    }
+  } catch {}
+
+  // Markdown code fence extraction: ```json ... ```
+  const match = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (match && match[1]) {
+    try {
+      const parsed = JSON.parse(match[1]);
+      if (parsed.teaser && parsed.storyline) {
+        return { teaser: parsed.teaser.trim(), storyline: parsed.storyline.trim() };
+      }
+    } catch {}
+  }
+
+  // Braced substring fallback: { ... }
+  const firstBrace = rawText.indexOf("{");
+  const lastBrace = rawText.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    try {
+      const jsonStr = rawText.substring(firstBrace, lastBrace + 1);
+      const parsed = JSON.parse(jsonStr);
+      if (parsed.teaser && parsed.storyline) {
+        return { teaser: parsed.teaser.trim(), storyline: parsed.storyline.trim() };
+      }
+    } catch {}
+  }
+
+  throw new Error("Could not parse valid teaser and storyline from Gemini response.");
+}
+
+/**
+ * Dynamically queries Google Generative Language ModelService.ListModels
+ * to find the exact models authorized for this specific API key.
+ */
+async function getAvailableGeminiModels(apiKey: string): Promise<string[]> {
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {
+      cache: "no-store",
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const list: Array<{ name: string; supportedGenerationMethods?: string[] }> = data.models || [];
+      return list
+        .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+        .map((m) => m.name.replace(/^models\//, ""));
+    } else {
+      const errorData = await res.json().catch(() => null);
+      const errMsg = errorData?.error?.message || `HTTP ${res.status}`;
+      if (errMsg.toLowerCase().includes("api_key") || errMsg.toLowerCase().includes("invalid")) {
+        throw new Error("Invalid Gemini API Key. Please verify your API key at Google AI Studio.");
+      }
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("Invalid Gemini API Key")) {
+      throw err;
+    }
+    console.warn("Could not query Gemini ListModels endpoint:", err);
+  }
+  return [];
+}
 
 /**
  * Calls Google Gemini REST API to generate a humanized teaser and storyline.
- * Employs model fallbacks: gemini-2.5-flash -> gemini-2.0-flash -> gemini-1.5-flash.
+ * Uses dynamic model discovery and automatic fallbacks to ensure compatibility.
  */
 export async function generateNarrativeWithGemini(
   params: GenerateNarrativeParams
@@ -83,65 +151,127 @@ Cast: ${params.cast || "N/A"}
 Existing Synopsis / Context:
 ${params.currentDescription?.trim() || params.currentTeaser?.trim() || "None provided. Ground the premise in the title, genres, and cast."}
 
-Return a valid JSON object matching the requested schema.`;
+Return a valid JSON object with keys:
+{
+  "teaser": "1-2 sentence hook (100-220 chars)",
+  "storyline": "2-3 paragraph captivating synopsis (500-1000 chars)"
+}`;
 
-  const payload = {
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { text: `${systemPrompt}\n\n${userPrompt}` }
-        ]
-      }
-    ],
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.95,
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: "OBJECT",
-        properties: {
-          teaser: {
-            type: "STRING",
-            description: "A punchy 1-2 sentence hook (100-220 characters)"
-          },
-          storyline: {
-            type: "STRING",
-            description: "A 2-3 paragraph captivating synopsis (500-1000 characters)"
-          }
-        },
-        required: ["teaser", "storyline"]
-      }
-    }
-  };
+  // 1. Discover models available to this API key dynamically
+  const discoveredModels = await getAvailableGeminiModels(apiKey);
 
-  // Try candidate models in order of best performance / availability
-  const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+  const preferredOrder = [
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-exp",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash-002",
+    "gemini-1.5-flash-001",
+    "gemini-1.5-flash",
+    "gemini-2.5-flash",
+    "gemini-1.5-pro-latest",
+    "gemini-1.5-pro-002",
+    "gemini-1.5-pro-001",
+    "gemini-1.5-pro",
+    "gemini-pro",
+  ];
+
+  let candidateModels: string[] = [];
+
+  if (discoveredModels.length > 0) {
+    // Filter and order discovered models
+    const matched = preferredOrder.filter((m) => discoveredModels.includes(m));
+    const remaining = discoveredModels.filter((m) => !preferredOrder.includes(m));
+    candidateModels = [...matched, ...remaining];
+  } else {
+    candidateModels = preferredOrder;
+  }
+
   let lastError: any = null;
 
-  for (const model of models) {
+  for (const model of candidateModels) {
     try {
-      const response = await fetch(
+      // First attempt: with structured JSON schema
+      const payloadWithSchema = {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.95,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              teaser: {
+                type: "STRING",
+                description: "A punchy 1-2 sentence hook (100-220 characters)",
+              },
+              storyline: {
+                type: "STRING",
+                description: "A 2-3 paragraph captivating synopsis (500-1000 characters)",
+              },
+            },
+            required: ["teaser", "storyline"],
+          },
+        },
+      };
+
+      let response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(payloadWithSchema),
           cache: "no-store",
         }
       );
+
+      // If responseSchema is not supported by this model, retry with standard JSON response
+      if (!response.ok && response.status === 400) {
+        const errJson = await response.json().catch(() => null);
+        const errMsg = errJson?.error?.message || "";
+        if (errMsg.toLowerCase().includes("schema") || errMsg.toLowerCase().includes("response_schema")) {
+          const payloadWithoutSchema = {
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: `${systemPrompt}\n\n${userPrompt}\n\nRespond ONLY with a valid JSON object.` }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.95,
+            },
+          };
+
+          response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payloadWithoutSchema),
+              cache: "no-store",
+            }
+          );
+        } else {
+          lastError = new Error(`Model ${model} error: ${errMsg}`);
+          continue;
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         const errMsg = errorData?.error?.message || `HTTP ${response.status}`;
         lastError = new Error(`Model ${model} error: ${errMsg}`);
-        // If it's a 404 or model not found, continue loop to next fallback model
+
         if (response.status === 404 || errMsg.toLowerCase().includes("not found")) {
           continue;
         }
-        // If it's an API key error, throw immediately
-        if (response.status === 400 && errMsg.toLowerCase().includes("api_key")) {
-          throw new Error("Invalid Gemini API Key. Please verify your API key in settings.");
+        if (errMsg.toLowerCase().includes("api_key") || errMsg.toLowerCase().includes("invalid")) {
+          throw new Error("Invalid Gemini API Key. Please verify your API key in Google AI Studio.");
         }
         continue;
       }
@@ -153,15 +283,7 @@ Return a valid JSON object matching the requested schema.`;
         throw new Error("Gemini returned an empty response.");
       }
 
-      const parsed = JSON.parse(rawText) as GeneratedNarrativeResult;
-      if (!parsed.teaser || !parsed.storyline) {
-        throw new Error("Gemini output was missing expected teaser or storyline fields.");
-      }
-
-      return {
-        teaser: parsed.teaser.trim(),
-        storyline: parsed.storyline.trim(),
-      };
+      return parseGeneratedJson(rawText);
     } catch (err) {
       lastError = err;
       if (err instanceof Error && err.message.includes("Invalid Gemini API Key")) {
