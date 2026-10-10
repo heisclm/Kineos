@@ -6,7 +6,7 @@ import { formatDuration } from "@/lib/utils";
 import { WatchlistCardButton } from "@/components/content/WatchlistButtons";
 
 export interface MovieCardProps {
-  id: string;
+  id?: string;
   title: string;
   slug: string;
   description?: string | null;
@@ -23,6 +23,7 @@ export interface MovieCardProps {
 }
 
 export function MovieCard({
+  id,
   title,
   slug,
   description,
