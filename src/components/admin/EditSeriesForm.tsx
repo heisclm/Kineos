@@ -9,10 +9,14 @@ import { updateSeries } from "@/features/admin/admin.actions";
 import { Save, Loader2, ArrowLeft, UploadCloud, Tv, Settings } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { AiStorylineEnhancer } from "@/components/admin/AiStorylineEnhancer";
 
 export function EditSeriesForm({ series }: { series: any }) {
   const [isPending, startTransition] = useTransition();
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+  const [title, setTitle] = useState(series.title || "");
+  const [shortTeaser, setShortTeaser] = useState(series.shortTeaser || "");
+  const [description, setDescription] = useState(series.description || "");
   useEffect(() => {
     setPortalNode(document.getElementById("update-button-portal"));
   }, []);
@@ -63,7 +67,9 @@ export function EditSeriesForm({ series }: { series: any }) {
               <div>
                 <label className={labelClasses}>Title</label>
                 <input
-                  name="title" defaultValue={series.title || ""}
+                  name="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   required
                   className={inputClasses}
                   placeholder="e.g. Breaking Bad"
@@ -80,14 +86,29 @@ export function EditSeriesForm({ series }: { series: any }) {
                 />
               </div>
 
-              
+              {/* AI Narrative & Teaser Hook Generator */}
+              <AiStorylineEnhancer
+                title={title}
+                type="series"
+                genres={series.genres?.join(", ")}
+                cast={series.cast?.join(", ")}
+                releaseYear={series.releaseDate ? new Date(series.releaseDate).getFullYear() : null}
+                currentTeaser={shortTeaser}
+                currentDescription={description}
+                onApply={({ teaser, description: newDescription }) => {
+                  setShortTeaser(teaser);
+                  setDescription(newDescription);
+                }}
+              />
+
               <div className="space-y-2">
                 <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>
                 <textarea 
                   id="shortTeaser" 
                   name="shortTeaser" 
                   rows={2} 
-                  defaultValue={series?.shortTeaser || ""}
+                  value={shortTeaser}
+                  onChange={(e) => setShortTeaser(e.target.value)}
                   className={inputClasses}
                   placeholder="A brief 1-2 sentence hook..."
                 />
@@ -96,7 +117,9 @@ export function EditSeriesForm({ series }: { series: any }) {
               <div>
                 <label className={labelClasses}>Full Synopsis (Detail Page)</label>
                 <textarea
-                  name="description" defaultValue={series.description || ""}
+                  name="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   rows={5}
                   className={`${inputClasses} resize-none`}
                   placeholder="A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine..."

@@ -9,6 +9,7 @@ import { Save, Loader2, ArrowLeft, Tv, Settings, Sparkles, X, Image as ImageIcon
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { TmdbAutofillBar } from "@/components/admin/TmdbAutofillBar";
+import { AiStorylineEnhancer } from "@/components/admin/AiStorylineEnhancer";
 import type { TmdbDetailedResult } from "@/lib/tmdb";
 
 function slugify(text: string) {
@@ -158,6 +159,21 @@ export function SeriesForm() {
                   placeholder="e.g. breaking-bad"
                 />
               </div>
+
+              {/* AI Narrative & Teaser Hook Generator */}
+              <AiStorylineEnhancer
+                title={title}
+                type="series"
+                genres={genres}
+                cast={cast}
+                releaseYear={releaseDate ? new Date(releaseDate).getFullYear() : null}
+                currentTeaser={shortTeaser}
+                currentDescription={description}
+                onApply={({ teaser, description: newDescription }) => {
+                  setShortTeaser(teaser);
+                  setDescription(newDescription);
+                }}
+              />
 
               <div className="space-y-2">
                 <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>

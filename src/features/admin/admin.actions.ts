@@ -12,6 +12,7 @@ import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadMedia, deleteMediaByUrl, supabaseAdmin } from "@/lib/supabase";
 import { fetchTmdbMetadata, searchTmdbCandidates, fetchTmdbFullDetails } from "@/lib/tmdb";
+import { generateNarrativeWithGemini, type GenerateNarrativeParams } from "@/lib/gemini";
 
 export async function verifyAdminAccess() {
   const supabase = createClient();
@@ -738,5 +739,23 @@ export async function fetchTmdbFullDetailsAction(
   }
   return await fetchTmdbFullDetails(tmdbId, type, customApiKey);
 }
+
+export async function generateAiNarrativeAction(params: GenerateNarrativeParams) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin && process.env.NODE_ENV !== "development") {
+    throw new Error("Unauthorized");
+  }
+  try {
+    const result = await generateNarrativeWithGemini(params);
+    return { success: true as const, data: result };
+  } catch (err) {
+    console.error("generateAiNarrativeAction error:", err);
+    return {
+      success: false as const,
+      error: err instanceof Error ? err.message : "Failed to generate narrative with AI.",
+    };
+  }
+}
+
 
 

@@ -9,10 +9,14 @@ import { updateMovie } from "@/features/admin/admin.actions";
 import { Save, Loader2, ArrowLeft, UploadCloud, Film, Settings } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { AiStorylineEnhancer } from "@/components/admin/AiStorylineEnhancer";
 
 export function EditMovieForm({ movie }: { movie: any }) {
   const [isPending, startTransition] = useTransition();
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+  const [title, setTitle] = useState(movie.title || "");
+  const [shortTeaser, setShortTeaser] = useState(movie.shortTeaser || "");
+  const [description, setDescription] = useState(movie.description || "");
   useEffect(() => {
     setPortalNode(document.getElementById("update-button-portal"));
   }, []);
@@ -63,7 +67,9 @@ export function EditMovieForm({ movie }: { movie: any }) {
               <div>
                 <label className={labelClasses}>Title</label>
                 <input
-                  name="title" defaultValue={movie.title || ""}
+                  name="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   required
                   className={inputClasses}
                   placeholder="e.g. Inception"
@@ -80,14 +86,29 @@ export function EditMovieForm({ movie }: { movie: any }) {
                 />
               </div>
 
-              
+              {/* AI Narrative & Teaser Hook Generator */}
+              <AiStorylineEnhancer
+                title={title}
+                type="movie"
+                genres={movie.genres?.join(", ")}
+                cast={movie.cast?.join(", ")}
+                releaseYear={movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null}
+                currentTeaser={shortTeaser}
+                currentDescription={description}
+                onApply={({ teaser, description: newDescription }) => {
+                  setShortTeaser(teaser);
+                  setDescription(newDescription);
+                }}
+              />
+
               <div className="space-y-2">
                 <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>
                 <textarea 
                   id="shortTeaser" 
                   name="shortTeaser" 
                   rows={2} 
-                  defaultValue={movie?.shortTeaser || ""}
+                  value={shortTeaser}
+                  onChange={(e) => setShortTeaser(e.target.value)}
                   className={inputClasses}
                   placeholder="A brief 1-2 sentence hook..."
                 />
@@ -96,7 +117,9 @@ export function EditMovieForm({ movie }: { movie: any }) {
               <div>
                 <label className={labelClasses}>Full Synopsis (Detail Page)</label>
                 <textarea
-                  name="description" defaultValue={movie.description || ""}
+                  name="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   rows={5}
                   className={`${inputClasses} resize-none`}
                   placeholder="A thief who steals corporate secrets through the use of dream-sharing technology..."

@@ -10,6 +10,7 @@ import { Save, Loader2, ArrowLeft, Film, Settings, Sparkles, X, Image as ImageIc
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { TmdbAutofillBar } from "@/components/admin/TmdbAutofillBar";
+import { AiStorylineEnhancer } from "@/components/admin/AiStorylineEnhancer";
 import type { TmdbDetailedResult } from "@/lib/tmdb";
 
 function slugify(text: string) {
@@ -200,6 +201,21 @@ export function MovieForm() {
                   placeholder="e.g. inception"
                 />
               </div>
+
+              {/* AI Narrative & Teaser Hook Generator */}
+              <AiStorylineEnhancer
+                title={title}
+                type="movie"
+                genres={genres}
+                cast={cast}
+                releaseYear={releaseDate ? new Date(releaseDate).getFullYear() : null}
+                currentTeaser={shortTeaser}
+                currentDescription={description}
+                onApply={({ teaser, description: newDescription }) => {
+                  setShortTeaser(teaser);
+                  setDescription(newDescription);
+                }}
+              />
 
               <div className="space-y-2">
                 <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>
