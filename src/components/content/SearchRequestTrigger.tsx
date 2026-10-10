@@ -20,7 +20,7 @@ export function SearchRequestTrigger({ initialQuery = "" }: SearchRequestTrigger
           className="rounded-full px-6 py-2.5 bg-primary text-primary-foreground font-semibold gap-2 shadow-lg shadow-primary/20 hover:scale-105 transition-all"
         >
           <MessageSquarePlus className="w-4 h-4" />
-          Request "{initialQuery || "This Title"}"
+          Request &quot;{initialQuery || "This Title"}&quot;
         </Button>
         <span className="text-xs text-muted mt-2">
           We add requested movies and series within 24-48 hours.

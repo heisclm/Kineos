@@ -89,7 +89,7 @@ export function RequestModal({ isOpen, onClose, defaultTitle = "" }: RequestModa
             <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Request Received!</h3>
             <p className="text-sm text-muted max-w-sm">
               Thank you! Our indexing team will review and prioritize uploading{" "}
-              <span className="text-white font-semibold">"{title}"</span> as soon as possible.
+              <span className="text-white font-semibold">&quot;{title}&quot;</span> as soon as possible.
             </p>
           </div>
         ) : (
@@ -103,7 +103,7 @@ export function RequestModal({ isOpen, onClose, defaultTitle = "" }: RequestModa
                 Request a Title
               </h2>
               <p className="text-xs sm:text-sm text-muted mt-1">
-                Can't find a movie or show you want to stream? Tell us and we will add it to the catalog.
+                Can&apos;t find a movie or show you want to stream? Tell us and we will add it to the catalog.
               </p>
             </div>
 
