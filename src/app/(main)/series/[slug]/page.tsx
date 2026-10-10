@@ -13,6 +13,7 @@ import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
 import { MoreLikeThisSection } from "@/components/content/MoreLikeThisSection";
 import { WatchlistDetailButton } from "@/components/content/WatchlistButtons";
+import { slugify } from "@/lib/utils";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -443,13 +444,37 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   {creators.length > 0 && (
                     <div className="flex flex-wrap items-baseline gap-2">
                       <span className="text-white/45 font-medium min-w-[65px]">Creators</span>
-                      <span className="text-white/95 font-semibold">{creators.join(", ")}</span>
+                      <span className="text-white/95 font-semibold">
+                        {creators.map((c: string, i: number) => (
+                          <span key={c}>
+                            <Link
+                              href={`/cast/${slugify(c)}`}
+                              className="hover:text-primary transition-colors hover:underline"
+                            >
+                              {c}
+                            </Link>
+                            {i < creators.length - 1 && ", "}
+                          </span>
+                        ))}
+                      </span>
                     </div>
                   )}
                   {displayStars.length > 0 && (
                     <div className="flex flex-wrap items-baseline gap-2">
                       <span className="text-white/45 font-medium min-w-[65px]">Stars</span>
-                      <span className="text-white/95 font-semibold">{displayStars.join(" • ")}</span>
+                      <span className="text-white/95 font-semibold">
+                        {displayStars.map((s: string, i: number) => (
+                          <span key={s}>
+                            <Link
+                              href={`/cast/${slugify(s)}`}
+                              className="hover:text-primary transition-colors hover:underline"
+                            >
+                              {s}
+                            </Link>
+                            {i < displayStars.length - 1 && " • "}
+                          </span>
+                        ))}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -515,9 +540,10 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               <h3 className="text-2xl font-bold tracking-tight text-foreground mb-6">Top Cast</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
                 {cast.map((c: any) => (
-                  <div
+                  <Link
                     key={c.name}
-                    className="flex items-center gap-3 p-2 pr-4 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated transition-apple cursor-default overflow-hidden"
+                    href={`/cast/${slugify(c.name)}`}
+                    className="group flex items-center gap-3 p-2 pr-4 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated hover:border-primary/40 hover:scale-[1.02] transition-all cursor-pointer overflow-hidden"
                   >
                     {c.imageUrl ? (
                       <Image
@@ -525,7 +551,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                         alt={c.name}
                         width={40}
                         height={40}
-                        className="w-10 h-10 rounded-full object-cover shrink-0"
+                        className="w-10 h-10 rounded-full object-cover shrink-0 group-hover:scale-105 transition-transform"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground font-semibold border border-white/10 shrink-0 text-xs">
@@ -533,12 +559,14 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                       </div>
                     )}
                     <div className="flex flex-col min-w-0 flex-1">
-                      <span className="text-[13px] font-semibold text-foreground truncate">{c.name}</span>
+                      <span className="text-[13px] font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                        {c.name}
+                      </span>
                       <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">
-                        {c.role || 'Actor'}
+                        {c.role || "Actor"}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </section>

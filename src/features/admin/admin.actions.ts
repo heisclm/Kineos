@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 import { uploadMedia, deleteMediaByUrl, supabaseAdmin } from "@/lib/supabase";
 import { fetchTmdbMetadata, searchTmdbCandidates, fetchTmdbFullDetails } from "@/lib/tmdb";
 import { generateNarrativeWithGemini, type GenerateNarrativeParams } from "@/lib/gemini";
+import { pingContentPublished } from "@/lib/indexnow";
 
 export async function verifyAdminAccess() {
   const supabase = createClient();
@@ -111,11 +112,12 @@ export async function createMovie(formData: FormData) {
       }
     }
 
+    let castNamesList: string[] = [];
     const castStr = formData.get("cast") as string;
     if (castStr) {
-      const castNames = castStr.split(",").map(c => c.trim()).filter(Boolean);
+      castNamesList = castStr.split(",").map(c => c.trim()).filter(Boolean);
       let order = 0;
-      for (const cName of castNames) {
+      for (const cName of castNamesList) {
         let pRows = await db.select().from(people).where(eq(people.name, cName));
         let pId = pRows[0]?.id;
         if (!pId) {
@@ -128,8 +130,14 @@ export async function createMovie(formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/movies");
+    revalidatePath("/cast");
     revalidatePath("/admin/movies");
     revalidatePath("/sitemap.xml");
+
+    if (status === "published") {
+      pingContentPublished({ type: "movie", slug, castNames: castNamesList }).catch(() => {});
+    }
+
     return { success: true, id };
   } catch (e: any) {
     console.error("Failed to create movie", e);
@@ -254,11 +262,12 @@ export async function createSeries(formData: FormData) {
       }
     }
 
+    let seriesCastList: string[] = [];
     const castStr = formData.get("cast") as string;
     if (castStr) {
-      const castNames = castStr.split(",").map(c => c.trim()).filter(Boolean);
+      seriesCastList = castStr.split(",").map(c => c.trim()).filter(Boolean);
       let order = 0;
-      for (const cName of castNames) {
+      for (const cName of seriesCastList) {
         let pRows = await db.select().from(people).where(eq(people.name, cName));
         let pId = pRows[0]?.id;
         if (!pId) {
@@ -271,8 +280,14 @@ export async function createSeries(formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/series");
+    revalidatePath("/cast");
     revalidatePath("/admin/series");
     revalidatePath("/sitemap.xml");
+
+    if (status === "published") {
+      pingContentPublished({ type: "series", slug, castNames: seriesCastList }).catch(() => {});
+    }
+
     return { success: true, id };
   } catch (e: any) {
     console.error("Failed to create series", e);
@@ -566,12 +581,13 @@ export async function updateMovie(id: string, formData: FormData) {
       }
     }
 
+    let movieCastList: string[] = [];
     const castStr = formData.get("cast") as string;
     await db.delete(movieCast).where(eq(movieCast.movieId, id));
     if (castStr) {
-      const castNames = castStr.split(",").map(c => c.trim()).filter(Boolean);
+      movieCastList = castStr.split(",").map(c => c.trim()).filter(Boolean);
       let order = 0;
-      for (const cName of castNames) {
+      for (const cName of movieCastList) {
         let pRows = await db.select().from(people).where(eq(people.name, cName));
         let pId = pRows[0]?.id;
         if (!pId) {
@@ -584,9 +600,15 @@ export async function updateMovie(id: string, formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/movies");
+    revalidatePath("/cast");
     revalidatePath("/admin/movies");
     revalidatePath(`/admin/movies/${id}`);
     revalidatePath("/sitemap.xml");
+
+    if (status === "published") {
+      pingContentPublished({ type: "movie", slug: slugForm, castNames: movieCastList }).catch(() => {});
+    }
+
     return { success: true };
   } catch (e: any) {
     console.error("Failed to update movie", e);
@@ -688,12 +710,13 @@ export async function updateSeries(id: string, formData: FormData) {
       }
     }
 
+    let seriesCastList: string[] = [];
     const castStr = formData.get("cast") as string;
     await db.delete(seriesCast).where(eq(seriesCast.seriesId, id));
     if (castStr) {
-      const castNames = castStr.split(",").map(c => c.trim()).filter(Boolean);
+      seriesCastList = castStr.split(",").map(c => c.trim()).filter(Boolean);
       let order = 0;
-      for (const cName of castNames) {
+      for (const cName of seriesCastList) {
         let pRows = await db.select().from(people).where(eq(people.name, cName));
         let pId = pRows[0]?.id;
         if (!pId) {
@@ -706,9 +729,15 @@ export async function updateSeries(id: string, formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/series");
+    revalidatePath("/cast");
     revalidatePath("/admin/series");
     revalidatePath(`/admin/series/${id}`);
     revalidatePath("/sitemap.xml");
+
+    if (status === "published") {
+      pingContentPublished({ type: "series", slug: (formData.get("slug") as string) || "", castNames: seriesCastList }).catch(() => {});
+    }
+
     return { success: true };
   } catch (e: any) {
     console.error("Failed to update series", e);

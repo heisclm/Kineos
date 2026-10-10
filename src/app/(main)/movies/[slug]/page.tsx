@@ -1,8 +1,9 @@
 import { getMovieBySlug, getDownloadSourcesForContent, getCastForContent, getRelatedMovies } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, slugify } from "@/lib/utils";
 // from "next/navigation";
 import { Play, Download, Clock, Calendar, Star, Film, Sparkles, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -453,7 +454,19 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   {directors.length > 0 && (
                     <div className="flex flex-wrap items-baseline gap-2">
                       <span className="text-white/45 font-medium min-w-[65px]">Director</span>
-                      <span className="text-white/95 font-semibold">{directors.join(", ")}</span>
+                      <span className="text-white/95 font-semibold">
+                        {directors.map((d: string, i: number) => (
+                          <span key={d}>
+                            <Link
+                              href={`/cast/${slugify(d)}`}
+                              className="hover:text-primary transition-colors hover:underline"
+                            >
+                              {d}
+                            </Link>
+                            {i < directors.length - 1 && ", "}
+                          </span>
+                        ))}
+                      </span>
                     </div>
                   )}
                   {writers.length > 0 && (
@@ -465,7 +478,19 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   {displayStars.length > 0 && (
                     <div className="flex flex-wrap items-baseline gap-2">
                       <span className="text-white/45 font-medium min-w-[65px]">Stars</span>
-                      <span className="text-white/95 font-semibold">{displayStars.join(" • ")}</span>
+                      <span className="text-white/95 font-semibold">
+                        {displayStars.map((s: string, i: number) => (
+                          <span key={s}>
+                            <Link
+                              href={`/cast/${slugify(s)}`}
+                              className="hover:text-primary transition-colors hover:underline"
+                            >
+                              {s}
+                            </Link>
+                            {i < displayStars.length - 1 && " • "}
+                          </span>
+                        ))}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -532,19 +557,33 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                <h3 className="text-2xl font-bold tracking-tight text-foreground mb-6">Top Cast</h3>
                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                  {cast.map((c: any) => (
-                   <div key={c.name} className="flex items-center gap-3 p-2 pr-4 md:pr-6 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated transition-apple cursor-default overflow-hidden">
+                   <Link
+                     key={c.name}
+                     href={`/cast/${slugify(c.name)}`}
+                     className="group flex items-center gap-3 p-2 pr-4 md:pr-6 rounded-full bg-surface border border-white/5 shadow-sm hover:bg-surface-elevated hover:border-primary/40 hover:scale-[1.02] transition-all cursor-pointer overflow-hidden"
+                   >
                      {c.imageUrl ? (
-                       <Image src={c.imageUrl} alt={c.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
+                       <Image
+                         src={c.imageUrl}
+                         alt={c.name}
+                         width={40}
+                         height={40}
+                         className="w-10 h-10 rounded-full object-cover shrink-0 group-hover:scale-105 transition-transform"
+                       />
                      ) : (
-                       <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground font-semibold border border-white/10">
+                       <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center text-muted-foreground font-semibold border border-white/10 shrink-0">
                          {c.name.charAt(0)}
                        </div>
                      )}
                      <div className="flex flex-col min-w-0 flex-1">
-                       <span className="text-[13px] md:text-sm font-semibold text-foreground truncate">{c.name}</span>
-                       <span className="text-[9px] md:text-[11px] text-muted-foreground uppercase tracking-wider font-medium truncate">{c.role || 'Actor'}</span>
+                       <span className="text-[13px] md:text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                         {c.name}
+                       </span>
+                       <span className="text-[9px] md:text-[11px] text-muted-foreground uppercase tracking-wider font-medium truncate">
+                         {c.role || "Actor"}
+                       </span>
                      </div>
-                   </div>
+                   </Link>
                  ))}
                </div>
              </section>

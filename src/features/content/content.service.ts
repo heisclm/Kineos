@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { movies, series, seasons, episodes, genres, movieGenres, seriesGenres, mediaAssets, downloadSources, people, movieCast, seriesCast } from "@/lib/db/schema";
-import { desc, eq, and, ilike, sql, inArray, notInArray, asc } from "drizzle-orm";
+import { desc, eq, and, ilike, sql, inArray, notInArray, asc, count } from "drizzle-orm";
+import { slugify } from "@/lib/utils";
 
 
  /**
@@ -405,13 +406,13 @@ export async function getSeriesEpisodes(seriesId: string) {
 export async function getCastForContent(contentId: string, type: "movie" | "series") {
   try {
     if (type === "movie") {
-      return await db.select({ name: people.name, role: movieCast.roleName, imageUrl: people.imageUrl })
+      return await db.select({ id: people.id, name: people.name, role: movieCast.roleName, imageUrl: people.imageUrl })
         .from(movieCast)
         .innerJoin(people, eq(movieCast.personId, people.id))
         .where(eq(movieCast.movieId, contentId))
         .orderBy(movieCast.order);
     } else {
-      return await db.select({ name: people.name, role: seriesCast.roleName, imageUrl: people.imageUrl })
+      return await db.select({ id: people.id, name: people.name, role: seriesCast.roleName, imageUrl: people.imageUrl })
         .from(seriesCast)
         .innerJoin(people, eq(seriesCast.personId, people.id))
         .where(eq(seriesCast.seriesId, contentId))
@@ -936,4 +937,203 @@ export async function getTrendingContent(limit = 10) {
     return [];
   }
 }
+
+/**
+ * Retrieves a person (actor/filmmaker) by slug or UUID along with their complete
+ * filmography of published movies and TV series.
+ */
+export async function getPersonWithFilmography(slugOrId: string) {
+  try {
+    const rawSlug = decodeURIComponent(slugOrId).trim().toLowerCase();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawSlug);
+    let person: { id: string; name: string; bio: string | null; imageUrl: string | null } | null = null;
+
+    if (isUuid) {
+      const rows = await db.select().from(people).where(eq(people.id, rawSlug)).limit(1);
+      person = rows[0] || null;
+    }
+
+    if (!person) {
+      const nameGuess = rawSlug.replace(/-/g, " ");
+      const candidates = await db
+        .select()
+        .from(people)
+        .where(ilike(people.name, `%${nameGuess}%`))
+        .limit(25);
+
+      person =
+        candidates.find((p) => slugify(p.name) === rawSlug) ||
+        candidates.find((p) => p.name.toLowerCase() === nameGuess.toLowerCase()) ||
+        candidates[0] ||
+        null;
+
+      if (!person) {
+        const allPeople = await db.select().from(people).limit(2000);
+        person = allPeople.find((p) => slugify(p.name) === rawSlug) || null;
+      }
+    }
+
+    if (!person) return null;
+
+    // Fetch movie credits (published only)
+    const movieCredits = await db
+      .select({
+        id: movies.id,
+        title: movies.title,
+        slug: movies.slug,
+        description: movies.description,
+        shortTeaser: movies.shortTeaser,
+        releaseDate: movies.releaseDate,
+        rating: movies.rating,
+        ratingScore: movies.ratingScore,
+        viewCount: movies.viewCount,
+        runtime: movies.runtime,
+        roleName: movieCast.roleName,
+        order: movieCast.order,
+      })
+      .from(movieCast)
+      .innerJoin(movies, eq(movieCast.movieId, movies.id))
+      .where(and(eq(movieCast.personId, person.id), eq(movies.publicationStatus, "published")))
+      .orderBy(desc(movies.releaseDate), desc(movies.viewCount));
+
+    // Fetch series credits (published only)
+    const seriesCredits = await db
+      .select({
+        id: series.id,
+        title: series.title,
+        slug: series.slug,
+        description: series.description,
+        shortTeaser: series.shortTeaser,
+        releaseDate: series.releaseDate,
+        rating: series.rating,
+        ratingScore: series.ratingScore,
+        viewCount: series.viewCount,
+        roleName: seriesCast.roleName,
+        order: seriesCast.order,
+      })
+      .from(seriesCast)
+      .innerJoin(series, eq(seriesCast.seriesId, series.id))
+      .where(and(eq(seriesCast.personId, person.id), eq(series.publicationStatus, "published")))
+      .orderBy(desc(series.releaseDate), desc(series.viewCount));
+
+    // Hydrate movie media and genres
+    const movieIds = movieCredits.map((m) => m.id);
+    let movieMedia: any[] = [];
+    let movieGenresList: any[] = [];
+    if (movieIds.length > 0) {
+      [movieMedia, movieGenresList] = await Promise.all([
+        db.select().from(mediaAssets).where(and(inArray(mediaAssets.contentId, movieIds), eq(mediaAssets.type, "poster"))),
+        db.select({ movieId: movieGenres.movieId, genreName: genres.name }).from(movieGenres).innerJoin(genres, eq(movieGenres.genreId, genres.id)).where(inArray(movieGenres.movieId, movieIds)),
+      ]);
+    }
+
+    const moviePosterMap = new Map<string, string>();
+    for (const m of movieMedia) {
+      if (!moviePosterMap.has(m.contentId)) moviePosterMap.set(m.contentId, m.url);
+    }
+
+    const movieGenreMap = new Map<string, string[]>();
+    for (const g of movieGenresList) {
+      if (!movieGenreMap.has(g.movieId)) movieGenreMap.set(g.movieId, []);
+      movieGenreMap.get(g.movieId)!.push(g.genreName);
+    }
+
+    const enrichedMovies = movieCredits.map((m) => {
+      const gList = movieGenreMap.get(m.id) || [];
+      return {
+        ...m,
+        type: "movie" as const,
+        imageUrl: moviePosterMap.get(m.id) || null,
+        primaryGenre: gList[0] || "Movie",
+        genres: gList,
+      };
+    });
+
+    // Hydrate series media, genres, and season counts
+    const seriesIds = seriesCredits.map((s) => s.id);
+    let seriesMedia: any[] = [];
+    let seriesGenresList: any[] = [];
+    let seriesSeasonCounts: any[] = [];
+    if (seriesIds.length > 0) {
+      [seriesMedia, seriesGenresList, seriesSeasonCounts] = await Promise.all([
+        db.select().from(mediaAssets).where(and(inArray(mediaAssets.contentId, seriesIds), eq(mediaAssets.type, "poster"))),
+        db.select({ seriesId: seriesGenres.seriesId, genreName: genres.name }).from(seriesGenres).innerJoin(genres, eq(seriesGenres.genreId, genres.id)).where(inArray(seriesGenres.seriesId, seriesIds)),
+        db.select({ seriesId: seasons.seriesId, count: count(seasons.id) }).from(seasons).where(inArray(seasons.seriesId, seriesIds)).groupBy(seasons.seriesId),
+      ]);
+    }
+
+    const seriesPosterMap = new Map<string, string>();
+    for (const m of seriesMedia) {
+      if (!seriesPosterMap.has(m.contentId)) seriesPosterMap.set(m.contentId, m.url);
+    }
+
+    const seriesGenreMap = new Map<string, string[]>();
+    for (const g of seriesGenresList) {
+      if (!seriesGenreMap.has(g.seriesId)) seriesGenreMap.set(g.seriesId, []);
+      seriesGenreMap.get(g.seriesId)!.push(g.genreName);
+    }
+
+    const seriesSeasonMap = new Map<string, number>();
+    for (const sc of seriesSeasonCounts) {
+      if (sc.seriesId) seriesSeasonMap.set(sc.seriesId, Number(sc.count));
+    }
+
+    const enrichedSeries = seriesCredits.map((s) => {
+      const gList = seriesGenreMap.get(s.id) || [];
+      return {
+        ...s,
+        type: "series" as const,
+        imageUrl: seriesPosterMap.get(s.id) || null,
+        primaryGenre: gList[0] || "TV Series",
+        genres: gList,
+        seasonsCount: seriesSeasonMap.get(s.id) || null,
+      };
+    });
+
+    return {
+      person,
+      movies: enrichedMovies,
+      series: enrichedSeries,
+      totalCredits: enrichedMovies.length + enrichedSeries.length,
+    };
+  } catch (error: any) {
+    console.error("Error in getPersonWithFilmography:", error.message);
+    return null;
+  }
+}
+
+/**
+ * Returns all distinct cast and crew members who have published movie or series credits,
+ * for generating XML sitemaps and programmatic directory links.
+ */
+export async function getAllCastMembers() {
+  try {
+    const moviePeople = await db
+      .select({ id: people.id, name: people.name, imageUrl: people.imageUrl })
+      .from(people)
+      .innerJoin(movieCast, eq(people.id, movieCast.personId))
+      .innerJoin(movies, eq(movieCast.movieId, movies.id))
+      .where(eq(movies.publicationStatus, "published"));
+
+    const seriesPeople = await db
+      .select({ id: people.id, name: people.name, imageUrl: people.imageUrl })
+      .from(people)
+      .innerJoin(seriesCast, eq(people.id, seriesCast.personId))
+      .innerJoin(series, eq(seriesCast.seriesId, series.id))
+      .where(eq(series.publicationStatus, "published"));
+
+    const uniqueMap = new Map<string, { id: string; name: string; imageUrl: string | null }>();
+    for (const p of [...moviePeople, ...seriesPeople]) {
+      if (!uniqueMap.has(p.id)) {
+        uniqueMap.set(p.id, p);
+      }
+    }
+
+    return Array.from(uniqueMap.values());
+  } catch (e: any) {
+    console.error("Error in getAllCastMembers:", e.message);
+    return [];
+  }
+}
+
 

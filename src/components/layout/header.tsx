@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, X, Home, Film, Tv, Bookmark, MessageSquarePlus } from "lucide-react";
+import { Search, Menu, X, Home, Film, Tv, Bookmark, MessageSquarePlus, Users } from "lucide-react";
 import { FormEvent, useState, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ const mainNavItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Movies", href: "/movies", icon: Film },
   { name: "TV Series", href: "/series", icon: Tv },
+  { name: "Cast", href: "/cast", icon: Users },
   { name: "My List", href: "/watchlist", icon: Bookmark },
 ];
 

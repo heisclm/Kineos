@@ -2,12 +2,15 @@ import { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
 import { movies, series } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
+import { getAllCastMembers } from '@/features/content/content.service';
+import { slugify } from '@/lib/utils';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
 
   let allMovies: { slug: string; updatedAt: Date | null }[] = [];
   let allSeries: { slug: string; updatedAt: Date | null }[] = [];
+  let allCast: { id: string; name: string }[] = [];
 
   try {
     // Fetch all published movies
@@ -25,6 +28,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .where(eq(series.publicationStatus, "published"))
       .orderBy(desc(series.updatedAt))
       .limit(50000);
+
+    // Fetch all published cast members
+    allCast = await getAllCastMembers();
   } catch (err: any) {
     console.warn("⚠️ Database query failed during sitemap generation:", err.message);
   }
@@ -41,6 +47,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: s.updatedAt || new Date(),
     changeFrequency: 'weekly',
     priority: 0.8,
+  }));
+
+  const castEntries: MetadataRoute.Sitemap = allCast.map((c) => ({
+    url: `${BASE_URL}/cast/${slugify(c.name)}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
   }));
 
   return [
@@ -61,6 +74,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/cast`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/top-10`,
@@ -112,5 +131,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...movieEntries,
     ...seriesEntries,
+    ...castEntries,
   ];
 }
