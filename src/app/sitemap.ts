@@ -5,6 +5,8 @@ import { eq, desc } from 'drizzle-orm';
 import { getAllCastMembers } from '@/features/content/content.service';
 import { slugify } from '@/lib/utils';
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
 
