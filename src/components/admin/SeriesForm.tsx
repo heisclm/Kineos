@@ -1,31 +1,90 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createSeries } from "@/features/admin/admin.actions";
-import { Save, Loader2, ArrowLeft, UploadCloud, Tv, Settings } from "lucide-react";
+import { Save, Loader2, ArrowLeft, Tv, Settings, Sparkles, X, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { TmdbAutofillBar } from "@/components/admin/TmdbAutofillBar";
+import type { TmdbDetailedResult } from "@/lib/tmdb";
+
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
+}
 
 export function SeriesForm() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  
 
-  const handleSubmit = (e: any) => {
+  // Controlled states for instant 1-click TMDB autofill
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [shortTeaser, setShortTeaser] = useState("");
+  const [description, setDescription] = useState("");
+  const [releaseDate, setReleaseDate] = useState("");
+  const [rating, setRating] = useState("");
+  const [language, setLanguage] = useState("");
+  const [country, setCountry] = useState("");
+  const [ratingScore, setRatingScore] = useState("");
+  const [trailerUrl, setTrailerUrl] = useState("");
+  const [genres, setGenres] = useState("");
+  const [cast, setCast] = useState("");
+  const [posterUrl, setPosterUrl] = useState("");
+  const [backdropUrl, setBackdropUrl] = useState("");
+
+  const handleTitleChange = (val: string) => {
+    setTitle(val);
+    if (!slug || slug === slugify(title)) {
+      setSlug(slugify(val));
+    }
+  };
+
+  const handleTmdbAutofill = (data: TmdbDetailedResult) => {
+    if (data.title) setTitle(data.title);
+    if (data.slug) setSlug(data.slug);
+    if (data.shortTeaser) setShortTeaser(data.shortTeaser);
+    if (data.description) setDescription(data.description);
+    if (data.releaseDate) setReleaseDate(data.releaseDate);
+    if (data.rating) setRating(data.rating);
+    if (data.language) setLanguage(data.language);
+    if (data.ratingScore !== null && data.ratingScore !== undefined) setRatingScore(String(data.ratingScore));
+    if (data.trailerUrl) setTrailerUrl(data.trailerUrl);
+    if (data.genres) setGenres(data.genres);
+    if (data.cast) setCast(data.cast);
+    if (data.posterUrl) setPosterUrl(data.posterUrl);
+    if (data.backdropUrl) setBackdropUrl(data.backdropUrl);
+
+    toast.success(`Loaded details for "${data.title}" from TMDB!`);
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     const formData = new FormData(e.currentTarget);
-    
+
+    // Hidden inputs are in form so posterUrl and backdropUrl are automatically in formData
     startTransition(async () => {
-      const result = await createSeries(formData);
-      if (result.success) {
-        toast.success("Created successfully!");
-        router.push(`/admin/series/${result.id}`);
-      } else {
-        toast.error(result.error || "Failed to create series.");
+      try {
+        const result = await createSeries(formData);
+        if (result.success) {
+          toast.success("Created successfully!");
+          router.push(`/admin/series/${result.id}`);
+        } else {
+          toast.error(result.error || "Failed to create series.");
+        }
+      } catch (error) {
+        console.error("Failed to create series", error);
+        toast.error(error instanceof Error ? error.message : "Failed to create series. Please try again.");
       }
     });
   };
@@ -35,6 +94,10 @@ export function SeriesForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Hidden inputs to pass TMDB URLs if no local files uploaded */}
+      <input type="hidden" name="posterUrl" value={posterUrl} />
+      <input type="hidden" name="backdropUrl" value={backdropUrl} />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/admin/series">
@@ -56,7 +119,8 @@ export function SeriesForm() {
         </div>
       </div>
 
-      
+      {/* TMDB Quick Autofill Bar */}
+      <TmdbAutofillBar type="series" onAutofill={handleTmdbAutofill} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -76,6 +140,8 @@ export function SeriesForm() {
                 <input
                   name="title"
                   required
+                  value={title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
                   className={inputClasses}
                   placeholder="e.g. Breaking Bad"
                 />
@@ -86,19 +152,21 @@ export function SeriesForm() {
                 <input
                   name="slug"
                   required
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
                   className={inputClasses}
                   placeholder="e.g. breaking-bad"
                 />
               </div>
 
-              
               <div className="space-y-2">
                 <label htmlFor="shortTeaser" className={labelClasses}>Short Teaser (Cards & Banners)</label>
                 <textarea 
                   id="shortTeaser" 
                   name="shortTeaser" 
                   rows={2} 
-                  defaultValue={""}
+                  value={shortTeaser}
+                  onChange={(e) => setShortTeaser(e.target.value)}
                   className={inputClasses}
                   placeholder="A brief 1-2 sentence hook..."
                 />
@@ -109,6 +177,8 @@ export function SeriesForm() {
                 <textarea
                   name="description"
                   rows={5}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   className={`${inputClasses} resize-none`}
                   placeholder="A chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine..."
                 />
@@ -145,6 +215,8 @@ export function SeriesForm() {
                 <input
                   name="releaseDate"
                   type="date"
+                  value={releaseDate}
+                  onChange={(e) => setReleaseDate(e.target.value)}
                   style={{ colorScheme: 'dark' }}
                   className={inputClasses}
                 />
@@ -156,17 +228,31 @@ export function SeriesForm() {
                   <input
                     name="rating"
                     maxLength={32}
+                    value={rating}
+                    onChange={(e) => setRating(e.target.value)}
                     className={inputClasses}
                     placeholder="TV-MA"
                   />
                 </div>
                 <div>
                   <label className={labelClasses}>Language</label>
-                  <input name="language" className={inputClasses} placeholder="e.g. English, Spanish" />
+                  <input 
+                    name="language" 
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className={inputClasses} 
+                    placeholder="e.g. English, Spanish" 
+                  />
                 </div>
                 <div>
                   <label className={labelClasses}>Country</label>
-                  <input name="country" className={inputClasses} placeholder="e.g. United States" />
+                  <input 
+                    name="country" 
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className={inputClasses} 
+                    placeholder="e.g. United States" 
+                  />
                 </div>
                 <div>
                   <label className={labelClasses}>Kineos Score (0 - 100)</label>
@@ -174,6 +260,8 @@ export function SeriesForm() {
                     name="ratingScore"
                     type="number"
                     step="0.1"
+                    value={ratingScore}
+                    onChange={(e) => setRatingScore(e.target.value)}
                     className={inputClasses}
                     placeholder="e.g. 84 for 8.4/10"
                   />
@@ -184,6 +272,8 @@ export function SeriesForm() {
                 <label className={labelClasses}>YouTube Trailer URL</label>
                 <input
                   name="trailerUrl"
+                  value={trailerUrl}
+                  onChange={(e) => setTrailerUrl(e.target.value)}
                   className={inputClasses}
                   placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
                 />
@@ -194,35 +284,124 @@ export function SeriesForm() {
             </div>
           </div>
         </div>
+
         <div className="lg:col-span-1 space-y-6">
           <div className="p-6 md:p-8 rounded-2xl bg-surface-elevated/40 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">
             <h3 className="text-xl font-bold text-foreground flex items-center gap-3 pb-2 border-b border-white/5">
-              Artwork (File Upload)
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <ImageIcon className="w-4 h-4 text-primary" />
+              </div>
+              Artwork & Credits
             </h3>
             <div className="space-y-4">
+              {/* Poster Section */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Poster Image</label>
-                <input type="file" name="posterFile" accept="image/*" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner text-foreground file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+                {posterUrl ? (
+                  <div className="relative rounded-xl overflow-hidden border border-emerald-500/30 bg-emerald-950/20 p-2.5 mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-16 rounded-lg overflow-hidden shrink-0 border border-white/10 bg-black">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={posterUrl} alt="Poster preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" /> TMDB Poster Attached
+                        </div>
+                        <p className="text-[11px] text-muted truncate mt-0.5">{posterUrl}</p>
+                        <p className="text-[10px] text-muted/70 mt-0.5">Will be saved automatically.</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPosterUrl("")}
+                        className="text-muted hover:text-red-400 h-8 w-8 shrink-0 hover:bg-white/5"
+                        title="Remove TMDB poster"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+                <input 
+                  type="file" 
+                  name="posterFile" 
+                  accept="image/*" 
+                  className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner text-foreground file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" 
+                />
+                <span className="text-[11px] text-muted block ml-1">
+                  {posterUrl ? "Upload a file to override TMDB poster, or leave blank to keep TMDB poster." : "Upload a file or use TMDB autofill."}
+                </span>
               </div>
-              <div className="space-y-2">
+
+              {/* Backdrop Section */}
+              <div className="space-y-2 pt-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Backdrop Image</label>
-                <input type="file" name="backdropFile" accept="image/*" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner text-foreground file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+                {backdropUrl ? (
+                  <div className="relative rounded-xl overflow-hidden border border-emerald-500/30 bg-emerald-950/20 p-2.5 mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-20 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10 bg-black">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={backdropUrl} alt="Backdrop preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" /> TMDB Backdrop Attached
+                        </div>
+                        <p className="text-[11px] text-muted truncate mt-0.5">{backdropUrl}</p>
+                        <p className="text-[10px] text-muted/70 mt-0.5">Will be saved automatically.</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setBackdropUrl("")}
+                        className="text-muted hover:text-red-400 h-8 w-8 shrink-0 hover:bg-white/5"
+                        title="Remove TMDB backdrop"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+                <input 
+                  type="file" 
+                  name="backdropFile" 
+                  accept="image/*" 
+                  className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner text-foreground file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" 
+                />
+                <span className="text-[11px] text-muted block ml-1">
+                  {backdropUrl ? "Upload a file to override TMDB backdrop, or leave blank to keep TMDB backdrop." : "Upload a file or use TMDB autofill."}
+                </span>
               </div>
+
+              {/* Genres & Cast */}
               <div className="space-y-2 mt-4 pt-4 border-t border-white/5">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Genres (comma separated)</label>
-                <input name="genres" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" placeholder="Action, Sci-Fi, Thriller" />
+                <input 
+                  name="genres" 
+                  value={genres}
+                  onChange={(e) => setGenres(e.target.value)}
+                  className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" 
+                  placeholder="Action, Sci-Fi, Thriller" 
+                />
               </div>
+
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Top Cast (comma separated)</label>
-                <input name="cast" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" placeholder="Actor Name 1, Actor Name 2" />
+                <input 
+                  name="cast" 
+                  value={cast}
+                  onChange={(e) => setCast(e.target.value)}
+                  className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner placeholder:text-muted/50 text-foreground" 
+                  placeholder="Actor Name 1, Actor Name 2" 
+                />
               </div>
-            </div></div>
+            </div>
+          </div>
         </div>
       </div>
     </form>
   );
 }
-
-
-
-

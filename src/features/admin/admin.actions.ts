@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadMedia, deleteMediaByUrl, supabaseAdmin } from "@/lib/supabase";
-import { fetchTmdbMetadata } from "@/lib/tmdb";
+import { fetchTmdbMetadata, searchTmdbCandidates, fetchTmdbFullDetails } from "@/lib/tmdb";
 
 export async function verifyAdminAccess() {
   const supabase = createClient();
@@ -197,14 +197,14 @@ export async function createSeries(formData: FormData) {
     }
 
   try {
-    let posterUrl = "";
+    let posterUrl = ((formData.get("posterUrl") as string) || "").trim();
     const posterFile = formData.get("posterFile") as File | null;
     if (posterFile && posterFile.size > 0) {
       const ext = posterFile.name.split(".").pop();
       posterUrl = await uploadMedia(posterFile, `posters/series_${slug}_${Date.now()}.${ext}`);
     }
 
-    let backdropUrl = "";
+    let backdropUrl = ((formData.get("backdropUrl") as string) || "").trim();
     const backdropFile = formData.get("backdropFile") as File | null;
     if (backdropFile && backdropFile.size > 0) {
       const ext = backdropFile.name.split(".").pop();
@@ -713,6 +713,30 @@ export async function updateSeries(id: string, formData: FormData) {
     console.error("Failed to update series", e);
     return { success: false, error: e.message + " " + JSON.stringify(e) };
   }
+}
+
+export async function searchTmdbCandidatesAction(
+  query: string,
+  type: "movie" | "series",
+  customApiKey?: string | null
+) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin && process.env.NODE_ENV !== "development") {
+    throw new Error("Unauthorized");
+  }
+  return await searchTmdbCandidates(query, type, customApiKey);
+}
+
+export async function fetchTmdbFullDetailsAction(
+  tmdbId: number,
+  type: "movie" | "series",
+  customApiKey?: string | null
+) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin && process.env.NODE_ENV !== "development") {
+    throw new Error("Unauthorized");
+  }
+  return await fetchTmdbFullDetails(tmdbId, type, customApiKey);
 }
 
 

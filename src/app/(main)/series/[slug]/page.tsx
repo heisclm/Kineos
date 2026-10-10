@@ -11,6 +11,7 @@ import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries
 import { MovieCard } from "@/components/movie/MovieCard";
 import { generateSeriesKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
+import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -470,9 +471,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
           {series.description && (
             <section className="space-y-3">
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Storyline</h3>
-              <p className="text-[15px] sm:text-base md:text-lg text-white/85 leading-relaxed md:leading-[1.8] font-normal text-left text-pretty whitespace-pre-line">
-                {series.description}
-              </p>
+              <ExpandableStoryline text={series.description} />
             </section>
           )}
 

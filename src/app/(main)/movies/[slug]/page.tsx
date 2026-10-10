@@ -11,6 +11,7 @@ import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { generateMovieKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
+import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
@@ -487,9 +488,7 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
           {movie.description && (
             <section className="space-y-3">
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Storyline</h3>
-              <p className="text-[15px] sm:text-base md:text-lg text-white/85 leading-relaxed md:leading-[1.8] font-normal text-left text-pretty whitespace-pre-line">
-                {movie.description}
-              </p>
+              <ExpandableStoryline text={movie.description} />
             </section>
           )}
 
