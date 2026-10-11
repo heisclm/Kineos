@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DownloadSourceList } from "@/components/content/DownloadSourceList";
 import { EpisodeDownloadButton } from "@/components/content/EpisodeDownloadButton";
+import { SeriesEpisodesSection } from "@/components/content/SeriesEpisodesSection";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries, getDownloadSourcesForContent } from "@/features/content/content.service";
 import { generateSeriesKeywords } from "@/lib/seo";
@@ -612,105 +613,13 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
             </section>
           )}
 
-          {/* Episodes & Individual Episode Downloads Section */}
-          <section id="episodes" className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Episodes & Downloads</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">Select an episode to view synopsis and download in high definition.</p>
-              </div>
-              <span className="self-start sm:self-auto shrink-0 whitespace-nowrap text-xs font-semibold px-3 py-1 rounded-full bg-surface border border-white/10 text-muted-foreground">
-                {displayEpisodesCount} Total Episodes
-              </span>
-            </div>
-
-            {seasonsWithEpisodes.length === 0 ? (
-              <div className="p-10 sm:p-16 rounded-2xl border border-dashed border-white/10 bg-surface flex flex-col items-center justify-center text-center">
-                <FileVideo className="w-10 h-10 text-muted mb-3 opacity-40" />
-                <p className="text-lg font-semibold text-foreground mb-1">Episodes Coming Soon</p>
-                <p className="text-sm text-muted max-w-md">
-                  {displaySeasonsCount || displayEpisodesCount
-                    ? `This series features ${displaySeasonsCount ? `${displaySeasonsCount} season${displaySeasonsCount > 1 ? 's' : ''}` : ''}${displayEpisodesCount ? ` (${displayEpisodesCount} episodes)` : ''}. Episode streaming and download links will appear here shortly.`
-                    : "This series is currently being indexed and verified. Episode streaming and download links will appear here shortly."}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {seasonsWithEpisodes.map((season: any) => (
-                  <div key={season.id} className="border border-white/10 rounded-2xl overflow-hidden bg-surface/30 backdrop-blur-md shadow-lg">
-                    {/* Season Header */}
-                    <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-surface-elevated/60 border-b border-white/5 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                        <span className="px-2.5 py-1 rounded-md bg-primary/20 text-primary font-bold text-xs shrink-0">
-                          SEASON {season.seasonNumber}
-                        </span>
-                        <h3 className="font-bold text-base sm:text-lg text-foreground truncate">
-                          {season.title || `Season ${season.seasonNumber}`}
-                        </h3>
-                      </div>
-                      <span className="text-xs text-muted font-medium shrink-0 whitespace-nowrap">
-                        {season.episodes?.length || 0} Episodes
-                      </span>
-                    </div>
-
-                    {/* Episodes List with Downloads */}
-                    <div className="divide-y divide-white/5">
-                      {season.episodes?.map((ep: any) => {
-                        const sources = ep.sources || [];
-                        return (
-                          <div
-                            key={ep.id}
-                            className="p-4 sm:p-5 md:p-6 hover:bg-white/[0.02] transition-colors space-y-3.5"
-                          >
-                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 sm:gap-4">
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                                  <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-bold text-xs tracking-wider shrink-0">
-                                    EP {ep.episodeNumber}
-                                  </span>
-                                  <h4 className="font-semibold text-foreground text-sm sm:text-base md:text-lg">
-                                    {ep.title}
-                                  </h4>
-                                  {ep.runtime && (
-                                    <span className="text-xs text-muted flex items-center gap-1 font-medium shrink-0">
-                                      <Clock className="w-3 h-3" /> {ep.runtime}m
-                                    </span>
-                                  )}
-                                </div>
-                                {ep.description && (
-                                  <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-3xl">
-                                    {ep.description}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Episode Download Sources / Links */}
-                            <div className="pt-3 border-t border-white/5 space-y-2">
-                              <div className="text-[11px] font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                                <Download className="w-3.5 h-3.5 text-primary" /> Download Episode:
-                              </div>
-
-                              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                                {sources.length === 0 ? (
-                                  <span className="text-xs text-muted/60 italic">
-                                    Direct links coming soon
-                                  </span>
-                                ) : (
-                                  sources.map((src: any) => (
-                                    <EpisodeDownloadButton key={src.id} source={src} />
-                                  ))
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          {/* Episodes & Individual Episode Downloads Section (Hidden by default, expandable per season) */}
+          <section id="episodes">
+            <SeriesEpisodesSection
+              seasons={seasonsWithEpisodes}
+              totalEpisodesCount={displayEpisodesCount}
+              totalSeasonsCount={displaySeasonsCount}
+            />
           </section>
         </div>
 
