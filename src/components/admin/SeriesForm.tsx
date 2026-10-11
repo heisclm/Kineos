@@ -42,6 +42,9 @@ export function SeriesForm() {
   const [cast, setCast] = useState("");
   const [posterUrl, setPosterUrl] = useState("");
   const [backdropUrl, setBackdropUrl] = useState("");
+  const [totalSeasons, setTotalSeasons] = useState("");
+  const [totalEpisodes, setTotalEpisodes] = useState("");
+  const [tmdbId, setTmdbId] = useState("");
 
   const handleTitleChange = (val: string) => {
     setTitle(val);
@@ -64,6 +67,9 @@ export function SeriesForm() {
     if (data.cast) setCast(data.cast);
     if (data.posterUrl) setPosterUrl(data.posterUrl);
     if (data.backdropUrl) setBackdropUrl(data.backdropUrl);
+    if (data.totalSeasons !== undefined && data.totalSeasons !== null) setTotalSeasons(String(data.totalSeasons));
+    if (data.totalEpisodes !== undefined && data.totalEpisodes !== null) setTotalEpisodes(String(data.totalEpisodes));
+    if (data.tmdbId) setTmdbId(String(data.tmdbId));
 
     toast.success(`Loaded details for "${data.title}" from TMDB!`);
   };
@@ -97,6 +103,7 @@ export function SeriesForm() {
       {/* Hidden inputs to pass TMDB URLs if no local files uploaded */}
       <input type="hidden" name="posterUrl" value={posterUrl} />
       <input type="hidden" name="backdropUrl" value={backdropUrl} />
+      <input type="hidden" name="tmdbId" value={tmdbId} />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -270,6 +277,36 @@ export function SeriesForm() {
                     className={inputClasses}
                     placeholder="e.g. 84 for 8.4/10"
                   />
+                </div>
+                <div>
+                  <label className={labelClasses}>Total Seasons</label>
+                  <input
+                    name="totalSeasons"
+                    type="number"
+                    min="1"
+                    value={totalSeasons}
+                    onChange={(e) => setTotalSeasons(e.target.value)}
+                    className={inputClasses}
+                    placeholder="e.g. 5"
+                  />
+                  <span className="text-[11px] text-muted block mt-1">
+                    Auto-fetched from TMDB.
+                  </span>
+                </div>
+                <div>
+                  <label className={labelClasses}>Total Episodes</label>
+                  <input
+                    name="totalEpisodes"
+                    type="number"
+                    min="1"
+                    value={totalEpisodes}
+                    onChange={(e) => setTotalEpisodes(e.target.value)}
+                    className={inputClasses}
+                    placeholder="e.g. 62"
+                  />
+                  <span className="text-[11px] text-muted block mt-1">
+                    Auto-fetched from TMDB.
+                  </span>
                 </div>
               </div>
 

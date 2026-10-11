@@ -99,6 +99,8 @@ export async function fetchCatalogItems(
           rating: series.rating,
           ratingScore: series.ratingScore,
           viewCount: series.viewCount,
+          totalSeasons: series.totalSeasons,
+          totalEpisodes: series.totalEpisodes,
           createdAt: series.createdAt,
         })
         .from(series)

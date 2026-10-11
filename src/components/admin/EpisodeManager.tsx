@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Plus, Tv, Loader2, Trash2, ChevronDown, ChevronUp, Download, Link as LinkIcon, Magnet, Clock } from "lucide-react";
-import { createSeason, deleteSeason, createEpisode, deleteEpisode } from "@/features/admin/admin.actions";
+import { Plus, Tv, Loader2, Trash2, ChevronDown, ChevronUp, Download, Link as LinkIcon, Magnet, Clock, Sparkles } from "lucide-react";
+import { createSeason, deleteSeason, createEpisode, deleteEpisode, importSeasonsAndEpisodesFromTmdbAction } from "@/features/admin/admin.actions";
 import { deleteDownloadSource } from "@/features/admin/sources.actions";
 import { AddSourceModal } from "./AddSourceModal";
 import { toast } from "sonner";
@@ -33,6 +33,28 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
 
   // State for adding episode per season
   const [newEpData, setNewEpData] = useState<Record<string, { number: string; title: string; runtime: string; description: string }>>({});
+  const [isImportingTmdb, setIsImportingTmdb] = useState(false);
+
+  const handleImportFromTmdb = async () => {
+    setIsImportingTmdb(true);
+    const toastId = toast.loading("Fetching all seasons and episodes from TMDB...");
+    try {
+      const res = await importSeasonsAndEpisodesFromTmdbAction(seriesId);
+      if (res.success) {
+        toast.success(
+          `Imported ${res.seasonsImported} new seasons and ${res.episodesImported} new episodes from TMDB! Total: ${res.totalSeasons} seasons (${res.totalEpisodes} episodes).`,
+          { id: toastId, duration: 6000 }
+        );
+        router.refresh();
+      } else {
+        toast.error(res.error || "Failed to import from TMDB.", { id: toastId });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to import from TMDB.", { id: toastId });
+    } finally {
+      setIsImportingTmdb(false);
+    }
+  };
 
   const toggleSeason = (seasonId: string) => {
     setExpandedSeasons((prev) => ({
@@ -128,7 +150,7 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
   return (
     <div className="space-y-8">
       {/* Section Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/5">
         <div>
           <h3 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Tv className="w-5 h-5 text-primary" /> Seasons & Episode Download Links
@@ -137,6 +159,20 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
             Organize episodes by season and attach individual 480p, 720p, 1080p, and 4K download sources to each episode.
           </p>
         </div>
+
+        <Button
+          type="button"
+          onClick={handleImportFromTmdb}
+          disabled={isPending || isImportingTmdb}
+          className="rounded-full px-5 py-2 text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 gap-2 shrink-0 transition-apple self-start sm:self-auto"
+        >
+          {isImportingTmdb ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+          ) : (
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+          )}
+          {isImportingTmdb ? "Importing from TMDB..." : "Auto-Import from TMDB"}
+        </Button>
       </div>
 
       {/* Add New Season Form */}
@@ -172,7 +208,18 @@ export function EpisodeManager({ seriesId, existingSeasons }: EpisodeManagerProp
           <div className="p-12 border border-dashed border-white/10 rounded-2xl text-center flex flex-col items-center justify-center">
             <Tv className="w-8 h-8 text-muted mb-2 opacity-50" />
             <p className="text-muted-foreground font-medium text-sm">No seasons added yet</p>
-            <p className="text-xs text-muted mt-1">Start by adding Season 1 above to begin uploading episodes and download sources.</p>
+            <p className="text-xs text-muted mt-1 max-w-md">
+              Start by importing all seasons & episodes with titles and overviews directly from TMDB in 1 click, or add seasons manually above.
+            </p>
+            <Button
+              type="button"
+              onClick={handleImportFromTmdb}
+              disabled={isPending || isImportingTmdb}
+              className="mt-4 rounded-full px-6 py-2.5 text-xs font-semibold bg-primary text-primary-foreground hover:scale-105 transition-apple gap-2 shadow-lg shadow-primary/20"
+            >
+              {isImportingTmdb ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {isImportingTmdb ? "Importing from TMDB..." : "Auto-Import All Seasons & Episodes from TMDB"}
+            </Button>
           </div>
         ) : (
           existingSeasons.map((season) => {

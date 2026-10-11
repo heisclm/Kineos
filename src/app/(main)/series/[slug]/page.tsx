@@ -109,6 +109,8 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
   const poster = (series as any).imageUrl || null;
 
   const totalEpisodesCount = seasonsWithEpisodes.reduce((acc, s) => acc + (s.episodes?.length || 0), 0);
+  const displaySeasonsCount = (series as any).totalSeasons || seasonsWithEpisodes.length;
+  const displayEpisodesCount = (series as any).totalEpisodes || totalEpisodesCount;
   const releaseYear = series.releaseDate ? new Date(series.releaseDate).getFullYear() : null;
 
   const creators = cast
@@ -131,7 +133,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
     releaseDate: series.releaseDate,
     genres: (series as any).genres,
     cast: cast.map((c: any) => c.name),
-    seasonCount: seasonsWithEpisodes.length,
+    seasonCount: displaySeasonsCount,
   });
 
   const jsonLd = {
@@ -145,8 +147,8 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
         datePublished: series.releaseDate || undefined,
         image: poster || backdrop || undefined,
         url: `${siteUrl}/series/${series.slug}`,
-        numberOfSeasons: seasonsWithEpisodes.length,
-        numberOfEpisodes: totalEpisodesCount,
+        numberOfSeasons: displaySeasonsCount,
+        numberOfEpisodes: displayEpisodesCount,
         genre: series.genres || [],
         keywords: pageKeywords.join(", "),
         actor: cast.map((c: any) => ({
@@ -260,7 +262,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   )}
                   <span className="text-white/40">&bull;</span>
                   <span className="flex items-center gap-1">
-                    <Layers className="w-3 h-3 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} S
+                    <Layers className="w-3 h-3 text-primary" strokeWidth={2.2} /> {displaySeasonsCount} S
                   </span>
                   <span className="text-white/40">&bull;</span>
                   <span className="flex items-center gap-1">
@@ -335,7 +337,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 posterUrl={poster}
                 trailerUrl={(series as any).trailerUrl}
                 releaseYear={releaseYear}
-                duration={`${seasonsWithEpisodes.length} Seasons`}
+                duration={`${displaySeasonsCount} ${displaySeasonsCount === 1 ? 'Season' : 'Seasons'}`}
                 variant="button"
                 buttonText="Watch Trailer"
                 className="w-full justify-center text-xs"
@@ -352,7 +354,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   releaseDate: series.releaseDate,
                   rating: series.rating,
                   ratingScore: series.ratingScore,
-                  seasonsCount: seasonsWithEpisodes.length,
+                  seasonsCount: displaySeasonsCount,
                   shortTeaser: (series as any).shortTeaser || series.description,
                 }}
               />
@@ -382,7 +384,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               <div className="space-y-2 w-full">
                 <a href="#episodes" className="w-full inline-flex">
                   <Button size="lg" className="w-full rounded-full gap-2 font-semibold bg-primary text-primary-foreground hover:scale-[1.02] transition-apple shadow-lg border border-primary/20">
-                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes ({totalEpisodesCount})
+                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes ({displayEpisodesCount})
                   </Button>
                 </a>
                 {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
@@ -426,11 +428,11 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 )}
                 <span className="text-white/30">&bull;</span>
                 <span className="flex items-center gap-1">
-                  <Layers className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {seasonsWithEpisodes.length} {seasonsWithEpisodes.length === 1 ? 'Season' : 'Seasons'}
+                  <Layers className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {displaySeasonsCount} {displaySeasonsCount === 1 ? 'Season' : 'Seasons'}
                 </span>
                 <span className="text-white/30">&bull;</span>
                 <span className="flex items-center gap-1">
-                  <FileVideo className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {totalEpisodesCount} {totalEpisodesCount === 1 ? 'Episode' : 'Episodes'}
+                  <FileVideo className="w-3.5 h-3.5 text-primary" strokeWidth={2.2} /> {displayEpisodesCount} {displayEpisodesCount === 1 ? 'Episode' : 'Episodes'}
                 </span>
                 <span className="text-white/30">&bull;</span>
                 <span className="flex items-center gap-1">
@@ -513,7 +515,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                   posterUrl={poster}
                   trailerUrl={(series as any).trailerUrl}
                   releaseYear={releaseYear}
-                  duration={`${seasonsWithEpisodes.length} Seasons`}
+                  duration={`${displaySeasonsCount} ${displaySeasonsCount === 1 ? 'Season' : 'Seasons'}`}
                   variant="button"
                   buttonText="Watch Trailer"
                 />
@@ -528,7 +530,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                     releaseDate: series.releaseDate,
                     rating: series.rating,
                     ratingScore: series.ratingScore,
-                    seasonsCount: seasonsWithEpisodes.length,
+                    seasonsCount: displaySeasonsCount,
                     shortTeaser: (series as any).shortTeaser || series.description,
                   }}
                 />
@@ -618,7 +620,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1">Select an episode to view synopsis and download in high definition.</p>
               </div>
               <span className="self-start sm:self-auto shrink-0 whitespace-nowrap text-xs font-semibold px-3 py-1 rounded-full bg-surface border border-white/10 text-muted-foreground">
-                {totalEpisodesCount} Total Episodes
+                {displayEpisodesCount} Total Episodes
               </span>
             </div>
 
@@ -626,7 +628,11 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               <div className="p-10 sm:p-16 rounded-2xl border border-dashed border-white/10 bg-surface flex flex-col items-center justify-center text-center">
                 <FileVideo className="w-10 h-10 text-muted mb-3 opacity-40" />
                 <p className="text-lg font-semibold text-foreground mb-1">Episodes Coming Soon</p>
-                <p className="text-sm text-muted max-w-md">This series is currently being indexed and verified. Episode streaming and download links will appear here shortly.</p>
+                <p className="text-sm text-muted max-w-md">
+                  {displaySeasonsCount || displayEpisodesCount
+                    ? `This series features ${displaySeasonsCount ? `${displaySeasonsCount} season${displaySeasonsCount > 1 ? 's' : ''}` : ''}${displayEpisodesCount ? ` (${displayEpisodesCount} episodes)` : ''}. Episode streaming and download links will appear here shortly.`
+                    : "This series is currently being indexed and verified. Episode streaming and download links will appear here shortly."}
+                </p>
               </div>
             ) : (
               <div className="space-y-8">

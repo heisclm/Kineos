@@ -194,6 +194,47 @@ export function EditSeriesForm({ series }: { series: any }) {
                     placeholder="e.g. 84 for 8.4/10"
                   />
                 </div>
+                <div>
+                  <label className={labelClasses}>Total Seasons</label>
+                  <input
+                    name="totalSeasons"
+                    type="number"
+                    min="1"
+                    defaultValue={series.totalSeasons || ""}
+                    className={inputClasses}
+                    placeholder="e.g. 5"
+                  />
+                  <span className="text-[11px] text-muted block mt-1">
+                    Total seasons count.
+                  </span>
+                </div>
+                <div>
+                  <label className={labelClasses}>Total Episodes</label>
+                  <input
+                    name="totalEpisodes"
+                    type="number"
+                    min="1"
+                    defaultValue={series.totalEpisodes || ""}
+                    className={inputClasses}
+                    placeholder="e.g. 62"
+                  />
+                  <span className="text-[11px] text-muted block mt-1">
+                    Total episodes count.
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <label className={labelClasses}>TMDB ID</label>
+                  <input
+                    name="tmdbId"
+                    type="number"
+                    defaultValue={series.tmdbId || ""}
+                    className={inputClasses}
+                    placeholder="e.g. 1399"
+                  />
+                  <span className="text-[11px] text-muted block mt-1">
+                    TMDB identifier used to auto-import seasons and episodes.
+                  </span>
+                </div>
               </div>
 
               <div>

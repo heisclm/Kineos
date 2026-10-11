@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { uploadMedia, deleteMediaByUrl, supabaseAdmin } from "@/lib/supabase";
-import { fetchTmdbMetadata, searchTmdbCandidates, fetchTmdbFullDetails } from "@/lib/tmdb";
+import { fetchTmdbMetadata, searchTmdbCandidates, fetchTmdbFullDetails, fetchTmdbSeriesSeasons } from "@/lib/tmdb";
 import { generateNarrativeWithGemini, type GenerateNarrativeParams } from "@/lib/gemini";
 import { pingContentPublished } from "@/lib/indexnow";
 
@@ -194,14 +194,20 @@ export async function createSeries(formData: FormData) {
     let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
     const rawScore = formData.get("ratingScore") as string;
     let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
+    let totalSeasons = parseInt(formData.get("totalSeasons") as string, 10) || null;
+    let totalEpisodes = parseInt(formData.get("totalEpisodes") as string, 10) || null;
+    let tmdbId = parseInt(formData.get("tmdbId") as string, 10) || null;
 
-    // Method B: Automatic from TMDB if trailerUrl or ratingScore is not manually provided
-    if (!trailerUrl || !ratingScore) {
+    // Method B: Automatic from TMDB if trailerUrl, ratingScore, tmdbId, or totalSeasons is not manually provided
+    if (!trailerUrl || !ratingScore || !tmdbId || !totalSeasons) {
       const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
       const tmdbData = await fetchTmdbMetadata(title, "series", releaseYear).catch(() => null);
       if (tmdbData) {
         if (!ratingScore && tmdbData.ratingScore) ratingScore = tmdbData.ratingScore;
         if (!trailerUrl && tmdbData.trailerUrl) trailerUrl = tmdbData.trailerUrl;
+        if (!totalSeasons && tmdbData.totalSeasons) totalSeasons = tmdbData.totalSeasons;
+        if (!totalEpisodes && tmdbData.totalEpisodes) totalEpisodes = tmdbData.totalEpisodes;
+        if (!tmdbId && tmdbData.tmdbId) tmdbId = tmdbData.tmdbId;
       }
     }
 
@@ -232,6 +238,9 @@ export async function createSeries(formData: FormData) {
       country: country || null,
       language: language || undefined,
       shortTeaser: shortTeaser || null,
+      totalSeasons: totalSeasons || null,
+      totalEpisodes: totalEpisodes || null,
+      tmdbId: tmdbId || null,
     }).returning({ id: series.id });
     
     const id = newRow[0].id;
@@ -632,14 +641,20 @@ export async function updateSeries(id: string, formData: FormData) {
     let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
     const rawScore = formData.get("ratingScore") as string;
     let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
+    let totalSeasons = parseInt(formData.get("totalSeasons") as string, 10) || null;
+    let totalEpisodes = parseInt(formData.get("totalEpisodes") as string, 10) || null;
+    let tmdbId = parseInt(formData.get("tmdbId") as string, 10) || null;
 
-    // Method B: Automatic from TMDB if trailerUrl or ratingScore is missing
-    if (!trailerUrl || !ratingScore) {
+    // Method B: Automatic from TMDB if trailerUrl, ratingScore, tmdbId, or totalSeasons is missing
+    if (!trailerUrl || !ratingScore || !tmdbId || !totalSeasons) {
       const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
       const tmdbData = await fetchTmdbMetadata(title, "series", releaseYear).catch(() => null);
       if (tmdbData) {
         if (!ratingScore && tmdbData.ratingScore) ratingScore = tmdbData.ratingScore;
         if (!trailerUrl && tmdbData.trailerUrl) trailerUrl = tmdbData.trailerUrl;
+        if (!totalSeasons && tmdbData.totalSeasons) totalSeasons = tmdbData.totalSeasons;
+        if (!totalEpisodes && tmdbData.totalEpisodes) totalEpisodes = tmdbData.totalEpisodes;
+        if (!tmdbId && tmdbData.tmdbId) tmdbId = tmdbData.tmdbId;
       }
     }
 
@@ -671,6 +686,9 @@ export async function updateSeries(id: string, formData: FormData) {
       country: country || null,
       language: language || undefined,
       shortTeaser: shortTeaser || null,
+      ...(totalSeasons !== null ? { totalSeasons } : {}),
+      ...(totalEpisodes !== null ? { totalEpisodes } : {}),
+      ...(tmdbId !== null ? { tmdbId } : {}),
     }).where(eq(series.id, id));
 
     if (posterUrl) {
@@ -786,5 +804,132 @@ export async function generateAiNarrativeAction(params: GenerateNarrativeParams)
   }
 }
 
+export async function importSeasonsAndEpisodesFromTmdbAction(
+  seriesId: string,
+  customApiKey?: string | null
+) {
+  const isAdmin = await verifyAdminAccess();
+  if (!isAdmin && process.env.NODE_ENV !== "development") {
+    throw new Error("Unauthorized");
+  }
 
+  try {
+    // 1. Fetch series from DB
+    const seriesRows = await db.select().from(series).where(eq(series.id, seriesId)).limit(1);
+    const seriesRow = seriesRows[0];
+    if (!seriesRow) {
+      return { success: false, error: "Series not found." };
+    }
 
+    let tmdbId = seriesRow.tmdbId;
+
+    // If tmdbId is not in DB, search TMDB by series title
+    if (!tmdbId) {
+      const candidates = await searchTmdbCandidates(seriesRow.title, "series", customApiKey);
+      if (candidates && candidates.length > 0) {
+        tmdbId = candidates[0].id;
+        await db.update(series).set({ tmdbId }).where(eq(series.id, seriesId));
+      } else {
+        return {
+          success: false,
+          error: "Could not automatically find TMDB ID for this series. Please edit the series and save its TMDB ID first.",
+        };
+      }
+    }
+
+    // 2. Fetch full seasons and episodes list from TMDB
+    const tmdbSeasons = await fetchTmdbSeriesSeasons(tmdbId, customApiKey);
+    if (!tmdbSeasons || tmdbSeasons.length === 0) {
+      return {
+        success: false,
+        error: "No seasons or episodes could be retrieved from TMDB for this series.",
+      };
+    }
+
+    // 3. Fetch existing seasons for this series to avoid duplicate insertions
+    const existingSeasonsList = await db
+      .select()
+      .from(seasons)
+      .where(eq(seasons.seriesId, seriesId));
+    const seasonByNumber = new Map<number, typeof existingSeasonsList[0]>();
+    for (const es of existingSeasonsList) {
+      seasonByNumber.set(es.seasonNumber, es);
+    }
+
+    let seasonsImported = 0;
+    let episodesImported = 0;
+
+    for (const tmdbS of tmdbSeasons) {
+      let seasonRecord = seasonByNumber.get(tmdbS.seasonNumber);
+      if (!seasonRecord) {
+        const insertedSeason = await db
+          .insert(seasons)
+          .values({
+            seriesId,
+            seasonNumber: tmdbS.seasonNumber,
+            title: tmdbS.title || `Season ${tmdbS.seasonNumber}`,
+          })
+          .returning();
+        seasonRecord = insertedSeason[0];
+        seasonByNumber.set(tmdbS.seasonNumber, seasonRecord);
+        seasonsImported++;
+      }
+
+      // Fetch existing episodes for this season
+      const existingEps = await db
+        .select()
+        .from(episodes)
+        .where(eq(episodes.seasonId, seasonRecord.id));
+      const epByNumber = new Set(existingEps.map((e) => e.episodeNumber));
+
+      for (const tmdbEp of tmdbS.episodes) {
+        if (!epByNumber.has(tmdbEp.episodeNumber)) {
+          await db.insert(episodes).values({
+            seasonId: seasonRecord.id,
+            episodeNumber: tmdbEp.episodeNumber,
+            title: tmdbEp.title || `Episode ${tmdbEp.episodeNumber}`,
+            description: tmdbEp.description || null,
+            runtime: tmdbEp.runtime || null,
+            publicationStatus: "published",
+          });
+          epByNumber.add(tmdbEp.episodeNumber);
+          episodesImported++;
+        }
+      }
+    }
+
+    // 4. Update series totalSeasons and totalEpisodes
+    const totalSeasonsCount = tmdbSeasons.length;
+    const totalEpisodesCount = tmdbSeasons.reduce((acc, s) => acc + (s.episodes?.length || 0), 0);
+
+    await db
+      .update(series)
+      .set({
+        totalSeasons: totalSeasonsCount,
+        totalEpisodes: totalEpisodesCount,
+        tmdbId,
+      })
+      .where(eq(series.id, seriesId));
+
+    // 5. Revalidate paths
+    revalidatePath(`/admin/series/${seriesId}`);
+    revalidatePath("/admin/series");
+    revalidatePath(`/series/${seriesRow.slug}`);
+    revalidatePath("/series");
+    revalidatePath("/");
+
+    return {
+      success: true,
+      seasonsImported,
+      episodesImported,
+      totalSeasons: totalSeasonsCount,
+      totalEpisodes: totalEpisodesCount,
+    };
+  } catch (error: any) {
+    console.error("importSeasonsAndEpisodesFromTmdbAction error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to import seasons and episodes from TMDB.",
+    };
+  }
+}

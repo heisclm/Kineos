@@ -20,6 +20,8 @@ export interface MovieCardProps {
   runtime?: number | null;
   qualityBadge?: string | null;
   seasonsCount?: number | null;
+  totalSeasons?: number | null;
+  totalEpisodes?: number | null;
 }
 
 export function MovieCard({
@@ -37,9 +39,12 @@ export function MovieCard({
   runtime,
   qualityBadge = "HD",
   seasonsCount,
+  totalSeasons,
+  totalEpisodes,
 }: MovieCardProps) {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : null;
   const score = ratingScore ? (ratingScore / 10).toFixed(1) : null;
+  const finalSeasonsCount = totalSeasons || seasonsCount;
 
   return (
     <Link
@@ -96,7 +101,7 @@ export function MovieCard({
               rating,
               ratingScore,
               runtime,
-              seasonsCount,
+              seasonsCount: finalSeasonsCount,
               shortTeaser: shortTeaser || description,
             }}
           />
@@ -139,10 +144,10 @@ export function MovieCard({
               </>
             )}
 
-            {type === "series" && seasonsCount ? (
+            {type === "series" && finalSeasonsCount ? (
               <>
                 <span className="text-white/30">&bull;</span>
-                <span className="text-[10px] text-white/60">{seasonsCount} {seasonsCount === 1 ? 'Season' : 'Seasons'}</span>
+                <span className="text-[10px] text-white/60">{finalSeasonsCount} {finalSeasonsCount === 1 ? 'Season' : 'Seasons'}</span>
               </>
             ) : runtime ? (
               <>

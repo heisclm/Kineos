@@ -69,10 +69,13 @@ export async function fetchTmdbMetadata(
   type: "movie" | "series" = "movie",
   year?: number | null
 ): Promise<{
+  tmdbId: number | null;
   voteAverage: number | null;
   ratingScore: number | null;
   trailerUrl: string | null;
   overview: string | null;
+  totalSeasons?: number | null;
+  totalEpisodes?: number | null;
 } | null> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) return null;
@@ -93,29 +96,39 @@ export async function fetchTmdbMetadata(
     const voteAverage = firstResult.vote_average ?? null;
     const ratingScore = voteAverage ? Math.round(voteAverage * 10) : null;
 
-    // Fetch Videos to find official trailer
+    // Fetch Details & Videos to find official trailer and seasons/episodes
     let trailerUrl: string | null = null;
+    let totalSeasons: number | null = null;
+    let totalEpisodes: number | null = null;
+
     try {
-      const videosUrl = `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/videos?api_key=${apiKey}`;
-      const videoRes = await fetch(videosUrl, { next: { revalidate: 86400 } });
-      if (videoRes.ok) {
-        const videoData = await videoRes.json();
-        const trailer = (videoData.results || []).find(
+      const detailsUrl = `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${apiKey}&append_to_response=videos`;
+      const detailRes = await fetch(detailsUrl, { next: { revalidate: 86400 } });
+      if (detailRes.ok) {
+        const detailData = await detailRes.json();
+        const trailer = (detailData.videos?.results || []).find(
           (v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")
         );
         if (trailer?.key) {
           trailerUrl = `https://www.youtube.com/watch?v=${trailer.key}`;
         }
+        if (type === "series") {
+          totalSeasons = detailData.number_of_seasons ?? null;
+          totalEpisodes = detailData.number_of_episodes ?? null;
+        }
       }
     } catch {
-      // Ignore video fetch errors
+      // Ignore video/detail fetch errors
     }
 
     return {
+      tmdbId,
       voteAverage,
       ratingScore,
       trailerUrl,
       overview: firstResult.overview || null,
+      totalSeasons,
+      totalEpisodes,
     };
   } catch (error) {
     console.error("TMDB fetch error:", error);
@@ -151,6 +164,9 @@ export interface TmdbDetailedResult {
   cast: string;
   posterUrl: string;
   backdropUrl: string;
+  totalSeasons?: number | null;
+  totalEpisodes?: number | null;
+  tmdbId?: number | null;
 }
 
 function slugify(text: string) {
@@ -328,10 +344,90 @@ export async function fetchTmdbFullDetails(
       cast,
       posterUrl,
       backdropUrl,
+      totalSeasons: type === "series" ? (data.number_of_seasons || null) : null,
+      totalEpisodes: type === "series" ? (data.number_of_episodes || null) : null,
+      tmdbId: data.id || null,
     };
   } catch (error) {
     console.error("fetchTmdbFullDetails error:", error);
     return null;
+  }
+}
+
+export interface TmdbSeasonData {
+  seasonNumber: number;
+  title: string;
+  overview: string | null;
+  episodes: Array<{
+    episodeNumber: number;
+    title: string;
+    description: string | null;
+    runtime: number | null;
+    releaseDate: string | null;
+  }>;
+}
+
+/**
+ * Fetches all seasons and individual episodes for a TV series from TMDB.
+ */
+export async function fetchTmdbSeriesSeasons(
+  tmdbId: number,
+  customApiKey?: string | null
+): Promise<TmdbSeasonData[]> {
+  const apiKey = (customApiKey?.trim() || process.env.TMDB_API_KEY)?.trim();
+  if (!apiKey || !tmdbId) return [];
+
+  try {
+    // 1. Fetch TV series overview to get the list of seasons
+    const seriesRes = await fetch(
+      `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${apiKey}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!seriesRes.ok) return [];
+
+    const seriesData = await seriesRes.json();
+    const rawSeasons: any[] = seriesData.seasons || [];
+
+    // Filter to standard seasons (ignore season 0 specials unless it's the only one)
+    const validSeasons = rawSeasons.filter((s) => s.season_number > 0);
+    const seasonsToFetch = validSeasons.length > 0 ? validSeasons : rawSeasons;
+
+    // 2. Fetch each season's episode list in parallel
+    const seasonsResults = await Promise.all(
+      seasonsToFetch.map(async (s): Promise<TmdbSeasonData | null> => {
+        try {
+          const sRes = await fetch(
+            `https://api.themoviedb.org/3/tv/${tmdbId}/season/${s.season_number}?api_key=${apiKey}`,
+            { next: { revalidate: 3600 } }
+          );
+          if (!sRes.ok) return null;
+
+          const sData = await sRes.json();
+          const eps: any[] = sData.episodes || [];
+
+          return {
+            seasonNumber: s.season_number,
+            title: s.name || `Season ${s.season_number}`,
+            overview: s.overview || null,
+            episodes: eps.map((e) => ({
+              episodeNumber: e.episode_number,
+              title: e.name || `Episode ${e.episode_number}`,
+              description: e.overview || null,
+              runtime: e.runtime || null,
+              releaseDate: e.air_date || null,
+            })),
+          };
+        } catch (e) {
+          console.error(`Failed to fetch TMDB season ${s.season_number}:`, e);
+          return null;
+        }
+      })
+    );
+
+    return seasonsResults.filter((s): s is TmdbSeasonData => s !== null);
+  } catch (error) {
+    console.error("fetchTmdbSeriesSeasons error:", error);
+    return [];
   }
 }
 

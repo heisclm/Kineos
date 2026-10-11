@@ -640,6 +640,8 @@ export async function getRelatedSeries(seriesId: string, limit = 12) {
         releaseDate: series.releaseDate,
         rating: series.rating,
         ratingScore: series.ratingScore,
+        totalSeasons: series.totalSeasons,
+        totalEpisodes: series.totalEpisodes,
       })
       .from(series)
       .where(inArray(series.id, finalIds));
@@ -714,7 +716,7 @@ export async function getRelatedSeries(seriesId: string, limit = 12) {
           genre: gList[0] || "TV Series",
           primaryGenre: gList[0] || "TV Series",
           genres: gList,
-          seasonsCount: seasonsMap.get(id) || null,
+          seasonsCount: (item as any).totalSeasons || seasonsMap.get(id) || null,
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -847,6 +849,8 @@ export async function getPopularSeries(limit = 10) {
         rating: series.rating,
         ratingScore: series.ratingScore,
         viewCount: series.viewCount,
+        totalSeasons: series.totalSeasons,
+        totalEpisodes: series.totalEpisodes,
         genre: genres.name,
       })
       .from(series)
@@ -862,6 +866,7 @@ export async function getPopularSeries(limit = 10) {
         seriesMap.set(row.id, {
           ...row,
           genres: row.genre ? [row.genre] : [],
+          seasonsCount: row.totalSeasons || null,
           type: 'series' as const,
         });
       } else {
@@ -1008,6 +1013,8 @@ export async function getPersonWithFilmography(slugOrId: string) {
         rating: series.rating,
         ratingScore: series.ratingScore,
         viewCount: series.viewCount,
+        totalSeasons: series.totalSeasons,
+        totalEpisodes: series.totalEpisodes,
         roleName: seriesCast.roleName,
         order: seriesCast.order,
       })
@@ -1086,7 +1093,7 @@ export async function getPersonWithFilmography(slugOrId: string) {
         imageUrl: seriesPosterMap.get(s.id) || null,
         primaryGenre: gList[0] || "TV Series",
         genres: gList,
-        seasonsCount: seriesSeasonMap.get(s.id) || null,
+        seasonsCount: (s as any).totalSeasons || seriesSeasonMap.get(s.id) || null,
       };
     });
 
