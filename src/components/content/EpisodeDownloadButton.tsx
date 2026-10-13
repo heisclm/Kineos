@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Download, Magnet, Zap } from "lucide-react";
+import { Download, Magnet } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 import { TorrentGuideModal } from "./TorrentGuideModal";
-import { DirectBrowserDownloadModal } from "./DirectBrowserDownloadModal";
 
 export interface EpisodeDownloadSource {
   id: string;
@@ -17,24 +15,19 @@ export interface EpisodeDownloadSource {
   url: string;
 }
 
-export function EpisodeDownloadButton({
-  source,
-  episodeTitle,
-}: {
-  source: EpisodeDownloadSource;
-  episodeTitle?: string;
-}) {
-  const [browserModalOpen, setBrowserModalOpen] = useState(false);
+export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSource }) {
   const isMagnet = source.sourceType === "TORRENT_MAGNET" || source.url?.startsWith("magnet:");
   const isR2 = source.sourceType === "CLOUDFLARE_R2";
   const isDirect = source.sourceType === "DIRECT_URL" || (!isMagnet && !isR2);
 
-  const triggerMonetagAd = () => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If a Monetag Direct Link is configured, open the sponsored offer with frequency capping
     const directLink = process.env.NEXT_PUBLIC_MONETAG_DIRECT_LINK;
     if (directLink) {
       try {
         const lastTriggered = localStorage.getItem("kineos_directlink_last");
         const now = Date.now();
+        // 4-hour cooldown so users aren't bombarded with tabs on multiple episode downloads
         if (!lastTriggered || now - Number(lastTriggered) >= 4 * 60 * 60 * 1000) {
           localStorage.setItem("kineos_directlink_last", now.toString());
           window.open(directLink, "_blank", "noopener,noreferrer");
@@ -43,12 +36,9 @@ export function EpisodeDownloadButton({
         console.warn("Direct link trigger:", err);
       }
     }
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    triggerMonetagAd();
 
     if (isMagnet) {
+      // Prevent opening an orphaned empty tab; directly invoke torrent protocol
       e.preventDefault();
       window.location.href = source.url || `/api/downloads/${source.id}`;
     }
@@ -78,7 +68,7 @@ export function EpisodeDownloadButton({
       target={isMagnet ? undefined : "_blank"}
       rel={isMagnet ? undefined : "noopener noreferrer"}
       onClick={handleClick}
-      title={isMagnet ? "Open episode in uTorrent / BitTorrent app" : "Download episode"}
+      title={isMagnet ? "Download episode via Fast Mirror" : "Download episode"}
       className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-apple hover:scale-105 active:scale-95 cursor-pointer shadow-sm ${colorClasses}`}
     >
       <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -101,33 +91,10 @@ export function EpisodeDownloadButton({
 
   if (isMagnet) {
     return (
-      <>
-        <div className="inline-flex items-center gap-1.5 flex-wrap">
-          <button
-            type="button"
-            onClick={() => {
-              triggerMonetagAd();
-              setBrowserModalOpen(true);
-            }}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm"
-            title="Convert to direct download in browser"
-          >
-            <Zap className="w-3.5 h-3.5 fill-emerald-400 shrink-0" />
-            <span>Direct</span>
-          </button>
-          {buttonElement}
-          <TorrentGuideModal variant="icon" />
-        </div>
-
-        <DirectBrowserDownloadModal
-          isOpen={browserModalOpen}
-          onClose={() => setBrowserModalOpen(false)}
-          magnetUrl={source.url}
-          title={episodeTitle || "Episode"}
-          quality={source.quality || "HD"}
-          fileSize={source.fileSize || undefined}
-        />
-      </>
+      <div className="inline-flex items-center gap-1.5">
+        {buttonElement}
+        <TorrentGuideModal variant="icon" />
+      </div>
     );
   }
 

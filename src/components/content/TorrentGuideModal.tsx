@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { 
   HelpCircle, Magnet, Download, PauseCircle, Zap, 
@@ -9,28 +9,14 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface TorrentGuideModalProps {
-  variant?: "icon" | "badge" | "link" | "none";
+  variant?: "icon" | "badge" | "link";
   className?: string;
-  isOpen?: boolean;
-  onClose?: () => void;
 }
 
-export function TorrentGuideModal({
-  variant = "badge",
-  className = "",
-  isOpen: controlledIsOpen,
-  onClose,
-}: TorrentGuideModalProps) {
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
+export function TorrentGuideModal({ variant = "badge", className = "" }: TorrentGuideModalProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"android" | "pc" | "ios">("android");
-
-  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
-
-  const handleClose = useCallback(() => {
-    setInternalIsOpen(false);
-    onClose?.();
-  }, [onClose]);
 
   useEffect(() => {
     setMounted(true);
@@ -40,11 +26,11 @@ export function TorrentGuideModal({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") setIsOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, handleClose]);
+  }, [isOpen]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -61,7 +47,7 @@ export function TorrentGuideModal({
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    setInternalIsOpen(true);
+    setIsOpen(true);
   };
 
   // Modal dialog rendered via Portal to ensure it is always above headers, navigation, and overlays
@@ -71,7 +57,7 @@ export function TorrentGuideModal({
           <div
             role="dialog"
             aria-modal="true"
-            onClick={handleClose}
+            onClick={() => setIsOpen(false)}
             className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-xl overflow-y-auto overscroll-contain flex flex-col items-center justify-start p-3 sm:p-6 pt-16 sm:pt-12 pb-10 animate-in fade-in duration-200"
           >
             <div
@@ -81,7 +67,7 @@ export function TorrentGuideModal({
               {/* Close Button - prominent, easy tap target */}
               <button
                 type="button"
-                onClick={handleClose}
+                onClick={() => setIsOpen(false)}
                 className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/10 active:bg-white/20 text-muted-foreground hover:text-white transition-colors border border-white/10 z-10"
                 aria-label="Close guide"
               >
@@ -323,7 +309,7 @@ export function TorrentGuideModal({
                 </span>
                 <Button
                   type="button"
-                  onClick={handleClose}
+                  onClick={() => setIsOpen(false)}
                   className="w-full sm:w-auto rounded-full px-6 py-2.5 h-auto bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition-apple shadow-lg shadow-emerald-500/20"
                 >
                   Got It, Thanks!
@@ -338,7 +324,7 @@ export function TorrentGuideModal({
   return (
     <>
       {/* Trigger Button Variants */}
-      {variant === "none" ? null : variant === "icon" ? (
+      {variant === "icon" ? (
         <button
           type="button"
           onClick={handleOpen}

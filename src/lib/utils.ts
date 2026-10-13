@@ -22,25 +22,6 @@ export function formatBytes(mb: number | null | undefined) {
   return mb + " MB";
 }
 
-export function formatRawBytes(bytes: number | null | undefined): string {
-  if (!bytes || bytes <= 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-}
-
-export function formatEta(ms: number | null | undefined): string {
-  if (!ms || ms === Infinity || isNaN(ms) || ms < 0) return "Estimating...";
-  const seconds = Math.floor(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  const remainingSecs = seconds % 60;
-  if (minutes < 60) return `${minutes}m ${remainingSecs}s`;
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ${minutes % 60}m`;
-}
-
 export function slugify(text: string): string {
   if (!text) return "";
   return text

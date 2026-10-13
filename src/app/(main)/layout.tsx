@@ -45,9 +45,6 @@ export default function MainLayout({
                 <Link href="/series" className="text-sm text-muted-foreground hover:text-white transition-apple">TV Series</Link>
                 <Link href="/top-10" className="text-sm text-muted-foreground hover:text-white transition-apple">Top 10 Trending</Link>
                 <Link href="/watchlist" className="text-sm text-muted-foreground hover:text-white transition-apple">My Watchlist</Link>
-                <Link href="/direct-download" className="text-sm text-muted-foreground hover:text-white transition-apple flex items-center gap-1.5">
-                  Magnet Downloader <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Free</span>
-                </Link>
                 <Link href="/search" className="text-sm text-muted-foreground hover:text-white transition-apple">Search Content</Link>
               </div>
 
