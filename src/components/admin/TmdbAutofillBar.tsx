@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useTransition } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Search, Sparkles, Loader2, Key, X, Star, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,10 @@ import type { TmdbCandidate, TmdbDetailedResult } from "@/lib/tmdb";
 interface TmdbAutofillBarProps {
   type: "movie" | "series";
   onAutofill: (data: TmdbDetailedResult) => void;
+  initialQuery?: string;
 }
 
-export function TmdbAutofillBar({ type, onAutofill }: TmdbAutofillBarProps) {
+export function TmdbAutofillBar({ type, onAutofill, initialQuery }: TmdbAutofillBarProps) {
   const [query, setQuery] = useState("");
   const [candidates, setCandidates] = useState<TmdbCandidate[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -47,6 +48,29 @@ export function TmdbAutofillBar({ type, onAutofill }: TmdbAutofillBarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const executeSearch = useCallback(async (searchTerm: string) => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed || trimmed.length < 2) return;
+    setIsSearching(true);
+    try {
+      const results = await searchTmdbCandidatesAction(
+        trimmed,
+        type,
+        customKey || null
+      );
+      setCandidates(results);
+      setIsOpen(results.length > 0);
+      if (results.length === 0) {
+        toast.info(`No TMDB matches found for "${trimmed}". Try searching by IMDb ID or exact title.`);
+      }
+    } catch (err: any) {
+      console.error("TMDB search error:", err);
+      toast.error(err.message || "Failed to search TMDB.");
+    } finally {
+      setIsSearching(false);
+    }
+  }, [type, customKey]);
+
   // Search TMDB candidates with debouncing
   useEffect(() => {
     const trimmed = query.trim();
@@ -56,28 +80,12 @@ export function TmdbAutofillBar({ type, onAutofill }: TmdbAutofillBarProps) {
       return;
     }
 
-    const timer = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const results = await searchTmdbCandidatesAction(
-          trimmed,
-          type,
-          customKey || null
-        );
-        setCandidates(results);
-        setIsOpen(results.length > 0);
-        if (results.length === 0 && trimmed.length >= 3) {
-          // If 0 results, could be missing key or title not found
-        }
-      } catch (err: any) {
-        console.error("TMDB search error:", err);
-      } finally {
-        setIsSearching(false);
-      }
+    const timer = setTimeout(() => {
+      executeSearch(trimmed);
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [query, type, customKey]);
+  }, [query, executeSearch]);
 
   const handleSelect = async (candidate: TmdbCandidate) => {
     setIsFetchingDetails(true);
@@ -156,6 +164,12 @@ export function TmdbAutofillBar({ type, onAutofill }: TmdbAutofillBarProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                executeSearch(query);
+              }
+            }}
             placeholder={
               type === "movie"
                 ? "Search movie by title or IMDb ID (e.g. Inception, Dune, tt1375666)..."
@@ -182,6 +196,25 @@ export function TmdbAutofillBar({ type, onAutofill }: TmdbAutofillBarProps) {
             ) : null}
           </div>
         </div>
+
+        {/* Quick Search Chip if initialQuery is available */}
+        {initialQuery && initialQuery.trim() && (
+          <div className="flex flex-wrap items-center gap-2 mt-2.5 pt-2 border-t border-white/5 text-xs">
+            <span className="text-muted/70 text-[11px]">Quick 1-Click Search:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery(initialQuery.trim());
+                executeSearch(initialQuery.trim());
+              }}
+              disabled={isSearching || isFetchingDetails}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-all cursor-pointer shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Search &ldquo;{initialQuery.trim()}&rdquo; on TMDB</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Candidates Dropdown Menu */}

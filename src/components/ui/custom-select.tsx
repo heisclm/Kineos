@@ -12,12 +12,22 @@ interface CustomSelectProps {
   name: string;
   options: Option[];
   defaultValue?: string;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder?: string;
 }
 
-export function CustomSelect({ name, options, defaultValue, placeholder = "Select..." }: CustomSelectProps) {
+export function CustomSelect({
+  name,
+  options,
+  defaultValue,
+  value,
+  onChange,
+  placeholder = "Select...",
+}: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(defaultValue || options[0]?.value || "");
+  const [internalValue, setInternalValue] = useState(defaultValue || options[0]?.value || "");
+  const selectedValue = value !== undefined ? value : internalValue;
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -60,7 +70,10 @@ export function CustomSelect({ name, options, defaultValue, placeholder = "Selec
                   isSelected ? "bg-primary/10 text-primary" : "text-foreground hover:bg-white/5"
                 }`}
                 onClick={() => {
-                  setSelectedValue(opt.value);
+                  if (value === undefined) {
+                    setInternalValue(opt.value);
+                  }
+                  onChange?.(opt.value);
                   setIsOpen(false);
                 }}
               >

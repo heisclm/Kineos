@@ -525,18 +525,31 @@ export async function updateMovie(id: string, formData: FormData) {
 
   try {
     const oldMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
+    const oldPoster = oldMedia.find(m => m.type === 'poster');
+    const oldBackdrop = oldMedia.find(m => m.type === 'backdrop');
+
     let posterUrl = "";
     const posterFile = formData.get("posterFile") as File | null;
+    const formPosterProvided = formData.has("posterUrl");
+    const formPosterUrl = ((formData.get("posterUrl") as string) || "").trim();
+
     if (posterFile && posterFile.size > 0) {
       const ext = posterFile.name.split(".").pop();
       posterUrl = await uploadMedia(posterFile, `posters/movie_${slugForm}_${Date.now()}.${ext}`);
+    } else if (formPosterUrl && formPosterUrl !== oldPoster?.url) {
+      posterUrl = formPosterUrl;
     }
 
     let backdropUrl = "";
     const backdropFile = formData.get("backdropFile") as File | null;
+    const formBackdropProvided = formData.has("backdropUrl");
+    const formBackdropUrl = ((formData.get("backdropUrl") as string) || "").trim();
+
     if (backdropFile && backdropFile.size > 0) {
       const ext = backdropFile.name.split(".").pop();
       backdropUrl = await uploadMedia(backdropFile, `backdrops/movie_${slugForm}_${Date.now()}.${ext}`);
+    } else if (formBackdropUrl && formBackdropUrl !== oldBackdrop?.url) {
+      backdropUrl = formBackdropUrl;
     }
 
     await db.update(movies).set({
@@ -553,8 +566,17 @@ export async function updateMovie(id: string, formData: FormData) {
       shortTeaser: shortTeaser || null,
     }).where(eq(movies.id, id));
 
+    // Handle explicit clearing of poster or backdrop
+    if (formPosterProvided && !formPosterUrl && oldPoster?.url && (!posterFile || posterFile.size === 0)) {
+      await deleteMediaByUrl(oldPoster.url);
+      await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'poster')));
+    }
+    if (formBackdropProvided && !formBackdropUrl && oldBackdrop?.url && (!backdropFile || backdropFile.size === 0)) {
+      await deleteMediaByUrl(oldBackdrop.url);
+      await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'backdrop')));
+    }
+
     if (posterUrl) {
-      const oldPoster = oldMedia.find(m => m.type === 'poster');
       if (oldPoster?.url) {
         await deleteMediaByUrl(oldPoster.url);
       }
@@ -564,7 +586,6 @@ export async function updateMovie(id: string, formData: FormData) {
       });
     }
     if (backdropUrl) {
-      const oldBackdrop = oldMedia.find(m => m.type === 'backdrop');
       if (oldBackdrop?.url) {
         await deleteMediaByUrl(oldBackdrop.url);
       }
@@ -609,6 +630,7 @@ export async function updateMovie(id: string, formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/movies");
+    revalidatePath(`/movies/${slugForm}`);
     revalidatePath("/cast");
     revalidatePath("/admin/movies");
     revalidatePath(`/admin/movies/${id}`);
@@ -641,9 +663,12 @@ export async function updateSeries(id: string, formData: FormData) {
     let trailerUrl = (formData.get("trailerUrl") as string)?.trim() || null;
     const rawScore = formData.get("ratingScore") as string;
     let ratingScore: number | null = rawScore ? (rawScore.includes(".") ? Math.round(parseFloat(rawScore) * 10) : parseInt(rawScore)) : null;
-    let totalSeasons = parseInt(formData.get("totalSeasons") as string, 10) || null;
-    let totalEpisodes = parseInt(formData.get("totalEpisodes") as string, 10) || null;
-    let tmdbId = parseInt(formData.get("tmdbId") as string, 10) || null;
+    const rawSeasons = formData.get("totalSeasons") as string;
+    const rawEpisodes = formData.get("totalEpisodes") as string;
+    const rawTmdbId = formData.get("tmdbId") as string;
+    let totalSeasons = rawSeasons ? parseInt(rawSeasons, 10) : null;
+    let totalEpisodes = rawEpisodes ? parseInt(rawEpisodes, 10) : null;
+    let tmdbId = rawTmdbId ? parseInt(rawTmdbId, 10) : null;
 
     // Method B: Automatic from TMDB if trailerUrl, ratingScore, tmdbId, or totalSeasons is missing
     if (!trailerUrl || !ratingScore || !tmdbId || !totalSeasons) {
@@ -660,18 +685,31 @@ export async function updateSeries(id: string, formData: FormData) {
 
   try {
     const oldMedia = await db.select().from(mediaAssets).where(eq(mediaAssets.contentId, id));
+    const oldPoster = oldMedia.find(m => m.type === 'poster');
+    const oldBackdrop = oldMedia.find(m => m.type === 'backdrop');
+
     let posterUrl = "";
     const posterFile = formData.get("posterFile") as File | null;
+    const formPosterProvided = formData.has("posterUrl");
+    const formPosterUrl = ((formData.get("posterUrl") as string) || "").trim();
+
     if (posterFile && posterFile.size > 0) {
       const ext = posterFile.name.split(".").pop();
       posterUrl = await uploadMedia(posterFile, `posters/series_${slugForm}_${Date.now()}.${ext}`);
+    } else if (formPosterUrl && formPosterUrl !== oldPoster?.url) {
+      posterUrl = formPosterUrl;
     }
 
     let backdropUrl = "";
     const backdropFile = formData.get("backdropFile") as File | null;
+    const formBackdropProvided = formData.has("backdropUrl");
+    const formBackdropUrl = ((formData.get("backdropUrl") as string) || "").trim();
+
     if (backdropFile && backdropFile.size > 0) {
       const ext = backdropFile.name.split(".").pop();
       backdropUrl = await uploadMedia(backdropFile, `backdrops/series_${slugForm}_${Date.now()}.${ext}`);
+    } else if (formBackdropUrl && formBackdropUrl !== oldBackdrop?.url) {
+      backdropUrl = formBackdropUrl;
     }
 
     await db.update(series).set({
@@ -686,13 +724,22 @@ export async function updateSeries(id: string, formData: FormData) {
       country: country || null,
       language: language || undefined,
       shortTeaser: shortTeaser || null,
-      ...(totalSeasons !== null ? { totalSeasons } : {}),
-      ...(totalEpisodes !== null ? { totalEpisodes } : {}),
-      ...(tmdbId !== null ? { tmdbId } : {}),
+      totalSeasons: totalSeasons && !isNaN(totalSeasons) ? totalSeasons : null,
+      totalEpisodes: totalEpisodes && !isNaN(totalEpisodes) ? totalEpisodes : null,
+      tmdbId: tmdbId && !isNaN(tmdbId) ? tmdbId : null,
     }).where(eq(series.id, id));
 
+    // Handle explicit clearing of poster or backdrop
+    if (formPosterProvided && !formPosterUrl && oldPoster?.url && (!posterFile || posterFile.size === 0)) {
+      await deleteMediaByUrl(oldPoster.url);
+      await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'poster')));
+    }
+    if (formBackdropProvided && !formBackdropUrl && oldBackdrop?.url && (!backdropFile || backdropFile.size === 0)) {
+      await deleteMediaByUrl(oldBackdrop.url);
+      await db.delete(mediaAssets).where(and(eq(mediaAssets.contentId, id), eq(mediaAssets.type, 'backdrop')));
+    }
+
     if (posterUrl) {
-      const oldPoster = oldMedia.find(m => m.type === 'poster');
       if (oldPoster?.url) {
         await deleteMediaByUrl(oldPoster.url);
       }
@@ -702,7 +749,6 @@ export async function updateSeries(id: string, formData: FormData) {
       });
     }
     if (backdropUrl) {
-      const oldBackdrop = oldMedia.find(m => m.type === 'backdrop');
       if (oldBackdrop?.url) {
         await deleteMediaByUrl(oldBackdrop.url);
       }
@@ -747,6 +793,7 @@ export async function updateSeries(id: string, formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/series");
+    revalidatePath(`/series/${slugForm}`);
     revalidatePath("/cast");
     revalidatePath("/admin/series");
     revalidatePath(`/admin/series/${id}`);
