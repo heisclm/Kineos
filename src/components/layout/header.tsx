@@ -83,7 +83,12 @@ export function Header() {
             <SearchBar />
           </div>
 
-          {/* Desktop "Surprise Me" Button */}
+          {/* Mobile "Surprise Me" Button */}
+          <div className="sm:hidden">
+            <SurpriseMeButton variant="compact" />
+          </div>
+
+          {/* Desktop & Tablet "Surprise Me" Button */}
           <div className="hidden sm:block">
             <SurpriseMeButton variant="navbar" />
           </div>

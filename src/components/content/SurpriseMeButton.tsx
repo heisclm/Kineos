@@ -64,7 +64,6 @@ export function SurpriseMeButton({
 
     try {
       setLoading(true);
-      if (onClickExtra) onClickExtra();
 
       const startTime = Date.now();
       const res = await fetch("/api/content/random");
@@ -77,6 +76,9 @@ export function SurpriseMeButton({
         await new Promise((resolve) => setTimeout(resolve, minDuration - elapsed));
       }
 
+      // Defer closing mobile menu/drawer until navigation is ready so the component doesn't unmount prematurely
+      if (onClickExtra) onClickExtra();
+
       if (data.success && data.url) {
         router.push(data.url);
       } else {
@@ -84,6 +86,7 @@ export function SurpriseMeButton({
       }
     } catch (err) {
       console.error("Failed to load random title:", err);
+      if (onClickExtra) onClickExtra();
       router.push("/top-10");
     } finally {
       // Keep loading overlay smoothly active during route transition
@@ -98,30 +101,30 @@ export function SurpriseMeButton({
           <div
             role="status"
             aria-live="polite"
-            className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden animate-in fade-in duration-300"
+            className="fixed inset-0 w-full h-[100dvh] z-[99999] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden touch-none animate-in fade-in duration-300"
           >
             {/* Ambient Background Glow */}
-            <div className="absolute w-[320px] h-[320px] sm:w-[460px] sm:h-[460px] rounded-full bg-gradient-to-tr from-primary/25 via-amber-500/20 to-emerald-500/15 blur-3xl opacity-75 pointer-events-none animate-pulse" />
+            <div className="absolute w-[280px] h-[280px] sm:w-[460px] sm:h-[460px] rounded-full bg-gradient-to-tr from-primary/30 via-amber-500/20 to-emerald-500/15 blur-3xl opacity-80 pointer-events-none animate-pulse" />
 
             {/* Orbiting Reels Centerpiece */}
-            <div className="relative mb-8 flex items-center justify-center">
+            <div className="relative mb-6 sm:mb-8 flex items-center justify-center">
               {/* Outer Slow Orbit */}
-              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-dashed border-primary/30 animate-spin [animation-duration:10s]" />
+              <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-full border-2 border-dashed border-primary/40 animate-spin [animation-duration:10s]" />
               
               {/* Particle Nodes on Orbit */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-[0_0_12px_rgba(255,215,0,0.9)] animate-pulse" />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)]" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-[0_0_14px_rgba(255,215,0,0.95)] animate-pulse" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.95)]" />
 
               {/* Inner Counter-Rotating Orbit */}
               <div className="absolute inset-2 sm:inset-3 rounded-full border border-primary/40 animate-spin [animation-duration:5s] [animation-direction:reverse]" />
 
               {/* Central Glowing Icon Card */}
-              <div className="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-surface-elevated via-black to-surface-elevated border border-primary/50 flex items-center justify-center shadow-[0_0_40px_rgba(255,215,0,0.35)] text-primary">
-                <Dices className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-bounce [animation-duration:1.2s]" />
+              <div className="absolute w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-surface-elevated via-black to-surface-elevated border border-primary/50 flex items-center justify-center shadow-[0_0_40px_rgba(255,215,0,0.35)] text-primary">
+                <Dices className="w-7 h-7 sm:w-10 sm:h-10 text-primary animate-bounce [animation-duration:1.2s]" />
               </div>
 
               {/* Sparkle Accent */}
-              <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-amber-400 animate-spin [animation-duration:4s]" />
+              <Sparkles className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 text-amber-400 animate-spin [animation-duration:4s]" />
             </div>
 
             {/* Cinematic Typography & State */}

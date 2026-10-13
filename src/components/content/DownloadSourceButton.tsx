@@ -39,11 +39,17 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
   }
 
   const handleDownload = () => {
-    // If a Monetag Direct Link is configured, open the sponsored offer tab
+    // If a Monetag Direct Link is configured, open the sponsored offer tab with frequency capping
     const directLink = process.env.NEXT_PUBLIC_MONETAG_DIRECT_LINK;
     if (directLink) {
       try {
-        window.open(directLink, "_blank", "noopener,noreferrer");
+        const lastTriggered = localStorage.getItem("kineos_directlink_last");
+        const now = Date.now();
+        // 4-hour cooldown so users aren't bombarded with tabs on multiple downloads
+        if (!lastTriggered || now - Number(lastTriggered) >= 4 * 60 * 60 * 1000) {
+          localStorage.setItem("kineos_directlink_last", now.toString());
+          window.open(directLink, "_blank", "noopener,noreferrer");
+        }
       } catch (err) {
         console.warn("Direct link trigger:", err);
       }

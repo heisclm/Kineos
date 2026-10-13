@@ -2,12 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-// Frequency Capping: Only allow 1 popunder/onclick ad every 3 hours per user
-// This ensures ads aren't annoying while still monetizing active visitors
-const ONCLICK_COOLDOWN_HOURS = 3;
-const COOLDOWN_MS = ONCLICK_COOLDOWN_HOURS * 60 * 60 * 1000;
-const ONCLICK_STORAGE_KEY = "kineos_onclick_last_triggered";
-
+// Clean monetization: In-Page Push & Vignette Banners only (No intrusive OnClick/Popunder tabs)
 export function MonetagAds() {
   const isEnabled =
     process.env.NODE_ENV === "production" ||
@@ -20,7 +15,7 @@ export function MonetagAds() {
       return;
     }
 
-    // Do not load intrusive ad scripts for Lighthouse, PageSpeed Insights, or automated crawlers
+    // Do not load ad scripts for Lighthouse, PageSpeed Insights, or automated crawlers
     if (typeof navigator !== "undefined") {
       const ua = navigator.userAgent || "";
       if (/Lighthouse|PageSpeed|Googlebot|Chrome-Lighthouse|HeadlessChrome|bot|crawl/i.test(ua)) {
@@ -32,7 +27,7 @@ export function MonetagAds() {
       if (initializedRef.current) return;
       initializedRef.current = true;
 
-      // 1. Monetag Multi-Tag / In-Page Push (Zone 11986009)
+      // 1. Monetag In-Page Push (Zone 11986009) - Clean notification format, no new tabs
       try {
         const s1 = document.createElement("script");
         s1.dataset.zone = "11986009";
@@ -43,7 +38,7 @@ export function MonetagAds() {
         console.error("Monetag 11986009 init error", err);
       }
 
-      // 2. Monetag Vignette / Interstitial (Zone 11986011)
+      // 2. Monetag Vignette Banner (Zone 11986011) - Clean full-screen interstitial
       try {
         const s2 = document.createElement("script");
         s2.dataset.zone = "11986011";
@@ -52,35 +47,6 @@ export function MonetagAds() {
         document.body.appendChild(s2);
       } catch (err) {
         console.error("Monetag 11986011 init error", err);
-      }
-
-      // 3. Monetag Onclick / Popunder (Zone 12000343) with 3-hour frequency cap
-      try {
-        const lastTriggered = localStorage.getItem(ONCLICK_STORAGE_KEY);
-        const now = Date.now();
-
-        // If user already experienced a popunder within the cooldown window, do NOT inject
-        if (!lastTriggered || now - Number(lastTriggered) >= COOLDOWN_MS) {
-          const s3 = document.createElement("script");
-          s3.dataset.zone = "12000343";
-          s3.src = "https://al5sm.com/tag.min.js";
-          s3.async = true;
-          document.body.appendChild(s3);
-
-          // Record timestamp on user's first click to initiate 3-hour cooldown
-          const handleUserClick = () => {
-            try {
-              localStorage.setItem(ONCLICK_STORAGE_KEY, Date.now().toString());
-            } catch {
-              // Ignore private mode storage restrictions
-            }
-            window.removeEventListener("click", handleUserClick, true);
-          };
-
-          window.addEventListener("click", handleUserClick, true);
-        }
-      } catch {
-        // Fallback if localStorage is unavailable
       }
     };
 
