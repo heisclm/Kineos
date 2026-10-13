@@ -49,6 +49,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 1800; // Cache at Edge CDN for 30 minutes, revalidate in background
+
 export default async function HomePage() {
   const [featuredContent, trendingContent, newReleases, popularSeries, topRatedMovies] =
     await Promise.all([

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { User, Star, ChevronLeft, ChevronRight, Film, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { slugify, cn } from "@/lib/utils";
+import { slugify, cn, getOptimizedImageUrl } from "@/lib/utils";
 import type { CastMemberWithStats } from "@/features/content/content.service";
 
 interface CastGridProps {
@@ -127,7 +127,7 @@ export function CastGrid({
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mb-3 border-2 border-white/10 group-hover:border-primary/60 transition-colors bg-surface-elevated shadow-inner">
                 {member.imageUrl ? (
                   <Image
-                    src={member.imageUrl}
+                    src={getOptimizedImageUrl(member.imageUrl, "w185")}
                     alt={member.name}
                     fill
                     sizes="(max-width: 640px) 96px, 112px"

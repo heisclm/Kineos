@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { movies, series, seasons, episodes, genres, movieGenres, seriesGenres, mediaAssets, downloadSources, people, movieCast, seriesCast } from "@/lib/db/schema";
 import { desc, eq, and, ilike, sql, inArray, notInArray, asc, count } from "drizzle-orm";
@@ -199,7 +200,7 @@ export async function getTrendingMovies(limit = 10) {
 /**
  * Gets a specific movie by its slug.
  */
-export async function getMovieBySlug(slug: string) {
+export const getMovieBySlug = cache(async (slug: string) => {
   try {
     const result = await db
       .select()
@@ -230,7 +231,7 @@ export async function getMovieBySlug(slug: string) {
     console.error(`⚠️ Database connection failed (getMovieBySlug: ${slug}).`, error.message);
     return null;
   }
-}
+});
 
 /**
  * Gets primary media assets (poster/backdrop) for content.
@@ -256,10 +257,10 @@ export async function getPrimaryMedia(contentId: string, contentType: "movie" | 
 /**
  * Gets active download sources for a specific piece of content.
  */
-export async function getDownloadSourcesForContent(
+export const getDownloadSourcesForContent = cache(async (
   contentId: string,
   contentType: "movie" | "series" | "episode"
-) {
+) => {
   try {
     return await db
       .select()
@@ -276,7 +277,7 @@ export async function getDownloadSourcesForContent(
     console.error("⚠️ Database connection failed (getDownloadSources).", error.message);
     return [];
   }
-}
+});
 
 /**
  * Search movies by title.
@@ -315,7 +316,7 @@ export async function searchMovies(query: string, limit = 20) {
 
 
 
-export async function getSeriesBySlug(slug: string) {
+export const getSeriesBySlug = cache(async (slug: string) => {
   try {
     const result = await db
       .select()
@@ -347,7 +348,7 @@ export async function getSeriesBySlug(slug: string) {
     console.error("Database connection failed (getSeriesBySlug).", error.message);
     return null;
   }
-}
+});
 
 export async function getSeriesEpisodes(seriesId: string) {
   try {
@@ -403,7 +404,7 @@ export async function getSeriesEpisodes(seriesId: string) {
 
 
 
-export async function getCastForContent(contentId: string, type: "movie" | "series") {
+export const getCastForContent = cache(async (contentId: string, type: "movie" | "series") => {
   try {
     if (type === "movie") {
       return await db.select({ id: people.id, name: people.name, role: movieCast.roleName, imageUrl: people.imageUrl })
@@ -421,7 +422,7 @@ export async function getCastForContent(contentId: string, type: "movie" | "seri
   } catch (e) {
     return [];
   }
-}
+});
 
 export async function getRelatedMovies(movieId: string, limit = 12) {
   try {
@@ -947,7 +948,7 @@ export async function getTrendingContent(limit = 10) {
  * Retrieves a person (actor/filmmaker) by slug or UUID along with their complete
  * filmography of published movies and TV series.
  */
-export async function getPersonWithFilmography(slugOrId: string) {
+export const getPersonWithFilmography = cache(async (slugOrId: string) => {
   try {
     const rawSlug = decodeURIComponent(slugOrId).trim().toLowerCase();
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawSlug);
@@ -1107,7 +1108,7 @@ export async function getPersonWithFilmography(slugOrId: string) {
     console.error("Error in getPersonWithFilmography:", error.message);
     return null;
   }
-}
+});
 
 export interface CastMemberWithStats {
   id: string;
@@ -1122,7 +1123,7 @@ export interface CastMemberWithStats {
  * Returns all distinct cast and crew members who have published movie or series credits,
  * sorted alphabetically (A-Z) with aggregated ratings and credit counts.
  */
-export async function getAllCastMembers(): Promise<CastMemberWithStats[]> {
+export const getAllCastMembers = cache(async (): Promise<CastMemberWithStats[]> => {
   try {
     const moviePeople = await db
       .select({
@@ -1184,6 +1185,6 @@ export async function getAllCastMembers(): Promise<CastMemberWithStats[]> {
     console.error("Error in getAllCastMembers:", e.message);
     return [];
   }
-}
+});
 
 

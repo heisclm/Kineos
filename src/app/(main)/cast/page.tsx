@@ -6,7 +6,7 @@ import { CastGrid } from "@/components/content/CastGrid";
 import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Cache base cast directory at Edge, revalidate in background
 
 const PAGE_SIZE = 24;
 

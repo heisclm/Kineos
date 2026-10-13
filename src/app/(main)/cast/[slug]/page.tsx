@@ -8,7 +8,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CastFilmographyView } from "@/components/content/CastFilmographyView";
 import type { Metadata, ResolvingMetadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Cache at Edge CDN for 1 hour, revalidate in background
 
 type PageProps = {
   params: Promise<{ slug: string }> | { slug: string };

@@ -34,3 +34,18 @@ export function slugify(text: string): string {
     .replace(/^-+/, "")
     .replace(/-+$/, "");
 }
+
+/**
+ * Safely rewrites high-resolution TMDB image URLs to appropriate CDN thumbnail sizes.
+ * If the image is not from TMDB (e.g. Supabase, Cloudflare R2), it returns the original URL untouched.
+ */
+export function getOptimizedImageUrl(
+  url?: string | null,
+  size: "w185" | "w342" | "w500" | "w780" | "original" = "w500"
+): string {
+  if (!url) return "";
+  if (url.includes("image.tmdb.org/t/p/")) {
+    return url.replace(/\/t\/p\/(original|w780|w1280|w500|w342|w185)/, `/t/p/${size}`);
+  }
+  return url;
+}

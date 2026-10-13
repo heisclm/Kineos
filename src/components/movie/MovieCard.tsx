@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Play, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, getOptimizedImageUrl } from "@/lib/utils";
 import { WatchlistCardButton } from "@/components/content/WatchlistButtons";
 
 export interface MovieCardProps {
@@ -49,7 +49,6 @@ export function MovieCard({
   return (
     <Link
       href={type === "series" ? `/series/${slug}` : `/movies/${slug}`}
-      prefetch={false}
       className="group block relative rounded-xl overflow-hidden bg-surface transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 shadow-md hover:shadow-2xl hover:shadow-primary/10 border border-white/5 hover:border-white/15"
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-surface-elevated">
@@ -59,7 +58,7 @@ export function MovieCard({
         {/* Poster Image */}
         {imageUrl ? (
           <Image
-            src={imageUrl}
+            src={getOptimizedImageUrl(imageUrl, "w500")}
             alt={title}
             fill
             sizes="(max-width: 640px) 160px, (max-width: 768px) 190px, (max-width: 1024px) 220px, 260px"

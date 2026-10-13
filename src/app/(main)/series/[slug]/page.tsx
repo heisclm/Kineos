@@ -19,7 +19,7 @@ import { slugify } from "@/lib/utils";
 
 import type { Metadata, ResolvingMetadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Cache at Edge CDN for 1 hour, revalidate in background
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },

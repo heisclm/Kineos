@@ -32,13 +32,18 @@ export async function updateSession(request: NextRequest) {
       }
     )
 
+    // Performance Fast-Path: Only verify auth on admin, settings, and login routes
+    const pathname = request.nextUrl.pathname;
+    const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/admin-login');
+    const isProtectedRoute = (pathname.startsWith('/admin') && !pathname.startsWith('/admin-login')) || pathname.startsWith('/settings');
+
+    if (!isProtectedRoute && !isAuthRoute) {
+      return supabaseResponse;
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser()
-
-    // Protect restricted routes
-    const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register') || request.nextUrl.pathname.startsWith('/admin-login');
-    const isProtectedRoute = (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin-login')) || request.nextUrl.pathname.startsWith('/settings');
 
     if (!user && isProtectedRoute) {
       const url = request.nextUrl.clone()

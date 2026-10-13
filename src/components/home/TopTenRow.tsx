@@ -4,8 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Play, Flame } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getOptimizedImageUrl } from "@/lib/utils";
 
 interface TopTenRowProps {
   title?: string;
@@ -134,7 +133,7 @@ export function TopTenRow({
                   {/* Poster Image */}
                   {(item.imageUrl || (item as any).posterUrl) ? (
                     <Image
-                      src={item.imageUrl || (item as any).posterUrl}
+                      src={getOptimizedImageUrl(item.imageUrl || (item as any).posterUrl, "w500")}
                       alt={item.title}
                       fill
                       sizes="180px"
