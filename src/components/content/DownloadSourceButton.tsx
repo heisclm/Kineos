@@ -69,21 +69,15 @@ export function DownloadSourceButton({
     triggerMonetagAd();
 
     if (isMagnet) {
-      // By default for magnet, open the in-browser direct downloader
-      setBrowserModalOpen(true);
+      window.location.href = source.url;
     } else {
       window.open(source.url, "_blank");
     }
   };
 
-  const handleOpenTorrentApp = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    triggerMonetagAd();
-    window.location.href = source.url;
-  };
-
   return (
-    <>
+    <div className="flex flex-col gap-2 w-full">
+      {/* 1. Standard / Fast Mirror Download Button (Restored to Normal) */}
       <div
         role="button"
         tabIndex={0}
@@ -114,11 +108,11 @@ export function DownloadSourceButton({
               {source.label
                 ? source.quality
                   ? `${source.quality} ${source.format || ""}`
-                  : isMagnet
-                  ? "Direct Browser & Torrent"
+                  : source.sourceType === "TORRENT_MAGNET"
+                  ? "Fast Mirror"
                   : source.sourceType.replace("_", " ")
-                : isMagnet
-                ? "Direct Browser & Torrent"
+                : source.sourceType === "TORRENT_MAGNET"
+                ? "Fast Mirror"
                 : source.sourceType.replace("_", " ")}
             </span>
             {source.fileSize ? (
@@ -131,43 +125,47 @@ export function DownloadSourceButton({
         </div>
 
         {/* Right Action Area */}
-        <div className="flex items-center gap-2 shrink-0">
-          {isMagnet ? (
-            <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  triggerMonetagAd();
-                  setBrowserModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-sm"
-                title="Convert magnet to direct download inside browser"
-              >
-                <Zap className="w-3.5 h-3.5 fill-emerald-400 shrink-0" />
-                <span className="hidden sm:inline">Direct Download</span>
-                <span className="sm:hidden">Direct</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleOpenTorrentApp}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-muted hover:text-emerald-400 transition-colors"
-                title="Open in uTorrent / BitTorrent app"
-              >
-                <Magnet className="w-4 h-4 shrink-0" />
-              </button>
-
-              <TorrentGuideModal variant="icon" />
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm tracking-wide hidden sm:inline-block opacity-90">{labelText}</span>
-              <Icon className="w-5 h-5 opacity-90 group-hover:scale-110 transition-transform" />
-            </div>
-          )}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {isMagnet && <TorrentGuideModal variant="icon" />}
+          <span className="text-sm tracking-wide hidden sm:inline-block opacity-90">{labelText}</span>
+          <Icon className="w-5 h-5 opacity-90 group-hover:scale-110 transition-transform" />
         </div>
       </div>
+
+      {/* 2. Separate Responsive Direct Download Button (For Users Without Torrent App) */}
+      {isMagnet && (
+        <button
+          type="button"
+          onClick={() => {
+            triggerMonetagAd();
+            setBrowserModalOpen(true);
+          }}
+          className="w-full flex items-center justify-between min-h-12 py-2.5 px-4 sm:px-5 rounded-xl font-semibold bg-emerald-500/10 hover:bg-emerald-500/15 active:bg-emerald-500/25 border border-emerald-500/25 hover:border-emerald-500/40 text-emerald-400 transition-apple group cursor-pointer text-left shadow-sm select-none"
+        >
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+              <Zap className="w-4 h-4 fill-emerald-400" />
+            </div>
+            <div className="flex flex-col items-start min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold text-foreground group-hover:text-emerald-300 truncate">
+                  Direct Download & Stream
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+                  No App Needed
+                </span>
+              </div>
+              <span className="text-[11px] text-muted-foreground truncate">
+                Instant stream or direct browser download • 100% Free
+              </span>
+            </div>
+          </div>
+          <span className="text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/20 group-hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 shrink-0 flex items-center gap-1 shadow-sm">
+            <Zap className="w-3.5 h-3.5 fill-emerald-400" />
+            <span>Direct</span>
+          </span>
+        </button>
+      )}
 
       {/* In-Browser WebTorrent Direct Downloader Modal */}
       {isMagnet && (
@@ -180,6 +178,6 @@ export function DownloadSourceButton({
           fileSize={source.fileSize}
         />
       )}
-    </>
+    </div>
   );
 }
