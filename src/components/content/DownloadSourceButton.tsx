@@ -1,8 +1,8 @@
 "use client";
 
 import { Download, Link as LinkIcon, Magnet } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { formatBytes } from "@/lib/utils";
+import { TorrentGuideModal } from "./TorrentGuideModal";
 
 export interface DownloadSource {
   id: string;
@@ -22,7 +22,7 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
 
   // Base semantic styles based on the rule: 
   // R2 = Cloudflare accent, Direct = Kineos accent, Magnet = Magnet semantic accent
-  const baseClasses = "w-full justify-between h-14 rounded-xl font-semibold transition-apple group px-5";
+  const baseClasses = "w-full justify-between h-14 rounded-xl font-semibold transition-apple group px-5 flex items-center select-none cursor-pointer text-left";
   
   let colorClasses = "";
   let Icon = Download;
@@ -57,9 +57,16 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
   };
 
   return (
-    <Button 
-      variant="outline" 
-      onClick={handleDownload} 
+    <div 
+      role="button"
+      tabIndex={0}
+      onClick={handleDownload}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleDownload();
+        }
+      }}
       className={`${baseClasses} ${colorClasses}`}
     >
       <div className="flex flex-col items-start gap-0.5">
@@ -92,10 +99,11 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
           ) : null}
         </span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
+        {isMagnet && <TorrentGuideModal variant="icon" />}
         <span className="text-sm tracking-wide hidden sm:inline-block opacity-90">{labelText}</span>
         <Icon className="w-5 h-5 opacity-90 group-hover:scale-110 transition-transform" />
       </div>
-    </Button>
+    </div>
   );
 }

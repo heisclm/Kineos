@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download, Clock, ChevronDown, FileVideo } from "lucide-react";
 import { EpisodeDownloadButton, type EpisodeDownloadSource } from "@/components/content/EpisodeDownloadButton";
+import { TorrentGuideModal } from "@/components/content/TorrentGuideModal";
 import { Button } from "@/components/ui/button";
 
 export interface SeriesEpisode {
@@ -35,6 +36,12 @@ export function SeriesEpisodesSection({
 }: SeriesEpisodesSectionProps) {
   // By default, episodes are hidden until the user clicks to expand
   const [expandedSeasons, setExpandedSeasons] = useState<Record<string, boolean>>({});
+
+  const hasMagnetSource = seasons.some((s) =>
+    s.episodes?.some((ep) =>
+      ep.sources?.some((src) => src.sourceType === "TORRENT_MAGNET" || src.url?.startsWith("magnet:"))
+    )
+  );
 
   const isAllExpanded = seasons.length > 0 && seasons.every((s) => expandedSeasons[s.id]);
 
@@ -76,9 +83,12 @@ export function SeriesEpisodesSection({
       {/* Section Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-white/5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            Episodes & Downloads
-          </h2>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              Episodes & Downloads
+            </h2>
+            {hasMagnetSource && <TorrentGuideModal variant="badge" />}
+          </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             Select a season to view episodes and download in high definition.
           </p>

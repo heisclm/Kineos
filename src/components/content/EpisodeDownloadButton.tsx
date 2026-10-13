@@ -2,6 +2,7 @@
 
 import { Download, Magnet } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
+import { TorrentGuideModal } from "./TorrentGuideModal";
 
 export interface EpisodeDownloadSource {
   id: string;
@@ -55,7 +56,7 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
 
   const displayLabel = isMagnet ? "Fast Mirror" : (source.quality || "HD");
 
-  return (
+  const buttonElement = (
     <a
       href={source.url || `/api/downloads/${source.id}`}
       target={isMagnet ? undefined : "_blank"}
@@ -81,4 +82,15 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
       )}
     </a>
   );
+
+  if (isMagnet) {
+    return (
+      <div className="inline-flex items-center gap-1.5">
+        {buttonElement}
+        <TorrentGuideModal variant="icon" />
+      </div>
+    );
+  }
+
+  return buttonElement;
 }
