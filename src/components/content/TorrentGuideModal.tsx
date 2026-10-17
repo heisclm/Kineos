@@ -7,6 +7,7 @@ import {
   ShieldCheck, Smartphone, Monitor, Apple, X, ExternalLink 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { isIOSDevice } from "@/lib/utils";
 
 interface TorrentGuideModalProps {
   variant?: "icon" | "badge" | "link";
@@ -20,6 +21,9 @@ export function TorrentGuideModal({ variant = "badge", className = "" }: Torrent
 
   useEffect(() => {
     setMounted(true);
+    if (isIOSDevice()) {
+      setActiveTab("ios");
+    }
   }, []);
 
   // Close on Escape key
@@ -273,9 +277,9 @@ export function TorrentGuideModal({ variant = "badge", className = "" }: Torrent
                     <div className="flex items-start gap-2.5 sm:gap-3">
                       <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[11px] sm:text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
                       <div className="text-xs text-white/90">
-                        <p className="font-semibold text-foreground text-xs sm:text-sm">Apple iOS App Store Policy</p>
+                        <p className="font-semibold text-foreground text-xs sm:text-sm">Tap &ldquo;Copy Link&rdquo; on any Fast Mirror</p>
                         <p className="text-muted-foreground mt-0.5 leading-relaxed text-[11px] sm:text-xs">
-                          Apple restricts standalone torrent apps in the App Store. However, you can easily download torrents via free cloud web services:
+                          Apple restricts direct torrent apps on the App Store. Instead, tap the <strong>Copy Link</strong> button next to any Fast Mirror source to copy the magnet URL directly to your clipboard.
                         </p>
                       </div>
                     </div>
@@ -283,19 +287,49 @@ export function TorrentGuideModal({ variant = "badge", className = "" }: Torrent
                     <div className="flex items-start gap-2.5 sm:gap-3">
                       <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[11px] sm:text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
                       <div className="text-xs text-white/90">
-                        <p className="font-semibold text-foreground text-xs sm:text-sm">Use Cloud Downloader (Seedr.cc)</p>
+                        <p className="font-semibold text-foreground text-xs sm:text-sm">Paste into a Free Cloud Downloader</p>
                         <p className="text-muted-foreground mt-0.5 leading-relaxed text-[11px] sm:text-xs">
-                          Copy the Fast Mirror link on Kineos, paste it into <strong>Seedr.cc</strong> (free web service), and download directly to your iPhone Files or Camera Roll as an MP4!
+                          Open any free cloud torrent web service (no app install needed). They download torrents to high-speed cloud storage in seconds:
                         </p>
-                        <a
-                          href="https://www.seedr.cc"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:underline mt-1.5"
-                        >
-                          <span>Open Seedr.cc (Free Web Torrent Downloader)</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <a
+                            href="https://www.seedr.cc"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/25 transition-colors"
+                          >
+                            <span>Seedr.cc (Recommended)</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                          <a
+                            href="https://webtor.io"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+                          >
+                            <span>Webtor.io (Instant Stream)</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                          <a
+                            href="https://mypikpak.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
+                          >
+                            <span>PikPak Cloud</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5 sm:gap-3">
+                      <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[11px] sm:text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                      <div className="text-xs text-white/90">
+                        <p className="font-semibold text-foreground text-xs sm:text-sm">Save Direct to Files or Camera Roll</p>
+                        <p className="text-muted-foreground mt-0.5 leading-relaxed text-[11px] sm:text-xs">
+                          Once pasted, click <strong>Download</strong> on the cloud service to save the direct MP4 video file straight to your iPhone&apos;s <strong>Files</strong> or <strong>Camera Roll</strong>, or stream it immediately in Safari!
+                        </p>
                       </div>
                     </div>
                   </div>

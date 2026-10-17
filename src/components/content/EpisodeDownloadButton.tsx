@@ -1,8 +1,10 @@
 "use client";
 
-import { Download, Magnet } from "lucide-react";
-import { formatBytes } from "@/lib/utils";
+import { useState } from "react";
+import { Download, Magnet, Copy, Check } from "lucide-react";
+import { formatBytes, copyToClipboard, isIOSDevice } from "@/lib/utils";
 import { TorrentGuideModal } from "./TorrentGuideModal";
+import { toast } from "sonner";
 
 export interface EpisodeDownloadSource {
   id: string;
@@ -16,9 +18,30 @@ export interface EpisodeDownloadSource {
 }
 
 export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSource }) {
+  const [copied, setCopied] = useState(false);
   const isMagnet = source.sourceType === "TORRENT_MAGNET" || source.url?.startsWith("magnet:");
   const isR2 = source.sourceType === "CLOUDFLARE_R2";
   const isDirect = source.sourceType === "DIRECT_URL" || (!isMagnet && !isR2);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const success = await copyToClipboard(source.url);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+      toast.success("Episode torrent magnet copied!", {
+        description: "Paste into Seedr.cc or your cloud torrent downloader to download on iOS.",
+        action: {
+          label: "Open Seedr",
+          onClick: () => window.open("https://www.seedr.cc", "_blank"),
+        },
+        duration: 5000,
+      });
+    } else {
+      toast.error("Failed to copy link.");
+    }
+  };
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // If a Monetag Direct Link is configured, open the sponsored offer with frequency capping
@@ -38,6 +61,17 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
     }
 
     if (isMagnet) {
+      if (isIOSDevice()) {
+        copyToClipboard(source.url);
+        toast.info("Episode torrent link copied!", {
+          description: "Paste into Seedr.cc or PikPak to download on iOS.",
+          action: {
+            label: "Open Seedr",
+            onClick: () => window.open("https://www.seedr.cc", "_blank"),
+          },
+          duration: 6000,
+        });
+      }
       // Prevent opening an orphaned empty tab; directly invoke torrent protocol
       e.preventDefault();
       window.location.href = source.url || `/api/downloads/${source.id}`;
@@ -91,8 +125,22 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
 
   if (isMagnet) {
     return (
-      <div className="inline-flex items-center gap-1.5">
+      <div className="inline-flex items-center gap-1.5 flex-wrap">
         {buttonElement}
+        <button
+          type="button"
+          onClick={handleCopy}
+          title="Copy episode torrent link (for iOS & Cloud Downloaders)"
+          aria-label="Copy episode torrent link"
+          className={`h-7 px-2 rounded-full border text-[11px] font-medium inline-flex items-center gap-1 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm ${
+            copied
+              ? "bg-emerald-500/25 border-emerald-500/50 text-emerald-300"
+              : "bg-white/5 hover:bg-white/10 active:bg-white/20 border-white/10 text-muted-foreground hover:text-white"
+          }`}
+        >
+          {copied ? <Check className="w-3 h-3 text-emerald-400 shrink-0" /> : <Copy className="w-3 h-3 shrink-0" />}
+          <span className="text-[10px] hidden xs:inline">{copied ? "Copied" : "Copy"}</span>
+        </button>
         <TorrentGuideModal variant="icon" />
       </div>
     );

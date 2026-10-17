@@ -1,8 +1,10 @@
 "use client";
 
-import { Download, Link as LinkIcon, Magnet } from "lucide-react";
-import { formatBytes } from "@/lib/utils";
+import { useState } from "react";
+import { Download, Link as LinkIcon, Magnet, Copy, Check } from "lucide-react";
+import { formatBytes, copyToClipboard, isIOSDevice } from "@/lib/utils";
 import { TorrentGuideModal } from "./TorrentGuideModal";
+import { toast } from "sonner";
 
 export interface DownloadSource {
   id: string;
@@ -16,13 +18,14 @@ export interface DownloadSource {
 }
 
 export function DownloadSourceButton({ source }: { source: DownloadSource }) {
+  const [copied, setCopied] = useState(false);
   const isR2 = source.sourceType === "CLOUDFLARE_R2";
   const isDirect = source.sourceType === "DIRECT_URL";
   const isMagnet = source.sourceType === "TORRENT_MAGNET" || source.url?.startsWith("magnet:");
 
   // Base semantic styles based on the rule: 
   // R2 = Cloudflare accent, Direct = Kineos accent, Magnet = Magnet semantic accent
-  const baseClasses = "w-full justify-between h-14 rounded-xl font-semibold transition-apple group px-5 flex items-center select-none cursor-pointer text-left";
+  const baseClasses = "w-full justify-between h-14 rounded-xl font-semibold transition-apple group px-4 sm:px-5 flex items-center select-none cursor-pointer text-left";
   
   let colorClasses = "";
   let Icon = Download;
@@ -37,6 +40,26 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
     labelText = "Fast Mirror";
     colorClasses = "bg-surface hover:bg-surface-elevated text-download-magnet border border-white/5 hover:border-download-magnet/30 shadow-sm";
   }
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const success = await copyToClipboard(source.url);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+      toast.success("Torrent magnet copied!", {
+        description: "Paste into Seedr.cc, PikPak, or your cloud torrent downloader to download on iOS.",
+        action: {
+          label: "Open Seedr",
+          onClick: () => window.open("https://www.seedr.cc", "_blank"),
+        },
+        duration: 5000,
+      });
+    } else {
+      toast.error("Failed to copy link. Please try selecting the URL manually.");
+    }
+  };
 
   const handleDownload = () => {
     // If a Monetag Direct Link is configured, open the sponsored offer tab with frequency capping
@@ -56,6 +79,17 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
     }
 
     if (isMagnet) {
+      if (isIOSDevice()) {
+        copyToClipboard(source.url);
+        toast.info("Torrent link copied for iOS!", {
+          description: "iOS doesn't open torrent links directly. Paste this into Seedr.cc or PikPak to download.",
+          action: {
+            label: "Open Seedr",
+            onClick: () => window.open("https://www.seedr.cc", "_blank"),
+          },
+          duration: 6000,
+        });
+      }
       window.location.href = source.url;
     } else {
       window.open(source.url, "_blank");
@@ -75,8 +109,8 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
       }}
       className={`${baseClasses} ${colorClasses}`}
     >
-      <div className="flex flex-col items-start gap-0.5">
-        <span className="text-sm font-bold text-foreground">
+      <div className="flex flex-col items-start gap-0.5 min-w-0 pr-2">
+        <span className="text-sm font-bold text-foreground truncate max-w-full">
           {source.label || source.quality || "HD"} {source.format && !source.label && <span className="text-muted font-medium ml-1 text-xs">{source.format}</span>}
         </span>
         <span className="text-[11px] font-medium opacity-70 flex items-center flex-wrap gap-1.5">
@@ -105,10 +139,34 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
           ) : null}
         </span>
       </div>
-      <div className="flex items-center gap-2.5">
-        {isMagnet && <TorrentGuideModal variant="icon" />}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {isMagnet && (
+          <>
+            <button
+              type="button"
+              onClick={handleCopy}
+              title="Copy torrent magnet URL (for iOS & Cloud Downloaders like Seedr, PikPak)"
+              aria-label="Copy torrent magnet URL"
+              className={`relative z-10 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm ${
+                copied
+                  ? "bg-emerald-500/25 border-emerald-500/50 text-emerald-300"
+                  : "bg-white/5 hover:bg-white/10 active:bg-white/20 border-white/10 text-muted-foreground hover:text-white"
+              }`}
+            >
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 shrink-0" />
+              )}
+              <span className="text-[11px] font-medium hidden xs:inline sm:inline">
+                {copied ? "Copied" : "Copy Link"}
+              </span>
+            </button>
+            <TorrentGuideModal variant="icon" />
+          </>
+        )}
         <span className="text-sm tracking-wide hidden sm:inline-block opacity-90">{labelText}</span>
-        <Icon className="w-5 h-5 opacity-90 group-hover:scale-110 transition-transform" />
+        <Icon className="w-5 h-5 opacity-90 group-hover:scale-110 transition-transform shrink-0" />
       </div>
     </div>
   );
