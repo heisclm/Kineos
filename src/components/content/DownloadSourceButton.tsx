@@ -62,17 +62,12 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
   };
 
   const handleDownload = () => {
-    // If a Monetag Direct Link is configured, open the sponsored offer tab with frequency capping
+    // If a Monetag Direct Link is configured, open the sponsored offer tab on every download click (no cooldown)
     const directLink = process.env.NEXT_PUBLIC_MONETAG_DIRECT_LINK;
     if (directLink) {
       try {
-        const lastTriggered = localStorage.getItem("kineos_directlink_last");
-        const now = Date.now();
-        // 4-hour cooldown so users aren't bombarded with tabs on multiple downloads
-        if (!lastTriggered || now - Number(lastTriggered) >= 4 * 60 * 60 * 1000) {
-          localStorage.setItem("kineos_directlink_last", now.toString());
-          window.open(directLink, "_blank", "noopener,noreferrer");
-        }
+        localStorage.removeItem("kineos_directlink_last");
+        window.open(directLink, "_blank", "noopener,noreferrer");
       } catch (err) {
         console.warn("Direct link trigger:", err);
       }
@@ -92,7 +87,11 @@ export function DownloadSourceButton({ source }: { source: DownloadSource }) {
       }
       window.location.href = source.url;
     } else {
-      window.open(source.url, "_blank");
+      if (directLink) {
+        window.location.href = source.url;
+      } else {
+        window.open(source.url, "_blank");
+      }
     }
   };
 
