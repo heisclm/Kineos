@@ -44,12 +44,17 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
   };
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // If a Monetag Direct Link is configured, open the sponsored offer on every download click (no cooldown)
+    // If a Monetag Direct Link is configured, open the sponsored offer with frequency capping
     const directLink = process.env.NEXT_PUBLIC_MONETAG_DIRECT_LINK;
     if (directLink) {
       try {
-        localStorage.removeItem("kineos_directlink_last");
-        window.open(directLink, "_blank", "noopener,noreferrer");
+        const lastTriggered = localStorage.getItem("kineos_directlink_last");
+        const now = Date.now();
+        // 4-hour cooldown so users aren't bombarded with tabs on multiple episode downloads
+        if (!lastTriggered || now - Number(lastTriggered) >= 4 * 60 * 60 * 1000) {
+          localStorage.setItem("kineos_directlink_last", now.toString());
+          window.open(directLink, "_blank", "noopener,noreferrer");
+        }
       } catch (err) {
         console.warn("Direct link trigger:", err);
       }
@@ -68,10 +73,6 @@ export function EpisodeDownloadButton({ source }: { source: EpisodeDownloadSourc
         });
       }
       // Prevent opening an orphaned empty tab; directly invoke torrent protocol
-      e.preventDefault();
-      window.location.href = source.url || `/api/downloads/${source.id}`;
-    } else if (directLink) {
-      // Prevent browser popup blocker from suppressing the download when direct link ad is opened in a new tab
       e.preventDefault();
       window.location.href = source.url || `/api/downloads/${source.id}`;
     }
