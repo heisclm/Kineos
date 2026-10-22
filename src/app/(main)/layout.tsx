@@ -33,7 +33,7 @@ export default function MainLayout({
                 <SecretAdminTrigger />
               </div>
               <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
-                Your destination for trending movies and TV series. Kineos acts as a search engine and indexer. We do not host any files on our servers.
+                Your destination for discovering trending movies, TV series, official trailers, cast info, and licensed streaming providers. Powered by The Movie Database (TMDB).
               </p>
             </div>
             

@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Clock, ChevronDown, FileVideo } from "lucide-react";
-import { EpisodeDownloadButton, type EpisodeDownloadSource } from "@/components/content/EpisodeDownloadButton";
-import { TorrentGuideModal } from "@/components/content/TorrentGuideModal";
+import { Clock, ChevronDown, FileVideo, Calendar, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface SeriesEpisode {
@@ -13,7 +11,6 @@ export interface SeriesEpisode {
   description?: string | null;
   runtime?: number | null;
   releaseDate?: string | null;
-  sources?: EpisodeDownloadSource[];
 }
 
 export interface SeriesSeason {
@@ -36,12 +33,6 @@ export function SeriesEpisodesSection({
 }: SeriesEpisodesSectionProps) {
   // By default, episodes are hidden until the user clicks to expand
   const [expandedSeasons, setExpandedSeasons] = useState<Record<string, boolean>>({});
-
-  const hasMagnetSource = seasons.some((s) =>
-    s.episodes?.some((ep) =>
-      ep.sources?.some((src) => src.sourceType === "TORRENT_MAGNET" || src.url?.startsWith("magnet:"))
-    )
-  );
 
   const isAllExpanded = seasons.length > 0 && seasons.every((s) => expandedSeasons[s.id]);
 
@@ -71,8 +62,8 @@ export function SeriesEpisodesSection({
         <p className="text-lg font-semibold text-foreground mb-1">Episodes Coming Soon</p>
         <p className="text-sm text-muted max-w-md">
           {totalSeasonsCount || totalEpisodesCount
-            ? `This series features ${totalSeasonsCount ? `${totalSeasonsCount} season${totalSeasonsCount > 1 ? "s" : ""}` : ""}${totalEpisodesCount ? ` (${totalEpisodesCount} episodes)` : ""}. Episode streaming and download links will appear here shortly.`
-            : "This series is currently being indexed and verified. Episode streaming and download links will appear here shortly."}
+            ? `This series features ${totalSeasonsCount ? `${totalSeasonsCount} season${totalSeasonsCount > 1 ? "s" : ""}` : ""}${totalEpisodesCount ? ` (${totalEpisodesCount} episodes)` : ""}. Detailed episode information will appear here shortly.`
+            : "This series is currently being indexed and verified. Detailed episode information will appear here shortly."}
         </p>
       </div>
     );
@@ -83,18 +74,16 @@ export function SeriesEpisodesSection({
       {/* Section Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-white/5">
         <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              Episodes & Downloads
-            </h2>
-            {hasMagnetSource && <TorrentGuideModal variant="badge" />}
-          </div>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            Episode Guide
+          </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Select a season to view episodes and download in high definition.
+            Browse episode synopses, runtimes, and season storylines.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+        {/* Global Controls */}
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
           {seasons.length > 1 && (
             <Button
               type="button"
@@ -182,57 +171,55 @@ export function SeriesEpisodesSection({
                       No episodes listed for this season yet.
                     </div>
                   ) : (
-                    season.episodes?.map((ep) => {
-                      const sources = ep.sources || [];
-                      return (
-                        <div
-                          key={ep.id}
-                          className="p-4 sm:p-5 md:p-6 hover:bg-white/[0.02] transition-colors space-y-3.5"
-                        >
-                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 sm:gap-4">
-                            <div className="space-y-1.5 flex-1 min-w-0">
-                              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                                <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-bold text-xs tracking-wider shrink-0">
-                                  EP {ep.episodeNumber}
+                    season.episodes?.map((ep) => (
+                      <div
+                        key={ep.id}
+                        className="p-4 sm:p-5 md:p-6 hover:bg-white/[0.02] transition-colors space-y-3"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 sm:gap-4">
+                          <div className="space-y-1.5 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                              <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-bold text-xs tracking-wider shrink-0">
+                                EP {ep.episodeNumber}
+                              </span>
+                              <h4 className="font-semibold text-foreground text-sm sm:text-base md:text-lg">
+                                {ep.title}
+                              </h4>
+                              {ep.runtime ? (
+                                <span className="text-xs text-muted flex items-center gap-1 font-medium shrink-0">
+                                  <Clock className="w-3 h-3" /> {ep.runtime}m
                                 </span>
-                                <h4 className="font-semibold text-foreground text-sm sm:text-base md:text-lg">
-                                  {ep.title}
-                                </h4>
-                                {ep.runtime ? (
-                                  <span className="text-xs text-muted flex items-center gap-1 font-medium shrink-0">
-                                    <Clock className="w-3 h-3" /> {ep.runtime}m
-                                  </span>
-                                ) : null}
-                              </div>
-                              {ep.description && (
-                                <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-3xl">
-                                  {ep.description}
-                                </p>
-                              )}
+                              ) : null}
+                              {ep.releaseDate ? (
+                                <span className="text-xs text-muted/70 flex items-center gap-1 font-medium shrink-0">
+                                  <Calendar className="w-3 h-3" />
+                                  {new Date(ep.releaseDate).toLocaleDateString(undefined, {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              ) : null}
                             </div>
+                            {ep.description && (
+                              <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-3xl">
+                                {ep.description}
+                              </p>
+                            )}
                           </div>
 
-                          {/* Episode Download Sources / Links */}
-                          <div className="pt-3 border-t border-white/5 space-y-2">
-                            <div className="text-[11px] font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                              <Download className="w-3.5 h-3.5 text-primary" /> Download Episode:
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                              {sources.length === 0 ? (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-muted/60 italic">
-                                  Direct links coming soon
-                                </span>
-                              ) : (
-                                sources.map((src) => (
-                                  <EpisodeDownloadButton key={src.id} source={src} />
-                                ))
-                              )}
-                            </div>
+                          <div className="shrink-0 self-start md:self-center">
+                            <a
+                              href="#watch"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white/80 hover:text-white transition-apple"
+                            >
+                              <Play className="w-3 h-3 text-primary fill-current" />
+                              <span>Watch Options</span>
+                            </a>
                           </div>
                         </div>
-                      );
-                    })
+                      </div>
+                    ))
                   )}
                 </div>
               )}

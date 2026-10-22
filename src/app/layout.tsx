@@ -36,9 +36,6 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'neoQUkKOyHuDcE5ICC7fngunc7PhITml45oGaqSaJZI',
-    other: {
-      monetag: 'ab489e3f2957ab60760b112e95b2e0bd',
-    },
   },
 };
 
@@ -50,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta name="monetag" content="ab489e3f2957ab60760b112e95b2e0bd" />
+
         <link rel="preload" href="/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/Inter-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="icon" href="/favicon.ico" sizes="48x48" />

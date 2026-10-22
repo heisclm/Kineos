@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Play, Download, Clock, Calendar, Star, Layers, Film, ChevronRight, FileVideo, HardDrive, ShieldCheck } from "lucide-react";
+import { Play, Clock, Calendar, Star, Layers, Film, ChevronRight, FileVideo, HardDrive, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DownloadSourceList } from "@/components/content/DownloadSourceList";
-import { EpisodeDownloadButton } from "@/components/content/EpisodeDownloadButton";
+import { WatchProvidersSection } from "@/components/content/WatchProvidersSection";
+import { getWatchProvidersForContent } from "@/lib/tmdb";
 import { SeriesEpisodesSection } from "@/components/content/SeriesEpisodesSection";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
-import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries, getDownloadSourcesForContent } from "@/features/content/content.service";
+import { getSeriesBySlug, getSeriesEpisodes, getCastForContent, getRelatedSeries } from "@/features/content/content.service";
 import { generateSeriesKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
 import { ExpandableStoryline } from "@/components/content/ExpandableStoryline";
@@ -39,8 +39,8 @@ export async function generateMetadata(
   const rawTitle = (series as any).seoTitle
     ? (series as any).seoTitle
     : releaseYear
-      ? `${series.title} (${releaseYear}) - Full Series Download & Stream`
-      : `${series.title} - Full Series Download & Stream`;
+      ? `${series.title} (${releaseYear}) - Where to Watch, Episodes & Cast`
+      : `${series.title} - Where to Watch, Episodes & Cast`;
 
   const cleanTitle = rawTitle.replace(/\s*\|\s*kineos\s*$/i, "").trim();
   const fullTitle = `${cleanTitle} | Kineos`;
@@ -98,11 +98,16 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
     notFound();
   }
 
-  const [seasonsWithEpisodes, cast, relatedSeries, seriesBatchDownloads] = await Promise.all([
+  const [seasonsWithEpisodes, cast, relatedSeries, watchProviders] = await Promise.all([
     getSeriesEpisodes(series.id).catch(() => [] as any[]),
     getCastForContent(series.id, "series").catch(() => []),
     getRelatedSeries(series.id, 12).catch(() => []),
-    getDownloadSourcesForContent(series.id, "series").catch(() => []),
+    getWatchProvidersForContent({
+      title: series.title,
+      type: "series",
+      year: series.releaseDate ? new Date(series.releaseDate).getFullYear() : null,
+      tmdbId: (series as any).tmdbId || null,
+    }).catch(() => null),
   ]);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
@@ -124,10 +129,7 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
 
   const displayStars = rawStars.length > 0 ? rawStars.slice(0, 4) : cast.slice(0, 4).map((c: any) => c.name);
 
-  const allSeriesSources = [
-    ...(seriesBatchDownloads || []),
-    ...seasonsWithEpisodes.flatMap((s: any) => s.episodes?.flatMap((e: any) => e.sources || []) || []),
-  ];
+  const allSeriesSources: any[] = [];
 
   const pageKeywords = generateSeriesKeywords({
     title: series.title,
@@ -321,14 +323,13 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
               </p>
             )}
 
-            {/* Batch Downloads button if available on mobile */}
-            {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-              <a href="#batch-downloads" className="inline-flex w-full">
-                <Button size="sm" variant="secondary" className="w-full rounded-xl gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white text-xs border border-white/10">
-                  <Download className="w-3.5 h-3.5 text-primary" /> Full Series Download ({seriesBatchDownloads.length})
+            {/* Where to Watch CTA on mobile */}
+
+            <a href="#watch" className="inline-flex w-full">
+              <Button size="sm" className="w-full rounded-xl gap-2 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20">
+                <Play className="w-3.5 h-3.5 fill-current" /> Where to Watch
                 </Button>
               </a>
-            )}
 
             {/* Mobile Trailer & Watchlist Actions */}
             <div className="grid grid-cols-2 gap-2 w-full pt-1">
@@ -383,18 +384,16 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
 
               {/* Action Buttons Under Poster */}
               <div className="space-y-2 w-full">
-                <a href="#episodes" className="w-full inline-flex">
+                <a href="#watch" className="w-full inline-flex">
                   <Button size="lg" className="w-full rounded-full gap-2 font-semibold bg-primary text-primary-foreground hover:scale-[1.02] transition-apple shadow-lg border border-primary/20">
-                    <Play className="w-4 h-4" fill="currentColor" /> Browse Episodes ({displayEpisodesCount})
+                    <Play className="w-4 h-4 fill-current" /> Where to Watch
                   </Button>
                 </a>
-                {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-                  <a href="#batch-downloads" className="w-full inline-flex">
-                    <Button size="lg" variant="secondary" className="w-full rounded-full gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/15 hover:scale-[1.02] transition-apple shadow-lg">
-                      <Download className="w-4 h-4 text-primary" /> Full Series ({seriesBatchDownloads.length})
-                    </Button>
-                  </a>
-                )}
+                <a href="#episodes" className="w-full inline-flex">
+                  <Button size="lg" variant="secondary" className="w-full rounded-full gap-2 font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/15 hover:scale-[1.02] transition-apple shadow-lg">
+                    <FileVideo className="w-4 h-4 text-primary" /> Episode Guide ({displayEpisodesCount})
+                  </Button>
+                </a>
               </div>
 
               {/* Quality & Verified Badge strip under poster */}
@@ -593,25 +592,14 @@ export default async function SeriesDetailPage({ params }: { params: { slug: str
             </section>
           )}
 
-          {/* Complete Series / Season Batch Downloads (If Available) */}
-          {seriesBatchDownloads && seriesBatchDownloads.length > 0 && (
-            <section id="batch-downloads" className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                    <Download className="w-5 h-5 text-primary shrink-0" /> Full Series & Season Downloads
-                  </h2>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                    Download full season packages and complete series batches in high quality.
-                  </p>
-                </div>
-                <span className="self-start sm:self-auto shrink-0 whitespace-nowrap text-xs font-semibold px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20">
-                  {seriesBatchDownloads.length} {seriesBatchDownloads.length === 1 ? 'Source' : 'Sources'}
-                </span>
-              </div>
-              <DownloadSourceList sources={seriesBatchDownloads as any} />
-            </section>
-          )}
+          {/* Official Streaming & Watch Providers */}
+          <section id="watch">
+            <WatchProvidersSection
+              title={series.title}
+              type="series"
+              providers={watchProviders}
+            />
+          </section>
 
           {/* Episodes & Individual Episode Downloads Section (Hidden by default, expandable per season) */}
           <section id="episodes">

@@ -431,3 +431,90 @@ export async function fetchTmdbSeriesSeasons(
   }
 }
 
+export interface TmdbWatchProvider {
+  id: number;
+  name: string;
+  logoUrl: string;
+}
+
+export interface TmdbWatchProvidersResult {
+  link?: string | null;
+  stream?: TmdbWatchProvider[];
+  rent?: TmdbWatchProvider[];
+  buy?: TmdbWatchProvider[];
+  free?: TmdbWatchProvider[];
+}
+
+/**
+ * Fetches official watch and streaming providers for a given TMDB movie or TV series.
+ */
+export async function fetchTmdbWatchProviders(
+  tmdbId: number,
+  type: "movie" | "series" = "movie",
+  countryCode: string = "US"
+): Promise<TmdbWatchProvidersResult | null> {
+  const apiKey = process.env.TMDB_API_KEY;
+  if (!apiKey || !tmdbId) return null;
+
+  try {
+    const tmdbType = type === "series" ? "tv" : "movie";
+    const url = `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}/watch/providers?api_key=${apiKey}`;
+    const res = await fetch(url, { next: { revalidate: 86400 } });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const results = data.results || {};
+
+    // Get preferred country (US, GB, or first available country)
+    const countryData =
+      results[countryCode] ||
+      results["US"] ||
+      results["GB"] ||
+      (Object.values(results)[0] as any);
+
+    if (!countryData) return null;
+
+    const mapProvider = (p: any): TmdbWatchProvider => ({
+      id: p.provider_id,
+      name: p.provider_name,
+      logoUrl: p.logo_path ? `https://image.tmdb.org/t/p/w92${p.logo_path}` : "",
+    });
+
+    return {
+      link: countryData.link || null,
+      stream: (countryData.flatrate || []).map(mapProvider),
+      rent: (countryData.rent || []).map(mapProvider),
+      buy: (countryData.buy || []).map(mapProvider),
+      free: (countryData.free || countryData.ads || []).map(mapProvider),
+    };
+  } catch (error) {
+    console.error("fetchTmdbWatchProviders error:", error);
+    return null;
+  }
+}
+
+/**
+ * High-level helper: Resolves TMDB ID (if not provided) and fetches official watch providers.
+ */
+export async function getWatchProvidersForContent(params: {
+  title: string;
+  type: "movie" | "series";
+  year?: number | null;
+  tmdbId?: number | null;
+  countryCode?: string;
+}): Promise<TmdbWatchProvidersResult | null> {
+  let tmdbId = params.tmdbId;
+
+  // If no tmdbId is stored, search TMDB by title & year
+  if (!tmdbId) {
+    const meta = await fetchTmdbMetadata(params.title, params.type, params.year);
+    if (meta?.tmdbId) {
+      tmdbId = meta.tmdbId;
+    }
+  }
+
+  if (!tmdbId) return null;
+
+  return fetchTmdbWatchProviders(tmdbId, params.type, params.countryCode || "US");
+}
+

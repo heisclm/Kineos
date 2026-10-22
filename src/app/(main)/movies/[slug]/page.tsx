@@ -1,14 +1,15 @@
-import { getMovieBySlug, getDownloadSourcesForContent, getCastForContent, getRelatedMovies } from "@/features/content/content.service";
+import { getMovieBySlug, getCastForContent, getRelatedMovies } from "@/features/content/content.service";
 import { MovieCard } from "@/components/movie/MovieCard";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatDuration, slugify } from "@/lib/utils";
 // from "next/navigation";
-import { Play, Download, Clock, Calendar, Star, Film, Sparkles, ShieldCheck } from "lucide-react";
+import { Play, Clock, Calendar, Star, Film, Sparkles, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DownloadSourceList } from "@/components/content/DownloadSourceList";
+import { WatchProvidersSection } from "@/components/content/WatchProvidersSection";
+import { getWatchProvidersForContent } from "@/lib/tmdb";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { generateMovieKeywords } from "@/lib/seo";
 import { TrailerModal } from "@/components/content/TrailerModal";
@@ -39,8 +40,8 @@ export async function generateMetadata(
   const rawTitle = movie.seoTitle
     ? movie.seoTitle
     : releaseYear
-      ? `${movie.title} (${releaseYear}) - Download & Stream HD`
-      : `${movie.title} - Download & Stream HD`;
+      ? `${movie.title} (${releaseYear}) - Where to Watch & Official Trailer`
+      : `${movie.title} - Where to Watch & Official Trailer`;
 
   const cleanTitle = rawTitle.replace(/\s*\|\s*kineos\s*$/i, "").trim();
   const fullTitle = `${cleanTitle} | Kineos`;
@@ -49,8 +50,9 @@ export async function generateMetadata(
   const description = movie.seoDescription || (
     summary
       ? `${summary.slice(0, 105).trimEnd()}${summary.length > 105 ? "…" : ""} Cast, release details, and more on Kineos.`
-      : `Explore ${movie.title}: synopsis, cast, release information, ratings, and available sources on Kineos.`
+      : `Explore ${movie.title}: synopsis, cast, release information, ratings, and where to stream on Kineos.`
   );
+
 
   const cast = await getCastForContent(movie.id, "movie").catch(() => []);
   const keywords = generateMovieKeywords({
@@ -98,15 +100,24 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
     notFound();
   }
 
-  // downloads can be empty for mock items
-  const downloads = await getDownloadSourcesForContent(movie.id, "movie").catch(() => []);
-  const cast = await getCastForContent(movie.id, "movie").catch(() => []);
-  const relatedMovies = await getRelatedMovies(movie.id, 12).catch(() => []);
+
+  const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null;
+  const [cast, relatedMovies, watchProviders] = await Promise.all([
+    getCastForContent(movie.id, "movie").catch(() => []),
+    getRelatedMovies(movie.id, 12).catch(() => []),
+    getWatchProvidersForContent({
+      title: movie.title,
+      type: "movie",
+      year: releaseYear,
+      tmdbId: (movie as any).tmdbId || null,
+    }).catch(() => null),
+  ]);
+
+
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kineos.fun';
   const backdrop = (movie as any).backdropUrl || (movie as any).imageUrl || null;
   const poster = (movie as any).imageUrl || null;
-  const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null;
 
   const directors = cast
     .filter((c: any) => c.role?.toLowerCase() === 'director' || c.role?.toLowerCase().includes('director'))
@@ -284,11 +295,11 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   </>
                 </div>
 
-                {/* Quick Download CTA on Mobile */}
+                {/* Quick Watch CTA on Mobile */}
                 <div className="mt-auto">
-                  <a href="#download" className="inline-flex">
+                  <a href="#watch" className="inline-flex">
                     <Button size="sm" className="rounded-full px-3.5 py-1.5 gap-1.5 font-semibold bg-primary text-primary-foreground text-xs shadow-md border border-primary/20">
-                      <Download className="w-3.5 h-3.5" /> Downloads ({downloads.length})
+                      <Play className="w-3.5 h-3.5 fill-current" /> Where to Watch
                     </Button>
                   </a>
                 </div>
@@ -384,9 +395,9 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
               )}
 
               {/* Action Button Under Poster */}
-              <a href="#download" className="w-full inline-flex">
+              <a href="#watch" className="w-full inline-flex">
                 <Button size="lg" className="w-full rounded-full gap-2 font-semibold bg-primary text-primary-foreground hover:scale-[1.02] transition-apple shadow-lg border border-primary/20">
-                  <Download className="w-4 h-4" /> Download Sources ({downloads.length})
+                  <Play className="w-4 h-4 fill-current" /> Where to Watch
                 </Button>
               </a>
 
@@ -396,9 +407,9 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
                   <ShieldCheck className="w-3.5 h-3.5" /> Verified
                 </span>
                 <span className="text-white/30">&bull;</span>
-                <span>Fast Servers</span>
+                <span>Licensed Providers</span>
                 <span className="text-white/30">&bull;</span>
-                <span>100% Free</span>
+                <span>HD & 4K</span>
               </div>
             </div>
 
@@ -603,8 +614,12 @@ export default async function MovieDetailPage({ params }: { params: { slug: stri
              </section>
            )}
 
-           <section id="download">
-              <DownloadSourceList sources={downloads as any} />
+           <section id="watch">
+              <WatchProvidersSection
+                title={movie.title}
+                type="movie"
+                providers={watchProviders}
+              />
            </section>
 
            {/* Premium Ad Placement */}

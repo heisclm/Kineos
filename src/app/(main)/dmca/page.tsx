@@ -31,7 +31,7 @@ export default function DMCAPolicy() {
 
         <section className="space-y-4">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white/90 mb-3">Content Disclaimer</h2>
-          <p>Please note that Kineos acts solely as an indexer and cataloging service. We do not host, upload, or manage any video files, media files, or copyrighted material on our own servers. All content is indexed automatically or provided by third-party services and APIs. Regardless, we take copyright infringement claims very seriously and will remove indexed metadata or links pointing to infringing material upon receipt of a valid DMCA notice.</p>
+          <p>Please note that Kineos is an informational media catalog and discovery platform powered by the public The Movie Database (TMDB) developer API. We do not host, upload, stream, or manage any video files, media files, or copyrighted material on our servers. All streaming availability data and links point directly to official, licensed digital storefronts and subscription platforms (such as Netflix, Amazon Prime Video, Disney+, Apple TV, and Google TV) via official TMDB and JustWatch integrations. Regardless, we take copyright and intellectual property compliance very seriously and will address any inquiry upon receipt of a valid notice.</p>
         </section>
 
         <section className="space-y-4">
