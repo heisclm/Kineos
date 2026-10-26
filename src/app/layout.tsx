@@ -47,7 +47,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5052901241882602"
+          crossOrigin="anonymous"
+        />
         <link rel="preload" href="/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/Inter-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="icon" href="/favicon.ico" sizes="48x48" />
